@@ -40,8 +40,6 @@ const style = {
         padding: '64px 80px',
         minHeight: 'calc(100vh - 69px)',
         boxSizing: 'border-box',
-        // La imagen es extra ancha (el lado izquierdo oscuro ya viene extendido), así llena cualquier pantalla sin cortes.
-        // Va un poco más grande que la pantalla, pegada a la derecha y centrada para que el gato se vea entero.
         backgroundImage: `url("${fondo}")`,
         backgroundSize: 'auto 125%',
         backgroundPosition: 'right 38%',

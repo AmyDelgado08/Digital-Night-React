@@ -100,7 +100,7 @@ const styles = {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: 'calc(100vh - 69px)', // Mismo alto que Register para que el fondo se vea igual
+        minHeight: 'calc(100vh - 69px)',
         padding: '40px 16px',
         boxSizing: 'border-box',
         backgroundImage: `linear-gradient(rgba(9, 9, 20, 0.35), rgba(9, 9, 20, 0.35)), url("${fondo}")`,

@@ -1,116 +1,104 @@
-import Button from '@mui/material/Button';
-import { useEffect } from 'react';
-import axios from 'axios'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function Profile() {
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [email, setEmail] = useState('');
-    
-    //Nos sirve para saber si el usuario tiene permiso (está logueado) o no
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const navigate = useNavigate();
+    const [userData, setUserData] = useState({ name: '', email: '' });
 
-    //El useEffect significa: "Ejecutá fetchMyProfile una sola vez, apenas se dibuje la pantalla".
     useEffect(() => {
-        fetchMyProfile();
-    }, []);
-
-    const fetchMyProfile = async () => {
         const token = localStorage.getItem('token');
         
         if (!token) {
-            setIsLoggedIn(false);
+            alert('Primero debes iniciar sesión.');
+            navigate('/login');
             return;
         }
 
-        setIsLoggedIn(true);
+        // Obtenemos los datos del usuario guardados durante el login en el localStorage
+        const storedName = localStorage.getItem('userName') || 'Usuario';
+        const storedEmail = localStorage.getItem('userEmail') || 'correo@example.com';
 
-        try {
-            // Hacemos un GET a la ruta que te devuelve tus propios datos.
-            const response = await axios.get('http://localhost:3000/me', {
-                headers: {
-                    authorization: token
-                }
-            });
-            
-            // Llenamos con los datos que nos devolvió la base de datos
-            setFirstName(response.data.firstName || '');
-            setLastName(response.data.lastName || '');
-            setEmail(response.data.email || '');
-            
-        } catch (error) {
-            console.error(error);
-            alert("No se pudo cargar tu información");
-        }
-    };
-
-    const updateProfile = async (e) => {
-        const token = localStorage.getItem('token');
-
-        try {
-            // Hacemos un PUT para actualizar los datos en el servidor
-            const response = await axios.put('http://localhost:3000/users/update', {
-                firstName,
-                lastName,
-                email
-            }, {
-                headers: {
-                    authorization: token
-                }
-            });
-
-            if (response.status === 200) {
-                alert("¡Perfil actualizado con éxito!");
-            }
-        } catch (error) {
-            alert("Error al actualizar el perfil");
-        }
-    };
-
+        setUserData({
+            name: storedName,
+            email: storedEmail
+        });
+    }, [navigate]);
 
     return (
-        <>
-        <div className="login-background">
-            <div className="login-card" style={{ maxWidth: '600px' }}> 
+        <div style={style.cont}>
+            <div style={style.card}>
+                <div style={style.avatarPlaceholder}>
+                    {userData.name ? userData.name.substring(0, 2).toUpperCase() : 'US'}
+                </div>
+                <h2 style={style.name}>{userData.name}</h2>
+                <p style={style.email}>{userData.email}</p>
                 
-                {/* Si isLoggedIn es TRUE, mostramos el formulario. Si es FALSE, mostramos el mensaje de error. */}
-                {isLoggedIn ? (
-                    <>
-                        <h2>Mi Perfil</h2>
-                        <form>
-                            <label style={{ display: 'block', textAlign: 'left', marginBottom: '5px', color: '#a78bfa' }}>Nombre</label>
-                            <input 
-                                type="text" 
-                                value={firstName} 
-                                onChange={(event) => setFirstName(event.target.value)} 
-                            />
-                            
-                            <label style={{ display: 'block', textAlign: 'left', marginBottom: '5px', color: '#a78bfa' }}>Apellido</label>
-                            <input 
-                                type="text" 
-                                value={lastName} 
-                                onChange={(event) => setLastName(event.target.value)} 
-                            />
-                            
-                            <label style={{ display: 'block', textAlign: 'left', marginBottom: '5px', color: '#a78bfa' }}>Correo electrónico</label>
-                            <input 
-                                type="email" 
-                                value={email} 
-                                onChange={(event) => setEmail(event.target.value)} 
-                            />
-                            
-                            <Button variant='contained' onClick={updateProfile} style={{ marginTop: '1rem', backgroundColor: '#7c3aed' }}> Editar Pefil </Button>
-                        </form>
-                    </>
-                ) : (
-                    <h2>Debés iniciar sesión para ver tu perfil</h2>
-                )}
-
+                {/* Botón para Editar Perfil */}
+                <button 
+                    style={style.btnEdit} 
+                    onClick={() => navigate('/editar-perfil')}
+                >
+                    Editar perfil
+                </button>
             </div>
         </div>
-        </>
-    )
+    );
 }
+
+const style = {
+    cont: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '70vh',
+        padding: '32px',
+    },
+    card: {
+        backgroundColor: '#1f2937',
+        padding: '40px',
+        borderRadius: '16px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '100%',
+        maxWidth: '400px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+    },
+    avatarPlaceholder: {
+        width: '80px',
+        height: '80px',
+        borderRadius: '50%',
+        backgroundColor: '#7c3aed',
+        color: '#ffffff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '28px',
+        fontWeight: '700',
+        marginBottom: '16px',
+    },
+    name: {
+        fontSize: '24px',
+        fontWeight: '700',
+        color: '#ffffff',
+        margin: '0 0 4px 0',
+    },
+    email: {
+        fontSize: '14px',
+        color: '#9ca3af',
+        marginBottom: '24px',
+    },
+    btnEdit: {
+        backgroundColor: 'transparent',
+        color: '#a78bfa',
+        border: '1px solid #7c3aed',
+        padding: '10px 24px',
+        borderRadius: '20px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        width: '100%',
+        transition: 'background-color 0.2s',
+    },
+};
 
 export default Profile;

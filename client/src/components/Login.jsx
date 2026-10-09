@@ -8,6 +8,7 @@ function Login() {
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
+        e.preventDefault(); // Evita que la página se recargue al enviar el formulario
 
         try {
             const response = await axios.post('http://localhost:3000/login', {
@@ -15,10 +16,17 @@ function Login() {
                 password
             });
 
+            // Guardamos el token de sesión
             localStorage.setItem('token', response.data.token);
+            
+            // Guardamos el correo (que ya tenemos en el estado) y el nombre (que debería venir de tu backend)
+            // Si el backend lo manda diferente, ajustá 'response.data.name' a como lo devuelva tu API
+            const userName = response.data.name || response.data.user?.name || 'Amy';
+            localStorage.setItem('userName', userName);
+            localStorage.setItem('userEmail', email);
+
             navigate('/profile');
         } 
-        
         catch (error) {
             alert("Error: Correo o contraseña incorrectos.");
         }
@@ -104,37 +112,36 @@ const styles = {
         alignItems: 'center',
         minHeight: '85vh',
         flexDirection: 'column',
-        // Si tenés una imagen de fondo espacial, iría acá: backgroundImage: 'url(/fondo.jpg)'
     },
     logoContainer: {
         textAlign: 'center',
-        marginBottom: '2rem',
+        marginBottom: '32px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
     },
     logoStar: {
         color: '#ffffff',
-        fontSize: '3rem',
+        fontSize: '48px',
         marginBottom: '10px',
-        textShadow: '0 0 20px rgba(167, 139, 250, 0.8)', // Efecto de brillo
+        textShadow: '0 0 20px rgba(167, 139, 250, 0.8)', 
     },
     logoText: {
         fontWeight: '700',
-        fontSize: '1.2rem',
+        fontSize: '19px',
         color: '#ffffff',
-        letterSpacing: '0.15em',
+        letterSpacing: '2px',
     },
     logoTextHighlight: {
-        color: '#6366f1', // Azul/Violeta del logo
+        color: '#6366f1', 
     },
     card: {
-        backgroundColor: 'rgba(23, 21, 43, 0.6)', // Fondo azul oscuro translúcido
+        backgroundColor: 'rgba(23, 21, 43, 0.6)', 
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         border: '1px solid rgba(255, 255, 255, 0.05)',
-        borderRadius: '20px', // Bordes más redondeados
-        padding: '2.5rem 2rem',
+        borderRadius: '20px', 
+        padding: '40px 32px',
         width: '100%',
         maxWidth: '360px',
         boxShadow: '0 15px 35px rgba(0, 0, 0, 0.4)',
@@ -142,56 +149,39 @@ const styles = {
     },
     header: {
         textAlign: 'center',
-        marginBottom: '2rem',
+        marginBottom: '32px',
     },
     title: {
         color: '#ffffff',
-        fontSize: '1.7rem',
-        margin: '0 0 0.5rem 0',
+        fontSize: '27px',
+        margin: '0 0 8px 0',
         fontWeight: '600',
     },
     titleHighlight: {
-        color: '#8b5cf6', // Violeta claro
+        color: '#8b5cf6', 
     },
     subtitle: {
         color: '#94a3b8',
-        fontSize: '0.8rem',
+        fontSize: '13px',
         margin: '0',
     },
     form: {
         display: 'flex',
         flexDirection: 'column',
-        gap: '1rem',
+        gap: '16px',
     },
     inputWrapper: {
         position: 'relative',
         width: '100%',
     },
-    iconLeft: {
-        position: 'absolute',
-        left: '14px',
-        top: '50%',
-        transform: 'translateY(-50%)',
-        color: '#64748b',
-        fontSize: '1rem',
-    },
-    iconRight: {
-        position: 'absolute',
-        right: '14px',
-        top: '50%',
-        transform: 'translateY(-50%)',
-        color: '#64748b',
-        fontSize: '1rem',
-        cursor: 'pointer',
-    },
     input: {
         width: '100%',
-        padding: '0.9rem 2.5rem', // Espacio para los íconos
+        padding: '14px 40px', 
         backgroundColor: 'rgba(15, 13, 25, 0.4)',
         border: '1px solid rgba(255, 255, 255, 0.08)',
         borderRadius: '10px',
         color: '#ffffff',
-        fontSize: '0.85rem',
+        fontSize: '14px',
         outline: 'none',
         boxSizing: 'border-box',
         transition: 'border 0.3s',
@@ -200,10 +190,10 @@ const styles = {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        fontSize: '0.75rem',
+        fontSize: '12px',
         color: '#94a3b8',
-        marginTop: '0.2rem',
-        marginBottom: '0.5rem',
+        marginTop: '3px',
+        marginBottom: '8px',
     },
     checkboxLabel: {
         display: 'flex',
@@ -224,24 +214,24 @@ const styles = {
         textDecoration: 'none',
     },
     primaryBtn: {
-        background: 'linear-gradient(90deg, #7c3aed, #4f46e5)', // Degradé exacto
+        background: 'linear-gradient(90deg, #7c3aed, #4f46e5)', 
         color: '#ffffff',
         border: 'none',
-        padding: '0.9rem',
+        padding: '14px',
         borderRadius: '10px',
         fontWeight: '600',
-        fontSize: '0.9rem',
+        fontSize: '14px',
         cursor: 'pointer',
-        marginTop: '0.5rem',
+        marginTop: '8px',
         boxShadow: '0 4px 15px rgba(124, 58, 237, 0.3)',
     },
     dividerContainer: {
         display: 'flex',
         alignItems: 'center',
         textAlign: 'center',
-        margin: '1.8rem 0 1.2rem 0',
+        margin: '28px 0 19px 0',
         color: '#64748b',
-        fontSize: '0.75rem',
+        fontSize: '12px',
     },
     dividerLine: {
         flex: 1,
@@ -254,10 +244,10 @@ const styles = {
         backgroundColor: 'transparent',
         color: '#e2e8f0',
         border: '1px solid rgba(255, 255, 255, 0.15)',
-        padding: '0.8rem',
+        padding: '13px',
         borderRadius: '10px',
         fontWeight: '600',
-        fontSize: '0.85rem',
+        fontSize: '14px',
         cursor: 'pointer',
         width: '100%',
     }

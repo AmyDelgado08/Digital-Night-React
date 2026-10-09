@@ -1,15 +1,16 @@
 import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 
-//importamos las paginas
+// Importamos las páginas
 import Home from './components/Home';
 import Login from './components/Login';
 import Register from './components/Register';
 import Profile from './components/Profile';
+import EditProfile from './components/EditProfile';
 
 function App() {
   const navigate = useNavigate();
 
-  //Funcion para cerrar sesion
+  // Función para cerrar sesión
   const logout = () => {
     localStorage.removeItem('token');
     alert('Has cerrado sesión correctamente.');
@@ -19,7 +20,7 @@ function App() {
   return (
     <>
       <div style={style.contprincipal}>
-        {/* Barra de nav */}
+        {/* Barra de navegación */}
         <header style={style.BaseNav}>
           <div style={style.Logo}>
             <span style={{ color: '#c084fc', marginRight: '8px' }}>✦</span>
@@ -28,6 +29,8 @@ function App() {
 
           <nav style={style.Nav}>
             <Link to="/" style={style.navLink}>Inicio</Link>
+            <Link to="/profile" style={style.navLink}>Perfil</Link>
+            <Link to="/editar-perfil" style={style.navLink}>Editar Perfil</Link>
             <Link to="/login" style={style.navLink}>Iniciar Sesión</Link>
             <Link to="/register" style={{ ...style.navLink, ...style.navLinkPrimary }}>Registrarse</Link>
 
@@ -37,13 +40,14 @@ function App() {
           </nav>
         </header>
 
-        {/*rutas */}
+        {/* Rutas */}
         <main style={style.rutas}>
           <Routes>
             <Route element={<Home />} path="/" />
             <Route element={<Login />} path="/login" />
             <Route element={<Register />} path="/register" />
             <Route element={<Profile />} path="/profile" />
+            <Route element={<EditProfile />} path="/editar-perfil" />
           </Routes>
         </main>
       </div>
@@ -64,44 +68,44 @@ const style = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '1rem 3rem',
+    padding: '16px 48px',
     backgroundColor: '#13111c',
     borderBottom: '1px solid #2d2640',
   },
   Logo: {
-    fontSize: '1.25rem',
+    fontSize: '20px',
     fontWeight: '700',
     color: '#ffffff',
-    letterSpacing: '0.1em',
+    letterSpacing: '1.5px',
     display: 'flex',
     alignItems: 'center',
   },
   Nav: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1.5rem',
+    gap: '24px',
   },
   navLink: {
     textDecoration: 'none',
     color: '#a1a1aa',
     fontWeight: '500',
-    fontSize: '0.9rem',
+    fontSize: '14px',
     transition: 'color 0.2s',
   },
   navLinkPrimary: {
     backgroundColor: '#7c3aed',
     color: '#ffffff',
-    padding: '0.5rem 1rem',
+    padding: '8px 16px',
     borderRadius: '20px',
   },
   logoutBtn: {
     backgroundColor: 'transparent',
     color: '#ef4444',
     border: '1px solid #ef4444',
-    padding: '0.5rem 1rem',
+    padding: '8px 16px',
     borderRadius: '20px',
     fontWeight: '500',
-    fontSize: '0.9rem',
+    fontSize: '14px',
     cursor: 'pointer',
   },
   rutas: {

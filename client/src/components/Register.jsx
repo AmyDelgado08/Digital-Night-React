@@ -9,6 +9,8 @@ function Register() {
 
     //Le pasamos las 4 variables que guardan lo que el usuario escribió.
     const registerUser = async () => {
+        e.preventDefault(); // Evita que la página se recargue al enviar el formulario
+
         const response = await axios.post('http://localhost:3000/users', {
             password,
             email,

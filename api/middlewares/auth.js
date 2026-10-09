@@ -27,6 +27,15 @@ const isAuth = (req, res, next) => {
     });
 }
 
+const isAdmin = (req, res, next) => {
+    if (req.user && req.user.rol === 'admin') {
+        next();
+    } else {
+        res.status(403).json({ message: 'Acceso denegado: Requiere rol de administrador' });
+    }
+};
+
 module.exports = {
-    isAuth
+    isAuth,
+    isAdmin
 }

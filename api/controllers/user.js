@@ -55,15 +55,20 @@ const me = async (req, res) => {
 }
 
 const updateUser = async (req, res) => {
-        // Agarramos los datos que el usuario quiere modificar desde el frontend
-        const { firstName, lastName, username, bio } = req.body;
-        
-        //Actualizamos el registro en la bd asegurando de que modifique solo el suyo
-        await User.update({ firstName, lastName, username, bio }, { where: { id: req.user.id } }
-        );
-        
-        res.json({ message: 'Perfil actualizado con éxito' });
-}
+    const { firstName, lastName, email } = req.body;
+    await User.update({ firstName, lastName, email }, { where: { id: req.user.id } });
+    res.json({ message: 'Perfil actualizado con éxito' });
+};
+
+const deleteUser = async (req, res) => {
+    try {
+        const userId = req.params.id || req.user.id;
+        await User.destroy({ where: { id: userId } });
+        res.json({ message: 'Usuario eliminado con éxito' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al eliminar usuario' });
+    }
+};
 
 module.exports = {
     getUsers,
@@ -71,5 +76,6 @@ module.exports = {
     registerUser,
     login,
     me,
-    updateUser
+    updateUser,
+    deleteUser
 }

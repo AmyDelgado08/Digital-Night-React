@@ -17,7 +17,7 @@ function Home() {
                     Una plataforma educativa pensada para estudiantes y la comunidad de la escuela.
                 </p>
                 <div style={style.grupoBtn}>
-                    <button style={style.btnPrimary} onClick={() => navigate('/login')}>
+                    <button style={style.btnPrimary} onClick={() => navigate('/games')}>
                         Explorar juegos →
                     </button>
                     <button style={style.btnSecondary}>

@@ -1,8 +1,9 @@
 const express = require('express')
 
 //importamos todo
-const { getUsers, registerUser, login, me, getUserById, updateUser } = require('./controllers/user')
-const { isAuth } = require('./middlewares/auth')
+const { getUsers, registerUser, login, me, getUserById, updateUser , deleteUser } = require('./controllers/user')
+const { getGames, getGameById, createGame, updateGame, deleteGame } = require('./controllers/game')
+const { isAuth , isAdmin} = require('./middlewares/auth')
 const sequelize = require('./config/db')
 
 //inicializamos la app d express
@@ -38,10 +39,21 @@ server.get('/users', isAuth, getUsers) //Trae la lista completa de usuarios
 server.get('/me',isAuth, me) //Trae los datos del usuario dueño del token actual
 
 server.post('/users', registerUser) //Registar a un usuario nuevo
+
 server.post('/login', login) //Para enviar credenciales e iniciar sesion
 
 server.put('/users/update', isAuth, updateUser) //Sobrescribe los datos del perfil del usuario
 
+
+// Rutas de Juegos
+server.get('/games', getGames);                  // Ver catálogo completo
+server.get('/games/:id', getGameById);           // Ver detalle de un juego
+server.post('/games', isAuth, createGame);       // Crear juego (solo autenticados)
+server.put('/games/:id', isAuth, updateGame);    // Editar juego (solo autenticados)
+server.delete('/games/:id', isAuth, deleteGame); // Borrar juego (solo autenticados)
+
+server.delete('/users/me', isAuth, deleteUser); // El propio usuario elimina su cuenta
+server.delete('/users/:id', isAuth, isAdmin, deleteUser); // El admin elimina a cualquiera
 
 server.listen(3000, async () => {
     //force: false asegura que si apagas y prendes el servidor, no se borren los usuarios registrados

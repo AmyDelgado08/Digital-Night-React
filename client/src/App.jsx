@@ -6,6 +6,8 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Profile from './components/Profile';
 import EditProfile from './components/EditProfile';
+import Games from './components/Games';
+import AdminDashboard from './components/AdminDashboard';
 
 function App() {
   const navigate = useNavigate();
@@ -48,6 +50,8 @@ function App() {
             <Route element={<Register />} path="/register" />
             <Route element={<Profile />} path="/profile" />
             <Route element={<EditProfile />} path="/editar-perfil" />
+            <Route path="/games" element={<Games />} />
+            <Route element={<AdminDashboard />} path="/admin" />
           </Routes>
         </main>
       </div>

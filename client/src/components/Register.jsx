@@ -103,7 +103,6 @@ const styles = {
         minHeight: '85vh',
         flexDirection: 'column',
         marginBottom:'50px',
-        marginTop:'50px',
     },
     logoContainer: {
         textAlign: 'center',

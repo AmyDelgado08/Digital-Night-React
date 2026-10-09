@@ -1,177 +1,253 @@
-import Button from '@mui/material/Button';
 import { useState } from 'react';
-import axios from 'axios'
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import logo from '../img/logo.png';
+import fondo from '../img/Arcos orbitales bajo estrellas violetas.png';
 
 function Register() {
-    const [password, setPassword] = useState('')
-    const [email, setEmail] = useState('')
-    const [firstName, setFirstName] = useState('')
-    const [lastName, setLastName] = useState('')
+    const navigate = useNavigate();
 
-    //Le pasamos las 4 variables que guardan lo que el usuario escribió.
-    const registerUser = async () => {
-        // Evita que la página se recargue al enviar el formulario
+    // Estados para guardar lo que el usuario escribe
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
 
-        const response = await axios.post('http://localhost:3000/users', {
-            password,
-            email,
-            firstName,
-            lastName
-        })
+    // Función que se ejecuta al enviar el formulario
+    const registerUser = async (e) => {
+        e.preventDefault(); // Evita que la página se recargue
 
-        //Imprimimos en la consola lo que responde el servidor para control
-        // localStorage.setItem('token', response.data.token)
-        console.log(response.data);
-
-        if (response.status === 200) {
-            alert("Salio todo bien")
-
-            //Vaciamos todas las memorias.
-            //al ponerlas en "", el formulario vuelve a quedar totalmente en blanco.
-            setEmail("")
-            setPassword("")
-            setFirstName("")
-            setLastName("")
+        if (password !== confirmPassword) {
+            alert("Las contraseñas no coinciden.");
+            return;
         }
-    }
+
+        try {
+            const response = await axios.post('http://localhost:3000/users', {
+                password,
+                email,
+                firstName,
+                lastName
+            });
+
+            // Si se creó correctamente (status 201)
+            if (response.status === 201) {
+                alert("Salio todo bien");
+                navigate('/login');
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Error al registrar el usuario. Es posible que el correo ya esté en uso.");
+        }
+    };
 
     return (
-        <>
-            <div style={styles.container}>
-                <div style={styles.logoContainer}>
-                    <span style={styles.logoStar}>✦</span>
-                    <div style={styles.logoText}>
-                        DIGITAL<span style={styles.logoTextHighlight}>NIGHT</span>
-                    </div>
+        <div style={styles.contenedor}>
+            <div style={styles.contenedorLogo}>
+                <img src={logo} alt="" style={styles.logoImagen} />
+                <div style={styles.logoTexto}>
+                    DIGITAL<span style={styles.logoTextoResaltado}>NIGHT</span>
                 </div>
+            </div>
 
-                <div style={styles.card}>
-                    <h2 style={styles.title}>
-                        Crear <span style={styles.titleHighlight}>cuenta</span>
-                    </h2>
+            <div style={styles.tarjeta}>
+                <h2 style={styles.titulo}>
+                    Crear <span style={styles.tituloResaltado}>cuenta</span>
+                </h2>
+                <p style={styles.subtitulo}>
+                    Unite a DigitalNight y comenzá a explorar una nueva forma de aprender.
+                </p>
+
+                <form onSubmit={registerUser} style={styles.formulario}>
+                    <div style={styles.fila}>
+                        <input
+                            type="text"
+                            placeholder="Nombre"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            style={styles.campo}
+                            required
+                        />
+                        <input
+                            type="text"
+                            placeholder="Apellido"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            style={styles.campo}
+                            required
+                        />
+                    </div>
 
                     <input
                         type="email"
                         placeholder="Correo electrónico"
                         value={email}
-                        onChange={(event) => setEmail(event.target.value)}
-                        style={styles.input}
+                        onChange={(e) => setEmail(e.target.value)}
+                        style={styles.campo}
+                        required
                     />
 
                     <input
                         type="password"
                         placeholder="Contraseña"
                         value={password}
-                        onChange={(event) => setPassword(event.target.value)}
-                        style={styles.input}
+                        onChange={(e) => setPassword(e.target.value)}
+                        style={styles.campo}
+                        required
                     />
 
                     <input
-                        type="text"
-                        placeholder="Nombre"
-                        value={firstName}
-                        onChange={(event) => setFirstName(event.target.value)}
-                        style={styles.input}
+                        type="password"
+                        placeholder="Confirmar contraseña"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        style={styles.campo}
+                        required
                     />
 
-                    <input
-                        type="text"
-                        placeholder="Apellido"
-                        value={lastName}
-                        onChange={(event) => setLastName(event.target.value)}
-                        style={styles.input}
-                    />
-
-                    <Button
-                        variant='contained'
-                        onClick={registerUser}
-                        style={styles.primaryBtn}
-                    >
+                    <button type="submit" style={styles.botonPrincipal}>
                         Registrarse
-                    </Button>
+                    </button>
+                </form>
+
+                <div style={styles.separador}>
+                    <div style={styles.lineaSeparador}></div>
+                    <span style={styles.textoSeparador}>¿Ya tenés una cuenta?</span>
+                    <div style={styles.lineaSeparador}></div>
                 </div>
+
+                <button onClick={() => navigate('/login')} style={styles.botonSecundario}>
+                    Iniciar sesión
+                </button>
             </div>
-        </>
-    )
+        </div>
+    );
 }
 
 const styles = {
-    container: {
+    contenedor: {
         display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
         justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '85vh',
-        flexDirection: 'column',
-        marginBottom:'50px',
+        minHeight: 'calc(100vh - 69px)',
+        padding: '40px 16px',
+        boxSizing: 'border-box',
+        backgroundImage: `linear-gradient(rgba(9, 9, 20, 0.35), rgba(9, 9, 20, 0.35)), url("${fondo}")`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
     },
-    logoContainer: {
+    contenedorLogo: {
         textAlign: 'center',
-        marginBottom: '32px',
+        marginBottom: '28px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
     },
-    logoStar: {
-        color: '#ffffff',
-        fontSize: '48px',
-        marginBottom: '10px',
-        textShadow: '0 0 20px rgba(167, 139, 250, 0.8)',
+    logoImagen: {
+        height: '84px',
+        marginBottom: '12px',
     },
-    logoText: {
+    logoTexto: {
         fontWeight: '700',
         fontSize: '19px',
         color: '#ffffff',
-        letterSpacing: '2px',
+        letterSpacing: '4px',
     },
-    logoTextHighlight: {
-        color: '#6366f1',
+    logoTextoResaltado: {
+        color: '#818cf8',
     },
-    card: {
-        backgroundColor: 'rgba(23, 21, 43, 0.6)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
-        borderRadius: '20px',
-        padding: '40px 32px',
+    tarjeta: {
+        backgroundColor: 'rgba(23, 21, 43, 0.55)',
+        backdropFilter: 'blur(18px)',
+        WebkitBackdropFilter: 'blur(18px)',
+        border: '1px solid rgba(255, 255, 255, 0.07)',
+        borderRadius: '24px',
+        padding: '36px 32px 32px',
         width: '100%',
-        maxWidth: '360px',
-        boxShadow: '0 15px 35px rgba(0, 0, 0, 0.4)',
+        maxWidth: '440px',
+        boxShadow: '0 20px 45px rgba(0, 0, 0, 0.45)',
         boxSizing: 'border-box',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
     },
-    title: {
+    titulo: {
         color: '#ffffff',
-        fontSize: '27px',
-        margin: '0 0 16px 0',
+        fontSize: '30px',
+        margin: '0 0 10px 0',
         fontWeight: '600',
         textAlign: 'center',
     },
-    titleHighlight: {
+    tituloResaltado: {
         color: '#8b5cf6',
     },
-    input: {
+    subtitulo: {
+        color: '#a1a1c5',
+        fontSize: '13px',
+        lineHeight: 1.5,
+        margin: '0 0 26px 0',
+        textAlign: 'center',
+    },
+    formulario: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+    },
+    fila: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '12px',
+    },
+    campo: {
         width: '100%',
-        padding: '14px 16px',
-        backgroundColor: 'rgba(15, 13, 25, 0.4)',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
+        minWidth: 0,
+        height: '48px',
+        padding: '0 16px',
+        backgroundColor: '#141229',
+        border: '1px solid rgba(255, 255, 255, 0.09)',
         borderRadius: '10px',
         color: '#ffffff',
         fontSize: '14px',
         outline: 'none',
         boxSizing: 'border-box',
     },
-    primaryBtn: {
-        background: 'linear-gradient(90deg, #7c3aed, #4f46e5)',
+    botonPrincipal: {
+        marginTop: '10px',
+        height: '50px',
+        border: 'none',
+        borderRadius: '14px',
+        background: 'linear-gradient(90deg, #6d8cff, #8b5cf6)',
         color: '#ffffff',
-        padding: '14px',
-        borderRadius: '10px',
+        fontWeight: '600',
+        fontSize: '15px',
+        cursor: 'pointer',
+        boxShadow: '0 6px 22px rgba(124, 92, 246, 0.4)',
+    },
+    separador: {
+        display: 'flex',
+        alignItems: 'center',
+        margin: '24px 0 16px',
+        color: '#8b8bab',
+        fontSize: '12px',
+    },
+    lineaSeparador: {
+        flex: 1,
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+    },
+    textoSeparador: {
+        padding: '0 12px',
+    },
+    botonSecundario: {
+        backgroundColor: 'rgba(15, 13, 30, 0.35)',
+        color: '#e2e8f0',
+        border: '1px solid rgba(255, 255, 255, 0.15)',
+        height: '46px',
+        borderRadius: '12px',
         fontWeight: '600',
         fontSize: '14px',
-        marginTop: '8px',
-        boxShadow: '0 4px 15px rgba(124, 58, 237, 0.3)',
-    }
+        cursor: 'pointer',
+        width: '100%',
+    },
 };
 
 export default Register;

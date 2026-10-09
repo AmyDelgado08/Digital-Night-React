@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import fondo from '../img/fondo-home.jpg';
 
 function Home() {
     const navigate = useNavigate();
@@ -34,10 +35,18 @@ const style = {
     cont: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'flex-start', // Alineado a la izquierda como en la imagen
+        justifyContent: 'flex-start',
         textAlign: 'left',
         padding: '64px 80px',
-        minHeight: '70vh',
+        minHeight: 'calc(100vh - 69px)',
+        boxSizing: 'border-box',
+        // La imagen es extra ancha (el lado izquierdo oscuro ya viene extendido), así llena cualquier pantalla sin cortes.
+        // Va un poco más grande que la pantalla, pegada a la derecha y centrada para que el gato se vea entero.
+        backgroundImage: `url("${fondo}")`,
+        backgroundSize: 'auto 125%',
+        backgroundPosition: 'right 38%',
+        backgroundRepeat: 'no-repeat',
+        backgroundColor: '#100720',
     },
     seccionTexto: {
         maxWidth: '650px',
@@ -57,7 +66,7 @@ const style = {
         fontWeight: '700',
         lineHeight: '1.1',
         margin: '0 0 24px 0',
-        color: '#a78bfa', // Color violeta exacto del diseño
+        color: '#a78bfa',
     },
     subtitle: {
         fontSize: '18px',

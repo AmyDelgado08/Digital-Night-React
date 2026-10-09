@@ -17,7 +17,7 @@ function AdminDashboard() {
         .then(res => setUsers(res.data))
         .catch(() => {
             alert('No tienes permisos para ver esta sección.');
-            navigate('/profile');
+            navigate('/editar-perfil');
         });
     }, [navigate]);
 

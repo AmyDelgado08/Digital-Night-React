@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import logo from '../img/logo.png';
+import fondo from '../img/Arcos orbitales bajo estrellas violetas.png';
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -18,86 +20,73 @@ function Login() {
 
             // Guardamos el token de sesión
             localStorage.setItem('token', response.data.token);
-            
+
             // Guardamos el correo (que ya tenemos en el estado) y el nombre (que debería venir de tu backend)
             // Si el backend lo manda diferente, ajustá 'response.data.name' a como lo devuelva tu API
             const userName = response.data.name || response.data.user?.name || 'Amy';
             localStorage.setItem('userName', userName);
             localStorage.setItem('userEmail', email);
 
-            navigate('/profile');
-        } 
-        catch (error) {
+            navigate('/editar-perfil');
+        }
+        catch {
             alert("Error: Correo o contraseña incorrectos.");
         }
     };
 
     return (
-        <div style={styles.container}>
-            <div style={styles.logoContainer}>
-
-                <span style={styles.logoStar}>✦</span>
-                <div style={styles.logoText}>
-                    DIGITAL<span style={styles.logoTextHighlight}>NIGHT</span>
+        <div style={styles.contenedor}>
+            <div style={styles.contenedorLogo}>
+                <img src={logo} alt="" style={styles.logoImagen} />
+                <div style={styles.logoTexto}>
+                    DIGITAL<span style={styles.logoTextoResaltado}>NIGHT</span>
                 </div>
             </div>
 
             {/* Tarjeta de Login */}
-            <div style={styles.card}>
-                <div style={styles.header}>
-                    <h2 style={styles.title}>Iniciar <span style={styles.titleHighlight}>sesión</span></h2>
-                    <p style={styles.subtitle}>Volvé a tu cuenta y seguí jugando.</p>
-                </div>
-                
-                <form onSubmit={handleLogin} style={styles.form}>
-                    {/* Input Correo */}
-                    <div style={styles.inputWrapper}>
-                        <input 
-                            type="email" 
-                            placeholder="Nombre de usuario" 
-                            value={email} 
-                            onChange={(e) => setEmail(e.target.value)} 
-                            style={styles.input}
-                            required
-                        />
-                    </div>
+            <div style={styles.tarjeta}>
+                <h2 style={styles.titulo}>Iniciar <span style={styles.tituloResaltado}>sesión</span></h2>
+                <p style={styles.subtitulo}>Volvé a tu cuenta y seguí explorando.</p>
 
-                    {/* Input Contraseña */}
-                    <div style={styles.inputWrapper}>
-                        <input 
-                            type="password" 
-                            placeholder="Contraseña" 
-                            value={password} 
-                            onChange={(e) => setPassword(e.target.value)} 
-                            style={styles.input}
-                            required
-                        />
-                    </div>
+                <form onSubmit={handleLogin} style={styles.formulario}>
+                    <input
+                        type="email"
+                        placeholder="Correo electrónico"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        style={styles.campo}
+                    />
+
+                    <input
+                        type="password"
+                        placeholder="Contraseña"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        style={styles.campo}
+                    />
 
                     {/* Opciones */}
-                    <div style={styles.options}>
-                        <label style={styles.checkboxLabel}>
-                            <input type="checkbox" style={styles.checkbox} />
+                    <div style={styles.opciones}>
+                        <label style={styles.etiquetaCheckbox}>
+                            <input type="checkbox" style={styles.casilla} />
                             Recordarme
                         </label>
-                        <a href="#" style={styles.forgotLink}>¿Olvidaste tu contraseña?</a>
+                        <a href="#" style={styles.enlaceOlvido}>¿Olvidaste tu contraseña?</a>
                     </div>
-                    
-                    {/* Botón Principal */}
-                    <button type="submit" style={styles.primaryBtn}>
+
+                    <button type="submit" style={styles.botonPrincipal}>
                         Iniciar sesión
                     </button>
                 </form>
 
                 {/* Separador con líneas */}
-                <div style={styles.dividerContainer}>
-                    <div style={styles.dividerLine}></div>
-                    <span style={styles.dividerText}>¿No tenés una cuenta?</span>
-                    <div style={styles.dividerLine}></div>
+                <div style={styles.separador}>
+                    <div style={styles.lineaSeparador}></div>
+                    <span style={styles.textoSeparador}>¿No tenés una cuenta?</span>
+                    <div style={styles.lineaSeparador}></div>
                 </div>
 
-                {/* Botón Secundario */}
-                <button onClick={() => navigate('/register')} style={styles.secondaryBtn}>
+                <button onClick={() => navigate('/register')} style={styles.botonSecundario}>
                     Registrarse
                 </button>
             </div>
@@ -106,151 +95,145 @@ function Login() {
 }
 
 const styles = {
-    container: {
+    contenedor: {
         display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
         justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '85vh',
-        flexDirection: 'column',
+        minHeight: 'calc(100vh - 69px)', // Mismo alto que Register para que el fondo se vea igual
+        padding: '40px 16px',
+        boxSizing: 'border-box',
+        backgroundImage: `linear-gradient(rgba(9, 9, 20, 0.35), rgba(9, 9, 20, 0.35)), url("${fondo}")`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
     },
-    logoContainer: {
+    contenedorLogo: {
         textAlign: 'center',
-        marginBottom: '32px',
+        marginBottom: '28px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
     },
-    logoStar: {
-        color: '#ffffff',
-        fontSize: '48px',
-        marginBottom: '10px',
-        textShadow: '0 0 20px rgba(167, 139, 250, 0.8)', 
+    logoImagen: {
+        height: '84px',
+        marginBottom: '12px',
     },
-    logoText: {
+    logoTexto: {
         fontWeight: '700',
         fontSize: '19px',
         color: '#ffffff',
-        letterSpacing: '2px',
+        letterSpacing: '4px',
     },
-    logoTextHighlight: {
-        color: '#6366f1', 
+    logoTextoResaltado: {
+        color: '#818cf8',
     },
-    card: {
-        backgroundColor: 'rgba(23, 21, 43, 0.6)', 
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
-        borderRadius: '20px', 
-        padding: '40px 32px',
+    tarjeta: {
+        backgroundColor: 'rgba(23, 21, 43, 0.55)',
+        backdropFilter: 'blur(18px)',
+        WebkitBackdropFilter: 'blur(18px)',
+        border: '1px solid rgba(255, 255, 255, 0.07)',
+        borderRadius: '24px',
+        padding: '36px 32px 32px',
         width: '100%',
-        maxWidth: '360px',
-        boxShadow: '0 15px 35px rgba(0, 0, 0, 0.4)',
+        maxWidth: '400px',
+        boxShadow: '0 20px 45px rgba(0, 0, 0, 0.45)',
         boxSizing: 'border-box',
     },
-    header: {
-        textAlign: 'center',
-        marginBottom: '32px',
-    },
-    title: {
+    titulo: {
         color: '#ffffff',
-        fontSize: '27px',
-        margin: '0 0 8px 0',
+        fontSize: '30px',
+        margin: '0 0 10px 0',
         fontWeight: '600',
+        textAlign: 'center',
     },
-    titleHighlight: {
-        color: '#8b5cf6', 
+    tituloResaltado: {
+        color: '#8b5cf6',
     },
-    subtitle: {
-        color: '#94a3b8',
+    subtitulo: {
+        color: '#a1a1c5',
         fontSize: '13px',
-        margin: '0',
+        margin: '0 0 26px 0',
+        textAlign: 'center',
     },
-    form: {
+    formulario: {
         display: 'flex',
         flexDirection: 'column',
-        gap: '16px',
+        gap: '12px',
     },
-    inputWrapper: {
-        position: 'relative',
+    campo: {
         width: '100%',
-    },
-    input: {
-        width: '100%',
-        padding: '14px 40px', 
-        backgroundColor: 'rgba(15, 13, 25, 0.4)',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
+        height: '48px',
+        padding: '0 16px',
+        backgroundColor: '#141229',
+        border: '1px solid rgba(255, 255, 255, 0.09)',
         borderRadius: '10px',
         color: '#ffffff',
         fontSize: '14px',
         outline: 'none',
         boxSizing: 'border-box',
-        transition: 'border 0.3s',
     },
-    options: {
+    opciones: {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         fontSize: '12px',
-        color: '#94a3b8',
-        marginTop: '3px',
-        marginBottom: '8px',
+        color: '#a1a1c5',
+        marginTop: '2px',
     },
-    checkboxLabel: {
+    etiquetaCheckbox: {
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
         cursor: 'pointer',
     },
-    checkbox: {
+    casilla: {
         accentColor: '#8b5cf6',
         width: '14px',
         height: '14px',
         cursor: 'pointer',
-        backgroundColor: 'transparent',
-        border: '1px solid #64748b',
     },
-    forgotLink: {
-        color: '#8b5cf6',
+    enlaceOlvido: {
+        color: '#8b8cff',
         textDecoration: 'none',
     },
-    primaryBtn: {
-        background: 'linear-gradient(90deg, #7c3aed, #4f46e5)', 
-        color: '#ffffff',
+    botonPrincipal: {
+        marginTop: '4px',
+        height: '50px',
         border: 'none',
-        padding: '14px',
-        borderRadius: '10px',
+        borderRadius: '14px',
+        background: 'linear-gradient(90deg, #6d8cff, #8b5cf6)',
+        color: '#ffffff',
         fontWeight: '600',
-        fontSize: '14px',
+        fontSize: '15px',
         cursor: 'pointer',
-        marginTop: '8px',
-        boxShadow: '0 4px 15px rgba(124, 58, 237, 0.3)',
+        boxShadow: '0 6px 22px rgba(124, 92, 246, 0.4)',
     },
-    dividerContainer: {
+    separador: {
         display: 'flex',
         alignItems: 'center',
-        textAlign: 'center',
-        margin: '28px 0 19px 0',
-        color: '#64748b',
+        margin: '24px 0 16px',
+        color: '#8b8bab',
         fontSize: '12px',
     },
-    dividerLine: {
+    lineaSeparador: {
         flex: 1,
         borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
     },
-    dividerText: {
+    textoSeparador: {
         padding: '0 12px',
     },
-    secondaryBtn: {
-        backgroundColor: 'transparent',
+    botonSecundario: {
+        backgroundColor: 'rgba(15, 13, 30, 0.35)',
         color: '#e2e8f0',
         border: '1px solid rgba(255, 255, 255, 0.15)',
-        padding: '13px',
-        borderRadius: '10px',
+        height: '46px',
+        borderRadius: '12px',
         fontWeight: '600',
         fontSize: '14px',
         cursor: 'pointer',
         width: '100%',
-    }
+    },
 };
 
 export default Login;

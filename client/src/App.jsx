@@ -1,11 +1,13 @@
 import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 
+import logo from './img/logo.png';
+
 // Importamos las páginas
 import Home from './components/Home';
 import Login from './components/Login';
 import Register from './components/Register';
-import Profile from './components/Profile';
 import EditProfile from './components/EditProfile';
+import PublicProfile from './components/PublicProfile';
 import Games from './components/Games';
 import AdminDashboard from './components/AdminDashboard';
 
@@ -25,13 +27,12 @@ function App() {
         {/* Barra de navegación */}
         <header style={style.BaseNav}>
           <div style={style.Logo}>
-            <span style={{ color: '#c084fc', marginRight: '8px' }}>✦</span>
+            <img src={logo} alt="" style={{ height: '36px', marginRight: '10px' }} />
             DIGITALNIGHT
           </div>
 
           <nav style={style.Nav}>
             <Link to="/" style={style.navLink}>Inicio</Link>
-            <Link to="/profile" style={style.navLink}>Perfil</Link>
             <Link to="/editar-perfil" style={style.navLink}>Editar Perfil</Link>
             <Link to="/login" style={style.navLink}>Iniciar Sesión</Link>
             <Link to="/register" style={{ ...style.navLink, ...style.navLinkPrimary }}>Registrarse</Link>
@@ -48,9 +49,9 @@ function App() {
             <Route element={<Home />} path="/" />
             <Route element={<Login />} path="/login" />
             <Route element={<Register />} path="/register" />
-            <Route element={<Profile />} path="/profile" />
             <Route element={<EditProfile />} path="/editar-perfil" />
-            <Route path="/games" element={<Games />} />
+            <Route element={<PublicProfile />} path="/perfil-publico" />
+            <Route element={<Games />} path="/games" />
             <Route element={<AdminDashboard />} path="/admin" />
           </Routes>
         </main>

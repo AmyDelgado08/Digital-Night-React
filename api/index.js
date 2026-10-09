@@ -14,8 +14,12 @@ server.use(express.json())
 
 // Middleware para configurar los headers CORS
 server.use((req, res, next) => {
-  //  Autorizamos unicamente a nuestro frontend local para que haga peticiones
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173')
+  //  Autorizamos unicamente a nuestro frontend local (cualquier puerto de Vite: 5173, 5174, etc.)
+  const origin = req.headers.origin
+  if (origin && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin)
+    res.setHeader('Vary', 'Origin')
+  }
 
   //  Metodos HTTP permitidos
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')

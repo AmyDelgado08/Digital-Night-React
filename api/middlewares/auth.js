@@ -21,7 +21,8 @@ const isAuth = (req, res, next) => {
         //Guardamos los datos verificados
         req.user = {
             id: user.id,
-            email: user.email
+            email: user.email,
+            rol: user.rol
         }
         next()
     });

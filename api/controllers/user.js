@@ -69,6 +69,44 @@ const deleteUser = async (req, res) => {
         res.status(500).json({ message: 'Error al eliminar usuario' });
     }
 };
+const updateUserByAdmin = async (req, res) => {
+    try {
+        const { id } = req.params; // ID del usuario a modificar
+        const { firstName, lastName, email, rol } = req.body; // Nuevos datos
+
+        // 1. Buscamos al usuario en la base de datos
+        const userToUpdate = await User.findByPk(id);
+        if (!userToUpdate) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // 2. REGLA CLAVE: Validamos que el usuario objetivo NO sea admin
+        if (userToUpdate.rol === 'admin') {
+            return res.status(403).json({ 
+                message: 'No se pueden modificar los datos de otro administrador.' 
+            });
+        }
+
+        // 3. Actualizamos los campos permitidos
+        await userToUpdate.update({
+            firstName: firstName || userToUpdate.firstName,
+            lastName: lastName || userToUpdate.lastName,
+            email: email || userToUpdate.email,
+            rol: rol || userToUpdate.rol // Opcional: si quieres permitir cambiarle el rol a admin en el futuro, o puedes omitirlo
+        });
+
+        res.json({ 
+            message: 'Usuario actualizado correctamente por el administrador', 
+            user: userToUpdate 
+        });
+
+    } catch (error) {
+        res.status(500).json({ 
+            message: 'Error al actualizar el usuario', 
+            error: error.message 
+        });
+    }
+};
 
 module.exports = {
     getUsers,
@@ -77,5 +115,6 @@ module.exports = {
     login,
     me,
     updateUser,
-    deleteUser
+    deleteUser,
+    updateUserByAdmin
 }

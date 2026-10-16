@@ -1,6 +1,6 @@
 const express = require('express')
 
-const { getUsers, registerUser, login, me, getUserById, updateUser , deleteUser } = require('./controllers/user')
+const { getUsers, registerUser, login, me, getUserById, updateUser , deleteUser, updateUserByAdmin} = require('./controllers/user')
 const { getGames, getGameById, createGame, updateGame, deleteGame } = require('./controllers/game')
 const { isAuth , isAdmin} = require('./middlewares/auth')
 const sequelize = require('./config/db')
@@ -47,6 +47,7 @@ server.delete('/games/:id', isAuth, deleteGame);
 // RUTAS EXCLUSIVAS DE ADMIN (Única declaración de GET /users)
 server.get('/users', isAuth, isAdmin, getUsers);
 server.delete('/users/:id', isAuth, isAdmin, deleteUser);
+server.put('/users/:id', isAuth, isAdmin, updateUserByAdmin);
 
 server.listen(3000, async () => {
     await sequelize.sync({ force: false })

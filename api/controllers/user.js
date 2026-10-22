@@ -55,9 +55,31 @@ const me = async (req, res) => {
 }
 
 const updateUser = async (req, res) => {
-    const { firstName, lastName, email } = req.body;
-    await User.update({ firstName, lastName, email }, { where: { id: req.user.id } });
+    const { firstName, lastName, email, birthdate } = req.body;
+    await User.update(
+        { firstName, lastName, email, birthdate: birthdate || null },
+        { where: { id: req.user.id } }
+    );
     res.json({ message: 'Perfil actualizado con éxito' });
+};
+
+const updatePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ message: 'Faltan datos' });
+        }
+        const user = await User.findByPk(req.user.id);
+        const ok = await bcrypt.compare(currentPassword, user.password);
+        if (!ok) {
+            return res.status(400).json({ message: 'La contraseña actual es incorrecta' });
+        }
+        user.password = await bcrypt.hash(newPassword, 10);
+        await user.save();
+        res.json({ message: 'Contraseña actualizada con éxito' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al actualizar la contraseña' });
+    }
 };
 
 const deleteUser = async (req, res) => {
@@ -115,6 +137,7 @@ module.exports = {
     login,
     me,
     updateUser,
+    updatePassword,
     deleteUser,
     updateUserByAdmin
 }

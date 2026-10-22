@@ -1,7 +1,7 @@
 require('dotenv').config()
 const express = require('express')
 
-const { getUsers, registerUser, login, me, getUserById, updateUser , deleteUser, updateUserByAdmin} = require('./controllers/user')
+const { getUsers, registerUser, login, me, getUserById, updateUser , updatePassword, deleteUser, updateUserByAdmin} = require('./controllers/user')
 const { getGames, getGameById, createGame, updateGame, deleteGame } = require('./controllers/game')
 const { isAuth , isAdmin} = require('./middlewares/auth')
 const sequelize = require('./config/db')
@@ -41,6 +41,7 @@ server.post('/login', login)
 server.get('/me', isAuth, me)
 server.get('/users/:id', isAuth, getUserById)
 server.put('/users/update', isAuth, updateUser)
+server.put('/users/password', isAuth, updatePassword)
 server.delete('/users/me', isAuth, deleteUser) 
 
 // Rutas de Juegos

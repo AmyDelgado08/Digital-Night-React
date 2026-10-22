@@ -5,6 +5,11 @@ const { getUsers, registerUser, login, me, getUserById, updateUser , deleteUser,
 const { getGames, getGameById, createGame, updateGame, deleteGame } = require('./controllers/game')
 const { isAuth , isAdmin} = require('./middlewares/auth')
 const sequelize = require('./config/db')
+const User = require('./models/User')
+const Game = require('./models/GameModel')
+
+User.hasMany(Game, { foreignKey: 'authorId', onDelete: 'CASCADE' })
+Game.belongsTo(User, { foreignKey: 'authorId' })
 
 const server = express()
 
@@ -51,6 +56,6 @@ server.delete('/users/:id', isAuth, isAdmin, deleteUser);
 server.put('/users/:id', isAuth, isAdmin, updateUserByAdmin);
 
 server.listen(3000, async () => {
-    await sequelize.sync({ force: false })
+    await sequelize.sync({ alter: true })
     console.log("El server esta corriendo en el puerto 3000");
 })

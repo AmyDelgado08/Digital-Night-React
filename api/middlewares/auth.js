@@ -1,42 +1,84 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-const SECRET = 'misecreto'
+const SECRET = 'misecreto';
 
 const isAuth = (req, res, next) => {
-    //Agarramos el token
-    const token = req.headers['authorization']
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.startsWith('Bearer ')
+        ? authHeader.split(' ')[1]
+        : authHeader;
 
-    //jwt.verify desencripta el token usando nuestra palabra secreta
-    //decoded tendra los datos q guardamos al hacer el login
-    jwt.verify(token, SECRET, async (err, decoded) => {        
-        //Si el token no existe o expiro
-        if (err) return res.status(401).json({ message: 'Error al acceder' })
+    if (!token) {
+        return res.status(401).json({ message: 'Token no proporcionado' });
+    }
 
-        //Buscamos en la bd si el ID del token sigue existiendo
-        const user = await User.findByPk(decoded.id)
+    jwt.verify(token, SECRET, async (err, decoded) => {
+        if (err) {
+            return res.status(401).json({ message: 'Error al acceder' });
+        }
 
-        if (!user) return res.json({ message: 'Usuario no encontrado' })
+        const user = await User.findByPk(decoded.id);
 
-        //Guardamos los datos verificados
+        if (!user) {
+            return res.status(401).json({ message: 'Usuario no encontrado' });
+        }
+
         req.user = {
             id: user.id,
             email: user.email,
             rol: user.rol
-        }
-        next()
-    });
-}
+        };
 
-const isAdmin = (req, res, next) => {
-    if (req.user && req.user.rol === 'admin') {
         next();
-    } else {
-        res.status(403).json({ message: 'Acceso denegado: Requiere rol de administrador' });
+    });
+};
+
+const requireRole = (...allowedRoles) => (req, res, next) => {
+    if (!req.user) {
+        return res.status(401).json({ message: 'No autenticado' });
     }
+
+    if (!allowedRoles.includes(req.user.rol)) {
+        return res.status(403).json({ message: 'Acceso denegado' });
+    }
+
+    next();
+};
+
+const isAdmin = requireRole('admin');
+
+const isOwnerOrAdmin = (Model, options = {}) => async (req, res, next) => {
+    const { authorField = 'authorId' } = options;
+    const recordId = req.params.id;
+
+    if (!recordId) {
+        return res.status(400).json({ message: 'Falta el id del registro' });
+    }
+
+    const record = await Model.findByPk(recordId);
+
+    if (!record) {
+        return res.status(404).json({ message: 'Registro no encontrado' });
+    }
+
+    if (!req.user) {
+        return res.status(401).json({ message: 'No autenticado' });
+    }
+
+    const isAdminUser = req.user.rol === 'admin';
+    const isOwner = String(record[authorField]) === String(req.user.id);
+
+    if (isAdminUser || isOwner) {
+        return next();
+    }
+
+    return res.status(403).json({ message: 'No tienes permiso para esta acción' });
 };
 
 module.exports = {
     isAuth,
-    isAdmin
-}
+    requireRole,
+    isAdmin,
+    isOwnerOrAdmin
+};

@@ -71,7 +71,12 @@ function Login() {
                             <input type="checkbox" style={styles.casilla} />
                             Recordarme
                         </label>
-                        <a href="#" style={styles.enlaceOlvido}>¿Olvidaste tu contraseña?</a>
+                        <span 
+                            onClick={() => navigate('/olvide-password')} 
+                            style={{ ...styles.enlaceOlvido, cursor: 'pointer' }}
+                        >
+                            ¿Olvidaste tu contraseña?
+                        </span>
                     </div>
 
                     <button type="submit" style={styles.botonPrincipal}>

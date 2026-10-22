@@ -1,9 +1,11 @@
 const express = require('express')
 
-const { getUsers, registerUser, login, me, getUserById, updateUser , deleteUser, updateUserByAdmin} = require('./controllers/user')
+const { getUsers, registerUser, login, me, updateUser , deleteUser, updateUserByAdmin} = require('./controllers/user')
 const { getGames, getGameById, createGame, updateGame, deleteGame } = require('./controllers/game')
-const { isAuth , isAdmin} = require('./middlewares/auth')
+const authRoutes = require('./routes/auth.routes')
+const { isAuth , requireRole, isOwnerOrAdmin} = require('./middlewares/auth')
 const sequelize = require('./config/db')
+const Game = require('./models/GameModel')
 
 const server = express()
 
@@ -30,10 +32,10 @@ server.use((req, res, next) => {
 // Autenticación pública / general
 server.post('/users', registerUser)
 server.post('/login', login)
+server.use('/auth', authRoutes)
 
 // Rutas de Usuario Autenticado
 server.get('/me', isAuth, me)
-server.get('/users/:id', isAuth, getUserById)
 server.put('/users/update', isAuth, updateUser)
 server.delete('/users/me', isAuth, deleteUser) 
 
@@ -41,13 +43,13 @@ server.delete('/users/me', isAuth, deleteUser)
 server.get('/games', getGames);
 server.get('/games/:id', getGameById);
 server.post('/games', isAuth, createGame);
-server.put('/games/:id', isAuth, updateGame);
-server.delete('/games/:id', isAuth, deleteGame);
+server.put('/games/:id', isAuth,isOwnerOrAdmin(Game), updateGame);
+server.delete('/games/:id', isAuth,isOwnerOrAdmin(Game), deleteGame);
 
 // RUTAS EXCLUSIVAS DE ADMIN (Única declaración de GET /users)
-server.get('/users', isAuth, isAdmin, getUsers);
-server.delete('/users/:id', isAuth, isAdmin, deleteUser);
-server.put('/users/:id', isAuth, isAdmin, updateUserByAdmin);
+server.get('/users', isAuth, requireRole('admin'), getUsers);
+server.delete('/users/:id', isAuth, requireRole('admin'), deleteUser);
+server.put('/users/:id', isAuth, requireRole('admin'), updateUserByAdmin);
 
 server.listen(3000, async () => {
     await sequelize.sync({ force: false })

@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express')
 
 const { getUsers, registerUser, login, me, getUserById, updateUser , deleteUser, updateUserByAdmin} = require('./controllers/user')

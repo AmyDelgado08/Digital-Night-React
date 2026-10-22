@@ -2,7 +2,7 @@ const User = require("../models/User")
 const bcrypt = require('bcrypt') //libreria para encriptar contras
 const jwt = require('jsonwebtoken') //libreria para crear los tokens d sesion
 
-const SECRET = 'misecreto'
+const SECRET = process.env.JWT_SECRET
 
 const getUsers = async (req, res) => {
     //findAll busca todos los registros

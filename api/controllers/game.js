@@ -32,7 +32,12 @@ const createGame = async (req, res) => {
     }
 
     try {
-        const newGame = await Game.create({ title, platforms, description });
+        const newGame = await Game.create({
+            title,
+            platforms,
+            description,
+            authorId: req.user.id
+        });
         res.status(201).json(newGame);
     } catch (error) {
         res.status(500).json({ message: 'Error al guardar el juego' });

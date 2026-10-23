@@ -1,14 +1,19 @@
+require('dotenv').config()
 const express = require('express')
 
-const { getUsers, registerUser, login, me, updateUser, updateMe, deleteUser, updateUserByAdmin} = require('./controllers/user')
+const { getUsers, registerUser, login, me, updateUser, updateMe, updatePassword, deleteUser, updateUserByAdmin} = require('./controllers/user')
 const { getGames, getGameById, createGame, updateGame, deleteGame, getMyGames } = require('./controllers/game')
 const authRoutes = require('./routes/auth.routes')
 const { isAuth , requireRole, isOwnerOrAdmin} = require('./middlewares/auth')
 const sequelize = require('./config/db')
+const User = require('./models/User')
 const Game = require('./models/GameModel')
 const userRoutes = require('./routes/user.routes');
 const validate = require('./middlewares/validate')
 const { registerRules, loginRules } = require('./validators/user')
+
+User.hasMany(Game, { foreignKey: 'authorId', onDelete: 'CASCADE' })
+Game.belongsTo(User, { foreignKey: 'authorId' })
 
 const server = express()
 
@@ -41,6 +46,7 @@ server.use('/auth', authRoutes)
 server.get('/me', isAuth, me)
 server.put('/users/update', isAuth, updateUser)
 server.put('/users/me', isAuth, updateMe) // Debe ir ANTES de PUT /users/:id (si no, Express tomaria "me" como un id)
+server.put('/users/password', isAuth, updatePassword)
 server.delete('/users/me', isAuth, deleteUser) 
 
 // Rutas de Juegos

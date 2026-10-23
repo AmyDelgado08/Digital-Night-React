@@ -49,7 +49,7 @@ function PublicProfile() {
                 <button style={style.opcionMenu} onClick={() => navigate('/editar-perfil')}>Cuenta</button>
                 <button style={style.opcionMenuActiva}>Perfil público</button>
                 <button style={style.opcionMenu} onClick={() => navigate('/seguridad')}>Seguridad</button>
-                <button style={style.opcionMenuDeshabilitada}>Privacidad</button>
+                <button style={style.opcionMenu} onClick={() => navigate('/privacidad')}>Privacidad</button>
             </aside>
 
             <section style={style.contenido}>

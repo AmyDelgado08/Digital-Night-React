@@ -20,6 +20,7 @@ import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
 import GameDetail from "./components/GameDetail";
 import Seguridad from "./components/Security";
+import Privacidad from "./components/Privacy";
 import MyGames from "./components/MyGames";
 import CreateGame from "./components/CreateGame";
 
@@ -151,6 +152,7 @@ function App() {
             <Route element={<ForgotPassword />} path="/olvide-password" />
             <Route element={<ResetPassword />} path="/restablecer/:token" />
             <Route element={<Seguridad />} path="/seguridad" />
+            <Route element={<Privacidad />} path="/privacidad" />
             <Route element={<GameDetail />} path="/games/:id" />
           </Routes>
         </main>

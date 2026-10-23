@@ -27,6 +27,23 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         defaultValue: 'user' //Por defecto se creara siendo User hasta q le asignemos otro rol luego
     },
+    birthdate: {
+        type: DataTypes.DATEONLY, //Solo fecha (sin hora)
+        allowNull: true,
+    },
+    //--- Ajustes de privacidad ---
+    isPublic: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true, //true = perfil publico, false = perfil privado
+    },
+    showEmail: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false, //Por defecto el email NO se muestra a otros
+    },
+    showBirthdate: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false, //Por defecto la fecha de nacimiento NO se muestra
+    },
 }, {
     timestamps: true, //Se creara automaticamente dos columnas para saber cuando se creo o modifico el user
     modelName: 'User'

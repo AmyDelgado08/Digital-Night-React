@@ -1,6 +1,6 @@
 const express = require('express')
 
-const { getUsers, registerUser, login, me, updateUser , deleteUser, updateUserByAdmin} = require('./controllers/user')
+const { getUsers, registerUser, login, me, updateUser, updateMe, deleteUser, updateUserByAdmin} = require('./controllers/user')
 const { getGames, getGameById, createGame, updateGame, deleteGame, getMyGames } = require('./controllers/game')
 const authRoutes = require('./routes/auth.routes')
 const { isAuth , requireRole, isOwnerOrAdmin} = require('./middlewares/auth')
@@ -40,6 +40,7 @@ server.use('/auth', authRoutes)
 // Rutas de Usuario Autenticado
 server.get('/me', isAuth, me)
 server.put('/users/update', isAuth, updateUser)
+server.put('/users/me', isAuth, updateMe) // Debe ir ANTES de PUT /users/:id (si no, Express tomaria "me" como un id)
 server.delete('/users/me', isAuth, deleteUser) 
 
 // Rutas de Juegos
@@ -58,6 +59,6 @@ server.put('/users/:id', isAuth, requireRole('admin'), updateUserByAdmin);
 server.use(userRoutes);
 
 server.listen(3000, async () => {
-    await sequelize.sync({ force: false })
+    await sequelize.sync({ force: false, alter: true })
     console.log("El server esta corriendo en el puerto 3000");
 })

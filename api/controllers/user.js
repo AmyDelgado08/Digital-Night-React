@@ -95,6 +95,43 @@ const updateUser = async (req, res) => {
     }
 };
 
+//PUT /users/me -> edita el perfil y los ajustes de privacidad del usuario logueado
+const updateMe = async (req, res) => {
+    try {
+        //Lista blanca: SOLO estos campos se pueden modificar desde aca.
+        //Asi nadie puede mandar "rol" o "password" en el body para colarse cambios.
+        const allowedFields = ['firstName', 'lastName', 'email', 'birthdate', 'isPublic', 'showEmail', 'showBirthdate'];
+        const changes = {};
+        for (const field of allowedFields) {
+            if (req.body[field] !== undefined) {
+                changes[field] = req.body[field];
+            }
+        }
+
+        if (Object.keys(changes).length === 0) {
+            return res.status(400).json({ message: 'No hay datos para actualizar' });
+        }
+
+        //Si cambia el email, comprobamos que no lo use otra persona
+        if (changes.email) {
+            const emailTaken = await User.findOne({ where: { email: changes.email } });
+            if (emailTaken && emailTaken.id !== req.user.id) {
+                return res.status(409).json({ message: 'El email ya está registrado' });
+            }
+        }
+
+        if (changes.birthdate === '') changes.birthdate = null;
+
+        await User.update(changes, { where: { id: req.user.id } });
+
+        //Devolvemos el usuario actualizado SIN la contraseña
+        const updated = await User.findByPk(req.user.id, { attributes: { exclude: 'password' } });
+        res.json({ message: 'Perfil actualizado con éxito', user: updated });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al actualizar el perfil' });
+    }
+};
+
 const deleteUser = async (req, res) => {
     try {
         const userId = req.params.id || req.user.id;
@@ -200,6 +237,7 @@ module.exports = {
     login,
     me,
     updateUser,
+    updateMe,
     deleteUser,
     updateUserByAdmin,
     createUserByAdmin

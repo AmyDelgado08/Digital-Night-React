@@ -1,0 +1,22 @@
+const { body } = require('express-validator')
+
+const registerRules = [
+    body('firstName').notEmpty().withMessage('El nombre es obligatorio'),
+    body('email').isEmail().withMessage('El email no es válido'),
+    body('password').isLength({ min: 8 }).withMessage('La contraseña debe tener al menos 8 caracteres')
+]
+
+const loginRules = [
+    body('email').isEmail().withMessage('El email no es válido'),
+    body('password').notEmpty().withMessage('La contraseña es obligatoria')
+]
+
+const changePasswordRules = [
+    body('newPassword').isLength({ min: 8 }).withMessage('La nueva contraseña debe tener al menos 8 caracteres')
+]
+
+module.exports = {
+    registerRules,
+    loginRules,
+    changePasswordRules
+}

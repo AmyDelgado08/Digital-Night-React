@@ -7,6 +7,8 @@ const { isAuth , requireRole, isOwnerOrAdmin} = require('./middlewares/auth')
 const sequelize = require('./config/db')
 const Game = require('./models/GameModel')
 const userRoutes = require('./routes/user.routes');
+const validate = require('./middlewares/validate')
+const { registerRules, loginRules } = require('./validators/user')
 
 const server = express()
 
@@ -31,8 +33,8 @@ server.use((req, res, next) => {
 })
 
 // Autenticación pública / general
-server.post('/users', registerUser)
-server.post('/login', login)
+server.post('/users', registerRules, validate, registerUser)
+server.post('/login', loginRules, validate, login)
 server.use('/auth', authRoutes)
 
 // Rutas de Usuario Autenticado

@@ -38,7 +38,7 @@ function Register() {
             }
         } catch (error) {
             console.error(error);
-            alert("Error al registrar el usuario. Es posible que el correo ya esté en uso.");
+            alert(error.response?.data?.message || "Error al registrar el usuario. Es posible que el correo ya esté en uso.");
         }
     };
 

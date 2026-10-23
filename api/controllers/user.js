@@ -7,8 +7,12 @@ const SECRET = 'misecreto'
 const getUsers = async (req, res) => {
     //findAll busca todos los registros
     // attributes... sirve para no enviarle las contraseñas al fronted tipo trae todo menos la contra
-    const users = await User.findAll({ attributes: { exclude: 'password' } })
-    res.json(users)
+    try {
+        const users = await User.findAll({ attributes: { exclude: 'password' } })
+        res.json(users)
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener los usuarios' })
+    }
 }
 
 const getUserById = async (req, res) => {
@@ -19,51 +23,76 @@ const getUserById = async (req, res) => {
 }
 
 const registerUser = async (req, res) => {
-    const { firstName, lastName, email, password } = req.body //Agarramos los datos q envia el cuerpo de la peticion
-    const hashedPassword = await bcrypt.hash(password, 10) //Encriptamos la contra usando 10 rondas sal (Es un pedazo d texto aleatorio)
-    const user = await User.create({
-        firstName,
-        lastName,
-        email,
-        password: hashedPassword
-    })
-    res.status(201).json({ message: 'El usuario se creo exitosamente'})
+    try {
+        const { firstName, lastName, email, password } = req.body //Agarramos los datos q envia el cuerpo de la peticion
+
+        const existingUser = await User.findOne({ where: { email } })
+        if (existingUser) {
+            return res.status(409).json({ message: 'El email ya está registrado' })
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10) //Encriptamos la contra usando 10 rondas sal (Es un pedazo d texto aleatorio)
+        const user = await User.create({
+            firstName,
+            lastName,
+            email,
+            password: hashedPassword
+        })
+        res.status(201).json({ message: 'El usuario se creo exitosamente'})
+    } catch (error) {
+        res.status(500).json({ message: 'Error al registrar el usuario' })
+    }
 }
 
 const login = async (req, res) => {
-    const { email, password } = req.body
-    const user = await User.findOne({ where: { email } }) //Buscamos el usuario por su email
+    try {
+        const { email, password } = req.body
+        const user = await User.findOne({ where: { email } }) //Buscamos el usuario por su email
 
-    //Si no existe devolvemos este error
-    if (!user) return res.status(400).json({ message: 'Usuario no encontrado' })
-    const compare = await bcrypt.compare(password, user.password);
+        //Si no existe devolvemos este error
+        if (!user) return res.status(400).json({ message: 'Usuario no encontrado' })
+        const compare = await bcrypt.compare(password, user.password);
 
-    //Comparamos la contraseña 
-    if (!compare) return res.status(400).json({ message: 'Usuario o contraseña incorrecta' })
+        //Comparamos la contraseña
+        if (!compare) return res.status(400).json({ message: 'Usuario o contraseña incorrecta' })
 
-    const token = jwt.sign({ id: user.id, email: user.email }, SECRET, { expiresIn: '8h' });
+        const token = jwt.sign({ id: user.id, email: user.email, rol: user.rol }, SECRET, { expiresIn: '8h' });
 
-    // Devolvemos el token y el rol del usuario.
-    res.json({
-        token: token,
-        rol: user.rol
-    });
-
-    res.json({ token })
+        // Devolvemos el token y el rol del usuario.
+        res.json({
+            token: token,
+            user: {
+                id: user.id,
+                firstName: user.firstName,
+                email: user.email,
+                rol: user.rol
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al iniciar sesión' })
+    }
 }
 
 //Obtenemos los datos del perfil actualmente logueado
 const me = async (req, res) => {
-    const user = await User.findByPk(req.user.id, {
-        attributes: { exclude: 'password' }
-    })
-    res.json(user)
+    try {
+        const user = await User.findByPk(req.user.id, {
+            attributes: { exclude: 'password' }
+        })
+        res.json(user)
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener el perfil' })
+    }
 }
 
 const updateUser = async (req, res) => {
-    const { firstName, lastName, email } = req.body;
-    await User.update({ firstName, lastName, email }, { where: { id: req.user.id } });
-    res.json({ message: 'Perfil actualizado con éxito' });
+    try {
+        const { firstName, lastName, email } = req.body;
+        await User.update({ firstName, lastName, email }, { where: { id: req.user.id } });
+        res.json({ message: 'Perfil actualizado con éxito' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al actualizar el perfil' });
+    }
 };
 
 const deleteUser = async (req, res) => {

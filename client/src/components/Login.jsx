@@ -22,12 +22,10 @@ function Login() {
             localStorage.setItem('token', response.data.token);
 
             // Guardamos el rol que nos devuelve el backend.
-            localStorage.setItem('rol', response.data.rol);
+            localStorage.setItem('rol', response.data.user.rol);
 
             // Guardamos el correo (que ya tenemos en el estado) y el nombre (que debería venir de tu backend)
             // Si el backend lo manda diferente, ajustá 'response.data.name' a como lo devuelva tu API
-            const userName = response.data.name || response.data.user?.name || 'Amy';
-            localStorage.setItem('userName', userName);
             localStorage.setItem('userEmail', email);
 
             navigate('/editar-perfil');

@@ -1,26 +1,40 @@
-import { Link, Route, Routes, useNavigate } from 'react-router-dom';
+import {
+  Link,
+  Route,
+  Routes,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 
-import logo from './img/logo.png';
+import logo from "./img/logo.png";
 
 // Importamos las páginas
-import Home from './components/Home';
-import Login from './components/Login';
-import Register from './components/Register';
-import EditProfile from './components/EditProfile';
-import PublicProfile from './components/PublicProfile';
-import Games from './components/Games';
-import AdminDashboard from './components/AdminDashboard';
-import ForgotPassword from './components/ForgotPassword';
-import ResetPassword from './components/ResetPassword';
+import Home from "./components/Home";
+import Login from "./components/Login";
+import Register from "./components/Register";
+import EditProfile from "./components/EditProfile";
+import PublicProfile from "./components/PublicProfile";
+import Games from "./components/Games";
+import AdminDashboard from "./components/AdminDashboard";
+import ForgotPassword from "./components/ForgotPassword";
+import ResetPassword from "./components/ResetPassword";
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Leemos los datos guardados en el navegador.
+  const token = localStorage.getItem("token");
+  const rol = localStorage.getItem("rol");
 
   // Función para cerrar sesión
   const logout = () => {
-    localStorage.removeItem('token');
-    alert('Has cerrado sesión correctamente.');
-    navigate('/login');
+    localStorage.removeItem("token");
+    localStorage.removeItem("rol");
+
+    alert("Has cerrado sesión correctamente.");
+
+    navigate("/login");
   };
 
   return (
@@ -29,19 +43,40 @@ function App() {
         {/* Barra de navegación */}
         <header style={style.BaseNav}>
           <div style={style.Logo}>
-            <img src={logo} alt="" style={{ height: '36px', marginRight: '10px' }} />
+            <img
+              src={logo}
+              alt=""
+              style={{ height: "36px", marginRight: "10px" }}
+            />
             DIGITALNIGHT
           </div>
 
           <nav style={style.Nav}>
-            <Link to="/" style={style.navLink}>Inicio</Link>
-            <Link to="/editar-perfil" style={style.navLink}>Editar Perfil</Link>
-            <Link to="/login" style={style.navLink}>Iniciar Sesión</Link>
-            <Link to="/register" style={{ ...style.navLink, ...style.navLinkPrimary }}>Registrarse</Link>
+            <Link to="/" style={style.navLink}>
+              Inicio
+            </Link>
 
-            <button style={style.logoutBtn} onClick={logout}>
-              Cerrar Sesión
-            </button>
+            {/* Si hay token mostramos este menu*/}
+            {token ? (
+              <>
+                <Link to="/mis-juegos" style={style.navLink}>Mis juegos</Link>
+
+                <Link to="/editar-perfil" style={style.navLink}>Editar perfil</Link>
+
+                {/* El panel solo aparece para administradores */}
+                {rol === "admin" && (
+                  <Link to="/admin" style={style.navLink}>Panel de administración</Link>
+                )}
+
+                <button style={style.logoutBtn} onClick={logout}>Cerrar sesión</button>
+              </>
+            ) : (
+              /* Si no hay token mostramos este otro menu*/
+              <>
+                <Link to="/login" style={style.navLink}>Iniciar sesión</Link>
+                <Link to="/register" style={{ ...style.navLink, ...style.navLinkPrimary }}>Registrarse</Link>
+              </>
+            )}
           </nav>
         </header>
 
@@ -66,61 +101,61 @@ function App() {
 
 const style = {
   contprincipal: {
-    minHeight: '100vh',
-    backgroundColor: '#09090e',
-    fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-    color: '#f1f5f9',
-    display: 'flex',
-    flexDirection: 'column',
+    minHeight: "100vh",
+    backgroundColor: "#09090e",
+    fontFamily: "Inter, system-ui, -apple-system, sans-serif",
+    color: "#f1f5f9",
+    display: "flex",
+    flexDirection: "column",
   },
   BaseNav: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '16px 48px',
-    backgroundColor: '#13111c',
-    borderBottom: '1px solid #2d2640',
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "16px 48px",
+    backgroundColor: "#13111c",
+    borderBottom: "1px solid #2d2640",
   },
   Logo: {
-    fontSize: '20px',
-    fontWeight: '700',
-    color: '#ffffff',
-    letterSpacing: '1.5px',
-    display: 'flex',
-    alignItems: 'center',
+    fontSize: "20px",
+    fontWeight: "700",
+    color: "#ffffff",
+    letterSpacing: "1.5px",
+    display: "flex",
+    alignItems: "center",
   },
   Nav: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '24px',
+    display: "flex",
+    alignItems: "center",
+    gap: "24px",
   },
   navLink: {
-    textDecoration: 'none',
-    color: '#a1a1aa',
-    fontWeight: '500',
-    fontSize: '14px',
-    transition: 'color 0.2s',
+    textDecoration: "none",
+    color: "#a1a1aa",
+    fontWeight: "500",
+    fontSize: "14px",
+    transition: "color 0.2s",
   },
   navLinkPrimary: {
-    backgroundColor: '#7c3aed',
-    color: '#ffffff',
-    padding: '8px 16px',
-    borderRadius: '20px',
+    backgroundColor: "#7c3aed",
+    color: "#ffffff",
+    padding: "8px 16px",
+    borderRadius: "20px",
   },
   logoutBtn: {
-    backgroundColor: 'transparent',
-    color: '#ef4444',
-    border: '1px solid #ef4444',
-    padding: '8px 16px',
-    borderRadius: '20px',
-    fontWeight: '500',
-    fontSize: '14px',
-    cursor: 'pointer',
+    backgroundColor: "transparent",
+    color: "#ef4444",
+    border: "1px solid #ef4444",
+    padding: "8px 16px",
+    borderRadius: "20px",
+    fontWeight: "500",
+    fontSize: "14px",
+    cursor: "pointer",
   },
   rutas: {
     flex: 1,
-    width: '100%',
-    boxSizing: 'border-box',
+    width: "100%",
+    boxSizing: "border-box",
   },
 };
 

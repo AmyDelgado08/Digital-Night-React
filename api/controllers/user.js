@@ -43,6 +43,12 @@ const login = async (req, res) => {
 
     const token = jwt.sign({ id: user.id, email: user.email }, SECRET, { expiresIn: '8h' });
 
+    // Devolvemos el token y el rol del usuario.
+    res.json({
+        token: token,
+        rol: user.rol
+    });
+
     res.json({ token })
 }
 

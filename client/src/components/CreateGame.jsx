@@ -353,7 +353,7 @@ const styles = {
     textAlign: "center",
     fontSize: "13px",
     overflowWrap: "anywhere",
-  },
+  }, 
   icono: {
     display: "flex",
     alignItems: "center",

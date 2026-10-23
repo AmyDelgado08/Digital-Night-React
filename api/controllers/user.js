@@ -32,7 +32,7 @@ const registerUser = async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10) //Encriptamos la contra usando 10 rondas sal (Es un pedazo d texto aleatorio)
-        const user = await User.create({
+        await User.create({
             firstName,
             lastName,
             email,
@@ -40,6 +40,7 @@ const registerUser = async (req, res) => {
         })
         res.status(201).json({ message: 'El usuario se creo exitosamente'})
     } catch (error) {
+        console.error(error)
         res.status(500).json({ message: 'Error al registrar el usuario' })
     }
 }
@@ -69,6 +70,7 @@ const login = async (req, res) => {
             }
         });
     } catch (error) {
+        console.error(error)
         res.status(500).json({ message: 'Error al iniciar sesión' })
     }
 }

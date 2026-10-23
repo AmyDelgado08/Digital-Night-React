@@ -18,6 +18,8 @@ import Games from "./components/Games";
 import AdminDashboard from "./components/AdminDashboard";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
+import GameDetail from './components/GameDetail';
+import Seguridad from './components/Security';
 
 function App() {
   const navigate = useNavigate();
@@ -92,6 +94,8 @@ function App() {
             <Route element={<AdminDashboard />} path="/admin" />
             <Route element={<ForgotPassword />} path="/olvide-password" />
             <Route element={<ResetPassword />} path="/restablecer/:token" />
+            <Route element={<Seguridad />} path="/seguridad" />
+            <Route element={<GameDetail />} path="/games/:id" />
           </Routes>
         </main>
       </div>

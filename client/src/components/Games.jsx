@@ -1,36 +1,28 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 function Games() {
-    const navigate = useNavigate();
     const [games, setGames] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-
-        // 1. Verificación de sesión
-        if (!token) {
-            alert('Debes iniciar sesión para ver los juegos.');
-            navigate('/login');
-            return;
-        }
-
-        // 2. Traer juegos del backend
+        // Cargamos la pag juegos (SIN verificación de token)
         const fetchGames = async () => {
             try {
                 const response = await axios.get('http://localhost:3000/games');
                 setGames(response.data);
-            } catch (error) {
+                setLoading(false);
+            } 
+            
+            catch (error) {
                 console.error('Error al cargar juegos:', error);
-            } finally {
                 setLoading(false);
             }
         };
 
         fetchGames();
-    }, [navigate]);
+    }, []);
 
     if (loading) {
         return <div style={style.cont}><p style={{ color: 'white' }}>Cargando...</p></div>;
@@ -47,11 +39,14 @@ function Games() {
                 ) : (
                     <div style={style.gamesList}>
                         {games.map((game) => (
-                            <div key={game.id} style={style.gameItem}>
-                                <h3 style={{ color: '#a78bfa', margin: '0 0 8px 0' }}>{game.title}</h3>
-                                <p style={{ color: '#9ca3af', margin: '0 0 4px 0' }}>{game.description}</p>
-                                <small style={{ color: '#6b7280' }}>Plataformas: {game.platforms}</small>
-                            </div>
+                            /* Enlazamos cada tarjeta a la vista de detalle */
+                            <Link key={game.id} to={`/games/${game.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <div style={style.gameItem}>
+                                    <h3 style={{ color: '#a78bfa', margin: '0 0 8px 0' }}>{game.title}</h3>
+                                    <p style={{ color: '#9ca3af', margin: '0 0 4px 0' }}>{game.description}</p>
+                                    <small style={{ color: '#6b7280' }}>Plataformas: {game.platforms}</small>
+                                </div>
+                            </Link>
                         ))}
                     </div>
                 )}
@@ -66,7 +61,7 @@ const style = {
     title: { fontSize: '28px', fontWeight: '700', color: '#ffffff', marginBottom: '24px', textAlign: 'center' },
     emptyText: { color: '#9ca3af', textAlign: 'center', fontSize: '18px' },
     gamesList: { display: 'flex', flexDirection: 'column', gap: '16px' },
-    gameItem: { backgroundColor: '#111827', padding: '16px', borderRadius: '8px', border: '1px solid #374151' }
+    gameItem: { backgroundColor: '#111827', padding: '16px', borderRadius: '8px', border: '1px solid #374151', cursor: 'pointer' }
 };
 
 export default Games;

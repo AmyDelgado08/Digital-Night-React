@@ -102,7 +102,7 @@ function EditProfile() {
                 <div style={style.tituloMenu}>Configuración</div>
                 <button style={style.opcionMenuActiva}>Cuenta</button>
                 <button style={style.opcionMenu} onClick={() => navigate('/perfil-publico')}>Perfil público</button>
-                <button style={style.opcionMenuDeshabilitada}>Seguridad</button>
+                <button style={style.opcionMenu} onClick={() => navigate('/seguridad')}>Seguridad</button>
                 <button style={style.opcionMenuDeshabilitada}>Privacidad</button>
             </aside>
 

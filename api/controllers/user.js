@@ -114,6 +114,56 @@ const updateUserByAdmin = async (req, res) => {
     }
 };
 
+const createUserByAdmin = async (req, res) => {
+    try {
+        const { firstName, lastName, email, password, rol } = req.body
+
+        // Validamos que el rol sea 'user' o 'admin'
+        if (!rol || (rol !== 'user' && rol !== 'admin'))
+        {
+            return res.status(400).json({ message: 'El rol debe ser "user" o "admin"' })
+        }
+
+        // Buscamos si el email ya existe
+        const existingUser = await User.findOne({ where: { email } })
+
+        if (existingUser) 
+        {
+            return res.status(409).json({ message: 'Ese email ya existe' })
+        }
+
+        //Encriptamos la contra usando 10 rondas
+        const hashedPassword = await bcrypt.hash(password, 10)
+
+        //Creamos el usuario en la base de datos
+        const user = await User.create({
+            firstName,
+            lastName,
+            email,
+            password: hashedPassword,
+            rol
+        })
+
+        //Quitamos la contraseña para no enviarla al frontend
+        const userResponse = user.toJSON()
+        delete userResponse.password
+
+        //Devolvemos la respuesta
+        res.status(201).json({
+            message: 'Usuario creado exitosamente por el administrador',
+            user: userResponse
+        })
+
+    } 
+    
+    catch (error) {
+        res.status(500).json({ 
+            message: 'Error al crear el usuario', 
+            error: error.message 
+        })
+    }
+}
+
 module.exports = {
     getUsers,
     getUserById,
@@ -122,5 +172,6 @@ module.exports = {
     me,
     updateUser,
     deleteUser,
-    updateUserByAdmin
+    updateUserByAdmin,
+    createUserByAdmin
 }

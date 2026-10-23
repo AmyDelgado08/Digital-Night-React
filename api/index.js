@@ -6,6 +6,7 @@ const authRoutes = require('./routes/auth.routes')
 const { isAuth , requireRole, isOwnerOrAdmin} = require('./middlewares/auth')
 const sequelize = require('./config/db')
 const Game = require('./models/GameModel')
+const userRoutes = require('./routes/user.routes');
 
 const server = express()
 
@@ -50,6 +51,8 @@ server.delete('/games/:id', isAuth,isOwnerOrAdmin(Game), deleteGame);
 server.get('/users', isAuth, requireRole('admin'), getUsers);
 server.delete('/users/:id', isAuth, requireRole('admin'), deleteUser);
 server.put('/users/:id', isAuth, requireRole('admin'), updateUserByAdmin);
+
+server.use(userRoutes);
 
 server.listen(3000, async () => {
     await sequelize.sync({ force: false })

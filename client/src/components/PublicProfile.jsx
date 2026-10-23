@@ -48,7 +48,7 @@ function PublicProfile() {
                 <div style={style.tituloMenu}>Configuración</div>
                 <button style={style.opcionMenu} onClick={() => navigate('/editar-perfil')}>Cuenta</button>
                 <button style={style.opcionMenuActiva}>Perfil público</button>
-                <button style={style.opcionMenuDeshabilitada}>Seguridad</button>
+                <button style={style.opcionMenu} onClick={() => navigate('/seguridad')}>Seguridad</button>
                 <button style={style.opcionMenuDeshabilitada}>Privacidad</button>
             </aside>
 

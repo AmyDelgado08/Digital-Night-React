@@ -40,7 +40,7 @@ server.use('/auth', authRoutes)
 // Rutas de Usuario Autenticado
 server.get('/me', isAuth, me)
 server.put('/users/update', isAuth, updateUser)
-server.put('/users/me', isAuth, updateMe) // Debe ir ANTES de PUT /users/:id (si no, Express tomaria "me" como un id)
+server.put('/users/me', isAuth, updateMe)
 server.delete('/users/me', isAuth, deleteUser) 
 
 // Rutas de Juegos

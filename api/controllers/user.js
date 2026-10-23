@@ -95,11 +95,10 @@ const updateUser = async (req, res) => {
     }
 };
 
-//PUT /users/me -> edita el perfil y los ajustes de privacidad del usuario logueado
+//ajustes de privacidad del usuario logueado
 const updateMe = async (req, res) => {
     try {
-        //Lista blanca: SOLO estos campos se pueden modificar desde aca.
-        //Asi nadie puede mandar "rol" o "password" en el body para colarse cambios.
+        //Solo estos campos se pueden modificar desde aca.
         const allowedFields = ['firstName', 'lastName', 'email', 'birthdate', 'isPublic', 'showEmail', 'showBirthdate'];
         const changes = {};
         for (const field of allowedFields) {
@@ -110,14 +109,6 @@ const updateMe = async (req, res) => {
 
         if (Object.keys(changes).length === 0) {
             return res.status(400).json({ message: 'No hay datos para actualizar' });
-        }
-
-        //Si cambia el email, comprobamos que no lo use otra persona
-        if (changes.email) {
-            const emailTaken = await User.findOne({ where: { email: changes.email } });
-            if (emailTaken && emailTaken.id !== req.user.id) {
-                return res.status(409).json({ message: 'El email ya está registrado' });
-            }
         }
 
         if (changes.birthdate === '') changes.birthdate = null;

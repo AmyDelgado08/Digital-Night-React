@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function GameDetail() {
-    const { id } = useParams(); // Lee el id
+    const { id } = useParams();
     const navigate = useNavigate();
     const [game, setGame] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -34,44 +34,91 @@ function GameDetail() {
     return (
         <div style={estilos.contenedor}>
             {/* Cabecera: datos principales + vista previa */}
-            <div style={{ ...estilos.cabecera, background: degradados[game.id % degradados.length] }}>
+            <div style={estilos.cabecera}>
                 <div style={estilos.cabeceraInterior}>
                     <div style={estilos.cabeceraTexto}>
-                        <p style={estilos.ruta}>Explorar / Juegos / {game.title}</p>
-                        {game.platforms && <span style={estilos.etiqueta}>{game.platforms}</span>}
+                        <p style={estilos.ruta}>
+                            Explorar / <span style={estilos.rutaLink} onClick={() => navigate('/games')}>Juegos</span> / <span style={estilos.rutaActual}>{game.title}</span>
+                        </p>
+                        <div style={estilos.etiquetas}>
+                            {game.platforms && <span style={estilos.etiquetaClara}>{game.platforms}</span>}
+                        </div>
                         <h1 style={estilos.titulo}>{game.title}</h1>
                         <p style={estilos.resumen}>{game.description}</p>
+
+                        <div style={estilos.autor}>
+                            <div style={estilos.avatar}>U{game.authorId}</div>
+                            <div>
+                                <div style={estilos.autorNombre}>Usuario {game.authorId}</div>
+                                <div style={estilos.autorDato}>Publicado el {new Date(game.createdAt).toLocaleDateString('es-AR')}</div>
+                            </div>
+
+                            {/* Valoración de ejemplo (aún no existe en la base de datos) */}
+                            <div style={estilos.separador} />
+                            <div style={estilos.valoracionNota}>4,8</div>
+                            <div>
+                                <div style={estilos.estrellas}>
+                                    {[1, 2, 3, 4, 5].map((n) => (
+                                        <svg key={n} width="12" height="12" viewBox="0 0 24 24" fill="#f5b301">
+                                            <path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" />
+                                        </svg>
+                                    ))}
+                                </div>
+                                <div style={estilos.autorDato}>312 valoraciones</div>
+                            </div>
+                        </div>
+
                         <div style={estilos.botones}>
-                            <button style={estilos.botonJugar}>Jugar ahora</button>
-                            <button onClick={() => navigate('/games')} style={estilos.botonSecundario}>Volver a juegos</button>
+                            <button style={estilos.botonJugar}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
+                                    <path d="M7 4l13 8-13 8z" />
+                                </svg>
+                                Jugar ahora
+                            </button>
+                            <button style={estilos.botonSecundario}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
+                                    <path d="M6 3h12v18l-6-4-6 4z" />
+                                </svg>
+                                Guardar
+                            </button>
+                            <button style={estilos.botonSecundario}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M12 15V3M7 8l5-5 5 5M4 14v6h16v-6" />
+                                </svg>
+                                Compartir
+                            </button>
                         </div>
                     </div>
 
-                    <div style={{ ...estilos.vistaPrevia, background: degradados[(game.id + 1) % degradados.length] }}>
-                        <span style={estilos.textoVistaPrevia}>{game.title}</span>
-                    </div>
+                    {/* Recuadro del video (vacío) */}
+                    <div style={estilos.vistaPrevia} />
                 </div>
             </div>
 
-            {/* Contenido: descripción + ficha */}
+            {/* Contenido: pestañas + descripción + barra lateral */}
             <div style={estilos.contenido}>
                 <div style={estilos.columnaPrincipal}>
+                    <div style={estilos.pestanas}>
+                        <span style={estilos.pestanaActiva}>Descripción</span>
+                        <span style={estilos.pestana}>Capturas</span>
+                        <span style={estilos.pestana}>Valoraciones</span>
+                        <span style={estilos.pestana}>Novedades</span>
+                    </div>
+
                     <h2 style={estilos.subtitulo}>Sobre el juego</h2>
                     <p style={estilos.parrafo}>{game.description}</p>
 
-                    <h2 style={estilos.subtitulo}>Plataformas</h2>
-                    <div style={estilos.fila}>
-                        <span style={estilos.etiquetaOscura}>{game.platforms}</span>
+                    <h2 style={estilos.subtitulo}>Capturas</h2>
+                    <div style={estilos.capturas}>
+                        <div style={estilos.captura} />
+                        <div style={estilos.captura} />
+                        <div style={estilos.captura} />
                     </div>
                 </div>
 
                 <div style={estilos.barralateral}>
                     <div style={estilos.tarjeta}>
                         <h3 style={estilos.tituloTarjeta}>Ficha del juego</h3>
-                        <div style={estilos.dato}>
-                            <span style={estilos.datoNombre}>Título</span>
-                            <span style={estilos.datoValor}>{game.title}</span>
-                        </div>
                         <div style={estilos.dato}>
                             <span style={estilos.datoNombre}>Plataformas</span>
                             <span style={estilos.datoValor}>{game.platforms}</span>
@@ -81,8 +128,41 @@ function GameDetail() {
                             <span style={estilos.datoValor}>{new Date(game.createdAt).toLocaleDateString('es-AR')}</span>
                         </div>
                         <div style={estilos.dato}>
+                            <span style={estilos.datoNombre}>Actualizado</span>
+                            <span style={estilos.datoValor}>{new Date(game.updatedAt).toLocaleDateString('es-AR')}</span>
+                        </div>
+                        <div style={estilos.datoUltimo}>
                             <span style={estilos.datoNombre}>Autor</span>
                             <span style={estilos.datoValor}>Usuario {game.authorId}</span>
+                        </div>
+                    </div>
+
+                    <div style={estilos.estadisticas}>
+                        <div style={estilos.estadistica}>
+                            <div style={estilos.estadisticaNumero}>-</div>
+                            <div style={estilos.estadisticaNombre}>Jugadas</div>
+                        </div>
+                        <div style={estilos.estadistica}>
+                            <div style={estilos.estadisticaNumero}>-</div>
+                            <div style={estilos.estadisticaNombre}>Favoritos</div>
+                        </div>
+                        <div style={estilos.estadistica}>
+                            <div style={estilos.estadisticaNumero}>-</div>
+                            <div style={estilos.estadisticaNombre}>Nota</div>
+                        </div>
+                    </div>
+
+                    <div style={estilos.tarjeta}>
+                        <div style={estilos.autorTarjeta}>
+                            <div style={estilos.avatarGrande}>U{game.authorId}</div>
+                            <div>
+                                <div style={estilos.autorNombre}>Usuario {game.authorId}</div>
+                                <div style={estilos.autorDato}>Autor del juego</div>
+                            </div>
+                        </div>
+                        <div style={estilos.botones}>
+                            <button style={estilos.botonSeguir}>Seguir</button>
+                            <button style={estilos.botonPerfil}>Ver perfil</button>
                         </div>
                     </div>
                 </div>
@@ -91,45 +171,315 @@ function GameDetail() {
     );
 }
 
-// Degradados que se usan como imagen del juego (según su id)
-const degradados = [
-    'linear-gradient(135deg, #1e1b4b 0%, #4c1d95 55%, #7c3aed 100%)',
-    'linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #3b82f6 100%)',
-    'linear-gradient(135deg, #2e1065 0%, #86198f 55%, #db2777 100%)',
-    'linear-gradient(135deg, #172554 0%, #6d28d9 60%, #a78bfa 100%)',
-    'linear-gradient(135deg, #0b1020 0%, #312e81 55%, #6366f1 100%)',
-];
-
 const estilos = {
-    contenedor: { background: '#07070f', minHeight: '85vh', color: '#e2e8f0', fontFamily: "'Montserrat', 'Segoe UI', sans-serif" },
+    contenedor: {
+        background: '#050509',
+        minHeight: '85vh',
+        color: '#e2e8f0',
+        fontFamily: "'Montserrat', 'Segoe UI', sans-serif",
+    },
+    cabecera: {
+        padding: '80px 32px',
+        minHeight: '500px',
+        display: 'flex',
+        alignItems: 'center',
+        boxSizing: 'border-box',
+        background: 'radial-gradient(circle at 75% 40%, rgba(88, 60, 200, 0.45) 0%, transparent 55%), linear-gradient(135deg, #070720 0%, #0d0c33 60%, #14104a 100%)',
+    },
+    cabeceraInterior: {
+        width: '100%',
+        maxWidth: '960px',
+        margin: '0 auto',
+        display: 'flex',
+        gap: '90px',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+    },
+    cabeceraTexto: {
+        flex: '0 1 350px',
+    },
+    ruta: {
+        color: '#8b8fa8',
+        fontSize: '11px',
+        margin: '0 0 16px',
+    },
+    rutaLink: {
+        cursor: 'pointer',
+    },
+    rutaActual: {
+        color: '#ffffff',
+    },
+    etiquetas: {
+        display: 'flex',
+        gap: '8px',
+        flexWrap: 'wrap',
+    },
+    etiquetaClara: {
+        background: '#ffffff',
+        color: '#07070f',
+        fontSize: '11px',
+        fontWeight: '600',
+        padding: '5px 13px',
+        borderRadius: '20px',
+    },
+    titulo: {
+        color: '#ffffff',
+        fontSize: '52px',
+        fontWeight: '400',
+        lineHeight: 1.1,
+        margin: '14px 0 16px',
+    },
+    resumen: {
+        color: '#d3d6e6',
+        fontSize: '14px',
+        lineHeight: 1.55,
+        margin: '0 0 20px',
+        maxWidth: '350px',
+    },
+    autor: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        marginBottom: '24px',
+    },
+    avatar: {
+        width: '36px',
+        height: '36px',
+        borderRadius: '50%',
+        background: 'linear-gradient(135deg, #3b82f6, #7c3aed)',
+        color: '#ffffff',
+        fontSize: '12px',
+        fontWeight: '600',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    autorNombre: {
+        color: '#ffffff',
+        fontSize: '13px',
+        fontWeight: '600',
+    },
+    autorDato: {
+        color: '#8b8fa8',
+        fontSize: '11px',
+    },
+    botones: {
+        display: 'flex',
+        gap: '10px',
+    },
+    botonJugar: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        background: '#ffffff',
+        color: '#07070f',
+        border: 'none',
+        borderRadius: '30px',
+        height: '40px',
+        padding: '0 24px',
+        fontSize: '12px',
+        fontWeight: '600',
+        cursor: 'pointer',
+    },
+    botonSecundario: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '7px',
+        background: 'rgba(255,255,255,0.1)',
+        color: '#ffffff',
+        border: 'none',
+        borderRadius: '30px',
+        height: '40px',
+        padding: '0 18px',
+        fontSize: '11px',
+        fontWeight: '600',
+        cursor: 'pointer',
+    },
+    separador: {
+        width: '1px',
+        height: '32px',
+        background: 'rgba(255,255,255,0.15)',
+        margin: '0 6px',
+    },
+    valoracionNota: {
+        color: '#ffffff',
+        fontSize: '22px',
+    },
+    estrellas: {
+        display: 'flex',
+        gap: '2px',
+        marginBottom: '2px',
+    },
 
-    cabecera: { padding: '48px 32px' },
-    cabeceraInterior: { maxWidth: '1100px', margin: '0 auto', display: 'flex', gap: '40px', flexWrap: 'wrap', alignItems: 'center' },
-    cabeceraTexto: { flex: '1 1 420px' },
-    ruta: { color: '#94a3b8', fontSize: '12px', margin: '0 0 14px' },
-    etiqueta: { display: 'inline-block', background: 'rgba(255,255,255,0.15)', color: '#ffffff', fontSize: '12px', padding: '4px 12px', borderRadius: '20px' },
-    titulo: { color: '#ffffff', fontSize: '48px', fontWeight: '700', margin: '14px 0' },
-    resumen: { color: '#cbd5e1', fontSize: '15px', lineHeight: 1.6, margin: '0 0 24px' },
-    botones: { display: 'flex', gap: '12px', flexWrap: 'wrap' },
-    botonJugar: { background: '#ffffff', color: '#07070f', border: 'none', borderRadius: '10px', padding: '12px 28px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' },
-    botonSecundario: { background: 'rgba(255,255,255,0.12)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', padding: '12px 24px', fontSize: '14px', cursor: 'pointer' },
+    vistaPrevia: {
+        flex: '1 1 460px',
+        aspectRatio: '16 / 9',
+        borderRadius: '28px',
+        border: '1px solid rgba(255,255,255,0.15)',
+        background: 'linear-gradient(135deg, #14123a 0%, #2b1a6b 50%, #12365e 100%)',
+        boxSizing: 'border-box',
+    },
 
-    vistaPrevia: { flex: '1 1 380px', minHeight: '240px', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' },
-    textoVistaPrevia: { color: '#ffffff', fontSize: '28px', fontWeight: '700', textAlign: 'center' },
+    contenido: {
+        maxWidth: '960px',
+        margin: '0 auto',
+        padding: '40px 32px 60px',
+        display: 'flex',
+        gap: '40px',
+        flexWrap: 'wrap',
+        alignItems: 'flex-start',
+        boxSizing: 'border-box',
+    },
+    columnaPrincipal: {
+        flex: '1 1 480px',
+    },
+    pestanas: {
+        display: 'flex',
+        gap: '28px',
+        borderBottom: '1px solid #1d1d2b',
+        marginBottom: '36px',
+        fontSize: '12px',
+    },
+    pestana: {
+        color: '#8b8fa8',
+        paddingBottom: '12px',
+        cursor: 'pointer',
+    },
+    pestanaActiva: {
+        color: '#ffffff',
+        paddingBottom: '12px',
+        borderBottom: '2px solid #4f6bed',
+        cursor: 'pointer',
+    },
+    subtitulo: {
+        color: '#ffffff',
+        fontSize: '24px',
+        fontWeight: '400',
+        margin: '0 0 14px',
+    },
+    parrafo: {
+        color: '#b4b8cc',
+        fontSize: '13px',
+        lineHeight: 1.7,
+        margin: '0 0 40px',
+    },
+    capturas: {
+        display: 'flex',
+        gap: '10px',
+        flexWrap: 'wrap',
+    },
+    captura: {
+        flex: '1 1 140px',
+        aspectRatio: '12 / 7',
+        borderRadius: '14px',
+        border: '1px solid #26233d',
+        background: 'linear-gradient(135deg, #14123a 0%, #2b1a6b 55%, #12365e 100%)',
+    },
 
-    contenido: { maxWidth: '1100px', margin: '0 auto', padding: '40px 32px', display: 'flex', gap: '40px', flexWrap: 'wrap', alignItems: 'flex-start', boxSizing: 'border-box' },
-    columnaPrincipal: { flex: '1 1 480px' },
-    subtitulo: { color: '#ffffff', fontSize: '22px', fontWeight: '600', margin: '0 0 14px' },
-    parrafo: { color: '#cbd5e1', fontSize: '14px', lineHeight: 1.7, margin: '0 0 32px' },
-    fila: { display: 'flex', gap: '10px', flexWrap: 'wrap' },
-    etiquetaOscura: { background: '#141229', border: '1px solid #2a2842', color: '#e2e8f0', fontSize: '13px', padding: '8px 14px', borderRadius: '8px' },
+    barralateral: {
+        flex: '0 0 262px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+    },
+    tarjeta: {
+        background: '#0d0d14',
+        borderRadius: '22px',
+        padding: '20px 18px',
+        border: '1px solid #181826',
+    },
+    tituloTarjeta: {
+        color: '#ffffff',
+        fontSize: '15px',
+        fontWeight: '500',
+        margin: '0 0 12px',
+    },
+    dato: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: '12px',
+        padding: '10px 0',
+        borderBottom: '1px solid #1d1d2b',
+        fontSize: '11px',
+    },
+    datoUltimo: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: '12px',
+        padding: '10px 0 0',
+        fontSize: '11px',
+    },
+    datoNombre: {
+        color: '#8b8fa8',
+    },
+    datoValor: {
+        color: '#ffffff',
+        fontWeight: '600',
+        textAlign: 'right',
+    },
 
-    barralateral: { flex: '0 0 300px' },
-    tarjeta: { background: '#110f22', border: '1px solid #26233d', borderRadius: '16px', padding: '22px' },
-    tituloTarjeta: { color: '#ffffff', fontSize: '16px', fontWeight: '600', margin: '0 0 16px' },
-    dato: { display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '10px 0', borderBottom: '1px solid #1d1b33', fontSize: '13px' },
-    datoNombre: { color: '#94a3b8' },
-    datoValor: { color: '#ffffff', textAlign: 'right' },
+    estadisticas: {
+        display: 'flex',
+        gap: '10px',
+    },
+    estadistica: {
+        flex: 1,
+        background: '#0d0d14',
+        border: '1px solid #181826',
+        borderRadius: '18px',
+        padding: '14px 0',
+        textAlign: 'center',
+    },
+    estadisticaNumero: {
+        color: '#ffffff',
+        fontSize: '18px',
+    },
+    estadisticaNombre: {
+        color: '#8b8fa8',
+        fontSize: '10px',
+        marginTop: '4px',
+    },
+
+    autorTarjeta: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        marginBottom: '16px',
+    },
+    avatarGrande: {
+        width: '38px',
+        height: '38px',
+        borderRadius: '50%',
+        background: 'linear-gradient(135deg, #3b82f6, #7c3aed)',
+        color: '#ffffff',
+        fontSize: '12px',
+        fontWeight: '600',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    botonSeguir: {
+        flex: 1,
+        height: '38px',
+        border: 'none',
+        borderRadius: '30px',
+        background: '#ffffff',
+        color: '#07070f',
+        fontSize: '11px',
+        fontWeight: '600',
+        cursor: 'pointer',
+    },
+    botonPerfil: {
+        flex: 1,
+        height: '38px',
+        border: 'none',
+        borderRadius: '30px',
+        background: '#242433',
+        color: '#ffffff',
+        fontSize: '11px',
+        fontWeight: '600',
+        cursor: 'pointer',
+    },
 };
 
 export default GameDetail;

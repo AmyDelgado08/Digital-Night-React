@@ -1,12 +1,9 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function CreateGame() {
   const navigate = useNavigate();
-
-  const portadaRef = useRef(null);
-  const archivoRef = useRef(null);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -20,8 +17,7 @@ function CreateGame() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  //Crear videojuego
-
+  // Crear videojuego
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -70,12 +66,13 @@ function CreateGame() {
       <div style={styles.contenido}>
         <div style={styles.encabezado}>
           <h1 style={styles.titulo}>Crear videojuego</h1>
-
-          <p style={styles.subtitulo}>Completá la información de tu juego.</p>
+          <p style={styles.subtitulo}>
+            Completá la información de tu juego.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/*archivos del juego*/}
+          {/* Archivos del juego */}
           <section style={styles.tarjeta}>
             <h2 style={styles.seccionTitulo}>Archivos del juego</h2>
 
@@ -84,16 +81,15 @@ function CreateGame() {
             </p>
 
             <div style={styles.archivosPrincipales}>
-              {/*portada*/}
-              <div
-                style={styles.archivoBox}
-                onClick={() => portadaRef.current?.click()}
-              >
+              {/* Portada */}
+              <label style={styles.archivoBox}>
                 {portada ? (
                   <>
                     <div style={styles.icono}>✓</div>
                     <strong>{portada.name}</strong>
-                    <small style={styles.textoAyuda}>Cambiar portada</small>
+                    <small style={styles.textoAyuda}>
+                      Cambiar portada
+                    </small>
                   </>
                 ) : (
                   <>
@@ -106,43 +102,46 @@ function CreateGame() {
                 )}
 
                 <input
-                  ref={portadaRef}
                   type="file"
                   accept="image/png,image/jpeg"
                   hidden
-                  onChange={(e) => setPortada(e.target.files[0] || null)}
+                  onChange={(e) =>
+                    setPortada(e.target.files[0] || null)
+                  }
                 />
-              </div>
+              </label>
 
-              {/*archivos del videojuego*/}
-              <div
-                style={styles.archivoBox}
-                onClick={() => archivoRef.current?.click()}
-              >
+              {/* Archivo del videojuego */}
+              <label style={styles.archivoBox}>
                 {archivo ? (
                   <>
                     <div style={styles.icono}>✓</div>
                     <strong>{archivo.name}</strong>
-                    <small style={styles.textoAyuda}>Cambiar archivo</small>
+                    <small style={styles.textoAyuda}>
+                      Cambiar archivo
+                    </small>
                   </>
                 ) : (
                   <>
                     <div style={styles.icono}>+</div>
                     <strong>Archivo del videojuego</strong>
-                    <small style={styles.textoAyuda}>Seleccionar archivo</small>
+                    <small style={styles.textoAyuda}>
+                      Seleccionar archivo
+                    </small>
                   </>
                 )}
 
                 <input
-                  ref={archivoRef}
                   type="file"
                   hidden
-                  onChange={(e) => setArchivo(e.target.files[0] || null)}
+                  onChange={(e) =>
+                    setArchivo(e.target.files[0] || null)
+                  }
                 />
-              </div>
+              </label>
             </div>
 
-            {/*capturas*/}
+            {/* Capturas */}
             <div style={styles.capturas}>
               {capturas.map((captura, index) => (
                 <label
@@ -156,13 +155,17 @@ function CreateGame() {
                     <>
                       <div style={styles.icono}>✓</div>
                       <strong>Captura {index + 1}</strong>
-                      <small style={styles.textoAyuda}>Cambiar imagen</small>
+                      <small style={styles.textoAyuda}>
+                        Cambiar imagen
+                      </small>
                     </>
                   ) : (
                     <>
                       <div style={styles.icono}>+</div>
                       <strong>Captura {index + 1}</strong>
-                      <small style={styles.textoAyuda}>Opcional</small>
+                      <small style={styles.textoAyuda}>
+                        Opcional
+                      </small>
                     </>
                   )}
 
@@ -183,7 +186,7 @@ function CreateGame() {
             </div>
           </section>
 
-          {/*información*/}
+          {/* Información */}
           <section style={styles.tarjeta}>
             <h2 style={styles.seccionTitulo}>Información</h2>
 
@@ -191,7 +194,7 @@ function CreateGame() {
               Contale a la comunidad de qué trata tu juego.
             </p>
 
-            {/*título*/}
+            {/* Título */}
             <div style={styles.campo}>
               <label style={styles.label}>Título del juego</label>
 
@@ -204,7 +207,7 @@ function CreateGame() {
               />
             </div>
 
-            {/*desc*/}
+            {/* Descripción */}
             <div style={styles.campo}>
               <label style={styles.label}>Descripción</label>
 
@@ -217,7 +220,7 @@ function CreateGame() {
               />
             </div>
 
-            {/*materia y curso*/}
+            {/* Materia y curso */}
             <div style={styles.dosColumnas}>
               <div style={styles.campo}>
                 <label style={styles.label}>Materia</label>

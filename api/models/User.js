@@ -23,15 +23,15 @@ const User = sequelize.define('User', {
         allowNull: false,
 
     },
-    rol: {
-        type: DataTypes.STRING,
-        defaultValue: 'user' //Por defecto se creara siendo User hasta q le asignemos otro rol luego
-    },
     birthdate: {
-        type: DataTypes.DATEONLY, //Solo fecha
-        allowNull: true,
+        type: DataTypes.DATEONLY, //solo fecha, sin hora
+        allowNull: true,          //puede quedar vacía
     },
-
+    rol: {
+        type: DataTypes.ENUM('user', 'admin'), //solo acepta estos 2 valores
+        defaultValue: 'user'
+    },
+    //--- Ajustes de privacidad ---
     isPublic: {
         type: DataTypes.BOOLEAN,
         defaultValue: true, //true = perfil publico, false = perfil privado

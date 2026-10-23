@@ -10,7 +10,8 @@ const User = require('./models/User')
 const Game = require('./models/GameModel')
 const userRoutes = require('./routes/user.routes');
 const validate = require('./middlewares/validate')
-const { registerRules, loginRules } = require('./validators/user')
+const { registerRules, loginRules, changePasswordRules } = require('./validators/user')
+const { createGameRules, updateGameRules } = require('./validators/game')
 
 User.hasMany(Game, { foreignKey: 'authorId', onDelete: 'CASCADE' })
 Game.belongsTo(User, { foreignKey: 'authorId' })
@@ -46,15 +47,15 @@ server.use('/auth', authRoutes)
 server.get('/me', isAuth, me)
 server.put('/users/update', isAuth, updateUser)
 server.put('/users/me', isAuth, updateMe) // Debe ir ANTES de PUT /users/:id (si no, Express tomaria "me" como un id)
-server.put('/users/password', isAuth, updatePassword)
+server.put('/users/password', isAuth, changePasswordRules, validate, updatePassword)
 server.delete('/users/me', isAuth, deleteUser) 
 
 // Rutas de Juegos
 server.get('/games', getGames);
 server.get('/games/mine', isAuth, getMyGames);
 server.get('/games/:id', getGameById);
-server.post('/games', isAuth, createGame);
-server.put('/games/:id', isAuth,isOwnerOrAdmin(Game), updateGame);
+server.post('/games', isAuth, createGameRules, validate, createGame);
+server.put('/games/:id', isAuth, isOwnerOrAdmin(Game), updateGameRules, validate, updateGame);
 server.delete('/games/:id', isAuth,isOwnerOrAdmin(Game), deleteGame);
 
 // RUTAS EXCLUSIVAS DE ADMIN (Única declaración de GET /users)

@@ -18,8 +18,10 @@ import Games from "./components/Games";
 import AdminDashboard from "./components/AdminDashboard";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
-import GameDetail from './components/GameDetail';
-import Seguridad from './components/Security';
+import GameDetail from "./components/GameDetail";
+import Seguridad from "./components/Security";
+import MyGames from "./components/MyGames";
+import CreateGame from "./components/CreateGame";
 
 function App() {
   const navigate = useNavigate();
@@ -54,29 +56,81 @@ function App() {
           </div>
 
           <nav style={style.Nav}>
-            <Link to="/" style={style.navLink}>
+            <Link
+              to="/"
+              style={{
+                ...style.navLink,
+                ...(location.pathname === "/" ? style.navLinkActivo : {}),
+              }}
+            >
               Inicio
             </Link>
 
-            {/* Si hay token mostramos este menu*/}
+            {/* Si hay token mostramos este menu */}
             {token ? (
               <>
-                <Link to="/mis-juegos" style={style.navLink}>Mis juegos</Link>
+                <Link
+                  to="/mis-juegos"
+                  style={{
+                    ...style.navLink,
+                    ...(location.pathname === "/mis-juegos"
+                      ? style.navLinkActivo
+                      : {}),
+                  }}
+                >
+                  Mis juegos
+                </Link>
 
-                <Link to="/editar-perfil" style={style.navLink}>Editar perfil</Link>
+                <Link
+                  to="/editar-perfil"
+                  style={{
+                    ...style.navLink,
+                    ...(location.pathname === "/editar-perfil"
+                      ? style.navLinkActivo
+                      : {}),
+                  }}
+                >
+                  Editar perfil
+                </Link>
 
                 {/* El panel solo aparece para administradores */}
                 {rol === "admin" && (
-                  <Link to="/admin" style={style.navLink}>Panel de administración</Link>
+                  <Link
+                    to="/admin"
+                    style={{
+                      ...style.navLink,
+                      ...(location.pathname === "/admin"
+                        ? style.navLinkActivo
+                        : {}),
+                    }}
+                  >
+                    Panel de administración
+                  </Link>
                 )}
 
-                <button style={style.logoutBtn} onClick={logout}>Cerrar sesión</button>
+                <button style={style.logoutBtn} onClick={logout}>
+                  Cerrar sesión
+                </button>
               </>
             ) : (
-              /* Si no hay token mostramos este otro menu*/
               <>
-                <Link to="/login" style={style.navLink}>Iniciar sesión</Link>
-                <Link to="/register" style={{ ...style.navLink, ...style.navLinkPrimary }}>Registrarse</Link>
+                <Link
+                  to="/login"
+                  style={{
+                    ...style.navLink,
+                    ...(location.pathname === "/login"
+                      ? style.navLinkActivo
+                      : {}),
+                  }}
+                >
+                  Iniciar sesión
+                </Link>
+                <Link
+                  to="/register"
+                  style={{ ...style.navLink, ...style.navLinkPrimary }}
+                >
+                  Registrarse
+                </Link>
               </>
             )}
           </nav>
@@ -91,6 +145,8 @@ function App() {
             <Route element={<EditProfile />} path="/editar-perfil" />
             <Route element={<PublicProfile />} path="/perfil-publico" />
             <Route element={<Games />} path="/games" />
+            <Route element={<MyGames />} path="/mis-juegos" />
+             <Route element={<CreateGame />} path="/crear-juego" />
             <Route element={<AdminDashboard />} path="/admin" />
             <Route element={<ForgotPassword />} path="/olvide-password" />
             <Route element={<ResetPassword />} path="/restablecer/:token" />
@@ -161,6 +217,10 @@ const style = {
     width: "100%",
     boxSizing: "border-box",
   },
+  navLinkActivo: {
+  color: "#ffffff",
+  fontWeight: "700",
+},
 };
 
 export default App;

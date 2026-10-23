@@ -1,7 +1,7 @@
 const express = require('express')
 
 const { getUsers, registerUser, login, me, updateUser , deleteUser, updateUserByAdmin} = require('./controllers/user')
-const { getGames, getGameById, createGame, updateGame, deleteGame } = require('./controllers/game')
+const { getGames, getGameById, createGame, updateGame, deleteGame, getMyGames } = require('./controllers/game')
 const authRoutes = require('./routes/auth.routes')
 const { isAuth , requireRole, isOwnerOrAdmin} = require('./middlewares/auth')
 const sequelize = require('./config/db')
@@ -44,6 +44,7 @@ server.delete('/users/me', isAuth, deleteUser)
 
 // Rutas de Juegos
 server.get('/games', getGames);
+server.get('/games/mine', isAuth, getMyGames);
 server.get('/games/:id', getGameById);
 server.post('/games', isAuth, createGame);
 server.put('/games/:id', isAuth,isOwnerOrAdmin(Game), updateGame);

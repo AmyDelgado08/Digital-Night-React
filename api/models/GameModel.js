@@ -4,14 +4,18 @@ const { DataTypes } = require('sequelize') //DataTypes nos permite decirle a la 
 //Creamos el modelo "Game" (Crea una tabla "Game" en mySQL)
 const Game = sequelize.define('Game', {
     title: {
-        type: DataTypes.STRING, //tipo texto
-        allowNull: false, //Este campo es obligatorio
+        type: DataTypes.STRING,
+        allowNull: false,
     },
     platforms: {
         type: DataTypes.STRING,
     },
     description: {
         type: DataTypes.STRING,
+        allowNull: false,
+    },
+    authorId: {
+        type: DataTypes.INTEGER,
         allowNull: false,
     },
 }, {

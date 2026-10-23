@@ -32,7 +32,7 @@ const createGame = async (req, res) => {
     }
 
     try {
-        const newGame = await Game.create({ title, platforms, description });
+        const newGame = await Game.create({ title, platforms, description, authorId: req.user.id });
         res.status(201).json(newGame);
     } catch (error) {
         res.status(500).json({ message: 'Error al guardar el juego' });
@@ -71,10 +71,28 @@ const deleteGame = async (req, res) => {
     }
 };
 
+// 6. Obtener los juegos del usuario que inició sesión
+const getMyGames = async (req, res) => {
+    try {
+        const games = await Game.findAll({
+            where: {
+                authorId: req.user.id
+            }
+        });
+
+        res.json(games);
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error al obtener tus juegos'
+        });
+    }
+};
+
 module.exports = {
     getGames,
     getGameById,
     createGame,
     updateGame,
-    deleteGame
+    deleteGame,
+    getMyGames
 };

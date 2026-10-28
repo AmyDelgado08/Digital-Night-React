@@ -4,10 +4,13 @@ const express = require('express')
 const { getUsers, registerUser, login, me, updateUser, updateMe, updatePassword, deleteUser, updateUserByAdmin} = require('./controllers/user')
 const { getGames, getGameById, createGame, updateGame, deleteGame, getMyGames } = require('./controllers/game')
 const authRoutes = require('./routes/auth.routes')
-const { isAuth , requireRole, isOwnerOrAdmin} = require('./middlewares/auth')
+const { addFavorite, removeFavorite, playGame, getMyLibrary } = require('./controllers/library')
+const { isAuth , requireRole, isOwnerOrAdmin, optionalAuth} = require('./middlewares/auth')
 const sequelize = require('./config/db')
 const User = require('./models/User')
 const Game = require('./models/GameModel')
+const Favorite = require('./models/Favorite')
+const PlayHistory = require('./models/PlayHistory')
 const userRoutes = require('./routes/user.routes');
 const validate = require('./middlewares/validate')
 const { registerRules, loginRules, changePasswordRules } = require('./validators/user')
@@ -15,6 +18,12 @@ const { createGameRules, updateGameRules } = require('./validators/game')
 
 User.hasMany(Game, { foreignKey: 'authorId', onDelete: 'CASCADE' })
 Game.belongsTo(User, { foreignKey: 'authorId' })
+
+//Si se borra un usuario o un juego, se borran sus favoritos y su historial
+User.hasMany(Favorite, { foreignKey: 'userId', onDelete: 'CASCADE' })
+Game.hasMany(Favorite, { foreignKey: 'gameId', onDelete: 'CASCADE' })
+User.hasMany(PlayHistory, { foreignKey: 'userId', onDelete: 'CASCADE' })
+Game.hasMany(PlayHistory, { foreignKey: 'gameId', onDelete: 'CASCADE' })
 
 const server = express()
 
@@ -48,12 +57,16 @@ server.get('/me', isAuth, me)
 server.put('/users/update', isAuth, updateUser)
 server.put('/users/me', isAuth, updateMe) // Debe ir ANTES de PUT /users/:id (si no, Express tomaria "me" como un id)
 server.put('/users/password', isAuth, changePasswordRules, validate, updatePassword)
-server.delete('/users/me', isAuth, deleteUser) 
+server.delete('/users/me', isAuth, deleteUser)
+server.get('/me/library', isAuth, getMyLibrary) //Biblioteca: favoritos y jugados recientemente
 
 // Rutas de Juegos
 server.get('/games', getGames);
 server.get('/games/mine', isAuth, getMyGames);
-server.get('/games/:id', getGameById);
+server.get('/games/:id', optionalAuth, getGameById);
+server.post('/games/:id/favorite', isAuth, addFavorite);     // Guardar en favoritos
+server.delete('/games/:id/favorite', isAuth, removeFavorite); // Quitar de favoritos
+server.post('/games/:id/play', optionalAuth, playGame);      // Jugar (suma una jugada)
 server.post('/games', isAuth, createGameRules, validate, createGame);
 server.put('/games/:id', isAuth, isOwnerOrAdmin(Game), updateGameRules, validate, updateGame);
 server.delete('/games/:id', isAuth,isOwnerOrAdmin(Game), deleteGame);

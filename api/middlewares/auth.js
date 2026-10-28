@@ -76,8 +76,41 @@ const isOwnerOrAdmin = (Model, options = {}) => async (req, res, next) => {
     return res.status(403).json({ message: 'No tienes permiso para esta acción' });
 };
 
+//Igual que isAuth pero NO obliga a tener sesion.
+//Si llega un token valido guarda el usuario en req.user, y si no, deja pasar igual.
+//Sirve para pantallas publicas que muestran algo extra si iniciaste sesion.
+const optionalAuth = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.startsWith('Bearer ')
+        ? authHeader.split(' ')[1]
+        : authHeader;
+
+    if (!token) {
+        return next();
+    }
+
+    jwt.verify(token, SECRET, async (err, decoded) => {
+        if (err) {
+            return next();
+        }
+
+        const user = await User.findByPk(decoded.id);
+
+        if (user) {
+            req.user = {
+                id: user.id,
+                email: user.email,
+                rol: user.rol
+            };
+        }
+
+        next();
+    });
+};
+
 module.exports = {
     isAuth,
+    optionalAuth,
     requireRole,
     isAdmin,
     isOwnerOrAdmin

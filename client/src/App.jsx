@@ -23,6 +23,7 @@ import Seguridad from "./components/Security";
 import Privacidad from "./components/Privacy";
 import MyGames from "./components/MyGames";
 import CreateGame from "./components/CreateGame";
+import Library from "./components/Library";
 
 function App() {
   const navigate = useNavigate();
@@ -70,6 +71,18 @@ function App() {
             {/* Si hay token mostramos este menu */}
             {token ? (
               <>
+                <Link
+                  to="/biblioteca"
+                  style={{
+                    ...style.navLink,
+                    ...(location.pathname === "/biblioteca"
+                      ? style.navLinkActivo
+                      : {}),
+                  }}
+                >
+                  Biblioteca
+                </Link>
+
                 <Link
                   to="/mis-juegos"
                   style={{
@@ -147,6 +160,7 @@ function App() {
             <Route element={<PublicProfile />} path="/perfil-publico" />
             <Route element={<Games />} path="/games" />
             <Route element={<MyGames />} path="/mis-juegos" />
+            <Route element={<Library />} path="/biblioteca" />
              <Route element={<CreateGame />} path="/crear-juego" />
             <Route element={<AdminDashboard />} path="/admin" />
             <Route element={<ForgotPassword />} path="/olvide-password" />

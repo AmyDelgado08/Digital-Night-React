@@ -1,7 +1,6 @@
 const sequelize = require("../config/db");
 const { DataTypes } = require('sequelize') //DataTypes nos permite decirle a la bd que tipo de info va a guardar cada columna (text, num, fechas, etc)
 
-//Creamos el modelo "Game" (Crea una tabla "Game" en mySQL)
 const Game = sequelize.define('Game', {
     title: {
         type: DataTypes.STRING,
@@ -17,6 +16,10 @@ const Game = sequelize.define('Game', {
     authorId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+    },
+    plays: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
     },
 }, {
     timestamps: true, //Se creara automaticamente dos columnas para saber cuando se creo o modifico el juego

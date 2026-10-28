@@ -1,4 +1,6 @@
 const Game = require('../models/GameModel');
+const User = require('../models/User');
+const Favorite = require('../models/Favorite');
 
 // 1. Obtener todos los juegos
 const getGames = async (req, res) => {
@@ -17,8 +19,27 @@ const getGameById = async (req, res) => {
         if (!game) {
             return res.status(404).json({ message: 'Juego no encontrado' });
         }
-        res.json(game);
+
+        //Datos publicos del autor (nunca la contraseña ni el email)
+        const author = await User.findByPk(game.authorId, {
+            attributes: ['id', 'firstName', 'lastName']
+        });
+
+        //Cuantas personas lo tienen en favoritos
+        const favoritesCount = await Favorite.count({ where: { gameId: game.id } });
+
+        //Si inicio sesion (optionalAuth), vemos si ya lo tiene guardado
+        let isFavorite = false;
+        if (req.user) {
+            const favorito = await Favorite.findOne({
+                where: { userId: req.user.id, gameId: game.id }
+            });
+            isFavorite = !!favorito;
+        }
+
+        res.json({ ...game.toJSON(), author, favoritesCount, isFavorite });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Error al buscar el juego' });
     }
 };

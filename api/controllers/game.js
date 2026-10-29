@@ -6,8 +6,20 @@ const Favorite = require('../models/Favorite');
 const getGames = async (req, res) => {
     try {
         const games = await Game.findAll();
-        res.json(games);
+
+        const autores = await User.findAll({
+            where: { id: games.map((game) => game.authorId) },
+            attributes: ['id', 'firstName', 'lastName']
+        });
+
+        const resultado = games.map((game) => {
+            const autor = autores.find((user) => user.id === game.authorId);
+            return { ...game.toJSON(), author: autor || null };
+        });
+
+        res.json(resultado);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Error al obtener los juegos' });
     }
 };

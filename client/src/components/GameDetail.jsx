@@ -15,11 +15,21 @@ const leerCapturas = (screenshots) => {
     }
 };
 
+// Muestra los numeros grandes cortitos: 12400 -> "12,4k"
+const formatearNumero = (numero) => {
+    if (!numero) return 0;
+    if (numero >= 1000) {
+        return (numero / 1000).toFixed(1).replace('.', ',') + 'k';
+    }
+    return numero;
+};
+
 function GameDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [game, setGame] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [pestaña, setPestaña] = useState('descripcion');
 
     useEffect(() => {
         const fetchGame = async () => {
@@ -111,7 +121,6 @@ function GameDetail() {
         return <div style={estilos.contenedor}><p style={estilos.mensaje}>Juego no encontrado.</p></div>;
     }
 
-    // Datos que calculamos para mostrar
     const capturas = leerCapturas(game.screenshots);
     const nombreAutor = game.author
         ? `${game.author.firstName} ${game.author.lastName || ''}`.trim()
@@ -120,7 +129,29 @@ function GameDetail() {
         ? (game.author.firstName.charAt(0) + (game.author.lastName || '').charAt(0)).toUpperCase()
         : 'U';
     const tieneValoraciones = game.ratingsCount > 0;
+    const fechaPublicado = new Date(game.createdAt).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
     const verPerfilAutor = () => navigate(`/usuarios/${game.authorId}`);
+
+    const esYoutube = game.videoUrl && game.videoUrl.includes('youtube.com/watch');
+
+    const imagenPrincipal = game.coverImage || capturas[0];
+
+    const seccionCapturas = (
+        <>
+            <h2 style={estilos.subtitulo}>Capturas</h2>
+            {capturas.length > 0 ? (
+                <div style={estilos.capturas}>
+                    {capturas.map((captura, i) => (
+                        <a key={i} href={API + captura} target="_blank" rel="noreferrer" style={estilos.capturaLink}>
+                            <img src={API + captura} alt={`Captura ${i + 1}`} style={estilos.capturaImagen} />
+                        </a>
+                    ))}
+                </div>
+            ) : (
+                <p style={estilos.textoVacio}>Este juego todavía no tiene capturas.</p>
+            )}
+        </>
+    );
 
     return (
         <div style={estilos.contenedor}>
@@ -142,13 +173,19 @@ function GameDetail() {
                 <div style={estilos.cabeceraInterior}>
                     <div style={estilos.cabeceraTexto}>
                         <p style={estilos.ruta}>
-                            Explorar / <span style={estilos.rutaLink} onClick={() => navigate('/games')}>Juegos</span> / <span style={estilos.rutaActual}>{game.title}</span>
+                            <span style={estilos.rutaLink} onClick={() => navigate('/games')}>Explorar</span>
+                            <span style={estilos.rutaBarra}>/</span>
+                            <span style={estilos.rutaLink} onClick={() => navigate('/games')}>Juegos</span>
+                            <span style={estilos.rutaBarra}>/</span>
+                            <span style={estilos.rutaActual}>{game.title}</span>
                         </p>
+
                         <div style={estilos.etiquetas}>
-                            {game.platforms && <span style={estilos.etiquetaClara}>{game.platforms}</span>}
-                            {game.subject && <span style={estilos.etiquetaClara}>{game.subject}</span>}
-                            {game.grade && <span style={estilos.etiquetaClara}>{game.grade}</span>}
+                            {game.subject && <span style={estilos.etiquetaPrincipal}>{game.subject}</span>}
+                            {game.platforms && <span style={estilos.etiqueta}>{game.platforms}</span>}
+                            {game.grade && <span style={estilos.etiqueta}>{game.grade}</span>}
                         </div>
+
                         <h1 style={estilos.titulo}>{game.title}</h1>
                         <p style={estilos.resumen}>{game.description}</p>
 
@@ -156,7 +193,7 @@ function GameDetail() {
                             <div style={estilos.avatar}>{inicialesAutor}</div>
                             <div>
                                 <div style={estilos.autorLink} onClick={verPerfilAutor}>{nombreAutor}</div>
-                                <div style={estilos.autorDato}>Publicado el {new Date(game.createdAt).toLocaleDateString('es-AR')}</div>
+                                <div style={estilos.autorDato}>Publicado el {fechaPublicado}</div>
                             </div>
 
                             {/* Valoracion promedio real (si todavia no hay votos, lo decimos) */}
@@ -167,7 +204,7 @@ function GameDetail() {
                                     <div>
                                         <div style={estilos.estrellas}>
                                             {[1, 2, 3, 4, 5].map((n) => (
-                                                <svg key={n} width="12" height="12" viewBox="0 0 24 24" fill={n <= Math.round(game.avgRating) ? '#f5b301' : '#3a3a4d'}>
+                                                <svg key={n} width="11" height="11" viewBox="0 0 24 24" fill={n <= Math.round(game.avgRating) ? '#fbbf24' : '#3a3760'}>
                                                     <path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" />
                                                 </svg>
                                             ))}
@@ -182,7 +219,7 @@ function GameDetail() {
 
                         <div style={estilos.botones}>
                             <button style={estilos.botonJugar} onClick={jugar}>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round">
                                     <path d="M7 4l13 8-13 8z" />
                                 </svg>
                                 Jugar ahora
@@ -191,13 +228,13 @@ function GameDetail() {
                                 style={game.isFavorite ? estilos.botonGuardado : estilos.botonSecundario}
                                 onClick={toggleFavorito}
                             >
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill={game.isFavorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill={game.isFavorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
                                     <path d="M6 3h12v18l-6-4-6 4z" />
                                 </svg>
                                 {game.isFavorite ? 'Guardado' : 'Guardar'}
                             </button>
                             <button style={estilos.botonSecundario} onClick={compartir}>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M12 15V3M7 8l5-5 5 5M4 14v6h16v-6" />
                                 </svg>
                                 Compartir
@@ -205,44 +242,70 @@ function GameDetail() {
                         </div>
                     </div>
 
-                    {/* Portada del juego (si no tiene, mostramos el degradado) */}
-                    {game.coverImage ? (
-                        <img src={API + game.coverImage} alt={`Portada de ${game.title}`} style={estilos.portada} />
-                    ) : (
-                        <div style={estilos.vistaPrevia} />
-                    )}
+                    {/* Video del juego. Si no tiene video mostramos la portada o la primera captura. Si no tiene nada queda vacio */}
+                    <div style={estilos.portadaCaja}>
+                        {esYoutube ? (
+                            <iframe
+                                src={game.videoUrl.replace('watch?v=', 'embed/')}
+                                title={`Video de ${game.title}`}
+                                style={estilos.video}
+                                allowFullScreen
+                            />
+                        ) : game.videoUrl ? (
+                            <video src={game.videoUrl} controls style={estilos.video} />
+                        ) : imagenPrincipal ? (
+                            <img src={API + imagenPrincipal} alt={`Imagen de ${game.title}`} style={estilos.portada} />
+                        ) : null}
+                    </div>
                 </div>
             </div>
 
-            {/* Contenido: descripción + capturas + barra lateral */}
+            {/* Contenido: pestañas + barra lateral */}
             <div style={estilos.contenido}>
                 <div style={estilos.columnaPrincipal}>
-                    <h2 style={estilos.subtitulo}>Sobre el juego</h2>
-                    <p style={estilos.parrafo}>{game.description}</p>
+                    <div style={estilos.pestañas}>
+                        <span
+                            style={pestaña === 'descripcion' ? estilos.pestañaActiva : estilos.pestaña}
+                            onClick={() => setPestaña('descripcion')}
+                        >
+                            Descripción
+                        </span>
+                        <span
+                            style={pestaña === 'capturas' ? estilos.pestañaActiva : estilos.pestaña}
+                            onClick={() => setPestaña('capturas')}
+                        >
+                            Capturas
+                        </span>
+                        <span
+                            style={pestaña === 'valoraciones' ? estilos.pestañaActiva : estilos.pestaña}
+                            onClick={() => setPestaña('valoraciones')}
+                        >
+                            Valoraciones ({game.ratingsCount || 0})
+                        </span>
+                    </div>
 
-                    <h2 style={estilos.subtitulo}>Capturas</h2>
-                    {capturas.length > 0 ? (
-                        <div style={estilos.capturas}>
-                            {capturas.map((captura, i) => (
-                                <a key={i} href={API + captura} target="_blank" rel="noreferrer" style={estilos.capturaLink}>
-                                    <img src={API + captura} alt={`Captura ${i + 1}`} style={estilos.capturaImagen} />
-                                </a>
-                            ))}
-                        </div>
-                    ) : (
-                        <p style={estilos.textoVacio}>Este juego todavía no tiene capturas.</p>
+                    {pestaña === 'descripcion' && (
+                        <>
+                            <h2 style={estilos.subtitulo}>Sobre el juego</h2>
+                            <p style={estilos.parrafo}>{game.description}</p>
+                            {seccionCapturas}
+                        </>
                     )}
 
-                    {/* Acá van las valoraciones y los comentarios (parte de Luciano) */}
+                    {pestaña === 'capturas' && seccionCapturas}
+
+                    {pestaña === 'valoraciones' && (
+                        <>
+                            <h2 style={estilos.subtitulo}>Valoraciones</h2>
+                            {/* Acá van las valoraciones y los comentarios (parte de Luciano) */}
+                            <p style={estilos.textoVacio}>Todavía no hay valoraciones para este juego.</p>
+                        </>
+                    )}
                 </div>
 
                 <div style={estilos.barralateral}>
                     <div style={estilos.tarjeta}>
                         <h3 style={estilos.tituloTarjeta}>Ficha del juego</h3>
-                        <div style={estilos.dato}>
-                            <span style={estilos.datoNombre}>Plataformas</span>
-                            <span style={estilos.datoValor}>{game.platforms || '-'}</span>
-                        </div>
                         <div style={estilos.dato}>
                             <span style={estilos.datoNombre}>Materia</span>
                             <span style={estilos.datoValor}>{game.subject || '-'}</span>
@@ -252,26 +315,26 @@ function GameDetail() {
                             <span style={estilos.datoValor}>{game.grade || '-'}</span>
                         </div>
                         <div style={estilos.dato}>
-                            <span style={estilos.datoNombre}>Publicado</span>
-                            <span style={estilos.datoValor}>{new Date(game.createdAt).toLocaleDateString('es-AR')}</span>
+                            <span style={estilos.datoNombre}>Plataforma</span>
+                            <span style={estilos.datoValor}>{game.platforms || '-'}</span>
                         </div>
                         <div style={estilos.dato}>
-                            <span style={estilos.datoNombre}>Actualizado</span>
-                            <span style={estilos.datoValor}>{new Date(game.updatedAt).toLocaleDateString('es-AR')}</span>
+                            <span style={estilos.datoNombre}>Lanzamiento</span>
+                            <span style={estilos.datoValor}>{fechaPublicado}</span>
                         </div>
                         <div style={estilos.datoUltimo}>
-                            <span style={estilos.datoNombre}>Autor</span>
-                            <span style={{ ...estilos.datoValor, ...estilos.autorLink }} onClick={verPerfilAutor}>{nombreAutor}</span>
+                            <span style={estilos.datoNombre}>Actualizado</span>
+                            <span style={estilos.datoValor}>{new Date(game.updatedAt).toLocaleDateString('es-AR')}</span>
                         </div>
                     </div>
 
                     <div style={estilos.estadisticas}>
                         <div style={estilos.estadistica}>
-                            <div style={estilos.estadisticaNumero}>{game.plays || 0}</div>
+                            <div style={estilos.estadisticaNumero}>{formatearNumero(game.plays)}</div>
                             <div style={estilos.estadisticaNombre}>Jugadas</div>
                         </div>
                         <div style={estilos.estadistica}>
-                            <div style={estilos.estadisticaNumero}>{game.favoritesCount || 0}</div>
+                            <div style={estilos.estadisticaNumero}>{formatearNumero(game.favoritesCount)}</div>
                             <div style={estilos.estadisticaNombre}>Favoritos</div>
                         </div>
                         <div style={estilos.estadistica}>
@@ -296,9 +359,28 @@ function GameDetail() {
     );
 }
 
+// Colores que se repiten en toda la pagina
+const violeta = 'linear-gradient(90deg, #8f84ff 0%, #6b5cf0 100%)';
+const fondoTarjeta = 'rgba(24, 21, 58, 0.65)';
+const bordeTarjeta = '1px solid rgba(143, 132, 255, 0.18)';
+const textoGris = '#9a97c0';
+
+// Estrellitas del fondo (cada radial-gradient es un puntito blanco)
+const estrellas =
+    'radial-gradient(1.5px 1.5px at 8% 20%, #ffffff, transparent),' +
+    'radial-gradient(1px 1px at 22% 70%, #ffffff, transparent),' +
+    'radial-gradient(1.5px 1.5px at 35% 12%, #c7c2ff, transparent),' +
+    'radial-gradient(1px 1px at 47% 85%, #ffffff, transparent),' +
+    'radial-gradient(2px 2px at 52% 30%, #ffffff, transparent),' +
+    'radial-gradient(1px 1px at 63% 8%, #ffffff, transparent),' +
+    'radial-gradient(1.5px 1.5px at 74% 92%, #c7c2ff, transparent),' +
+    'radial-gradient(1px 1px at 88% 18%, #ffffff, transparent),' +
+    'radial-gradient(2px 2px at 95% 60%, #ffffff, transparent),' +
+    'radial-gradient(1px 1px at 15% 45%, #ffffff, transparent)';
+
 const estilos = {
     contenedor: {
-        background: '#050509',
+        background: '#0b0a1c',
         minHeight: '85vh',
         color: '#e2e8f0',
         fontFamily: "'Montserrat', 'Segoe UI', sans-serif",
@@ -323,78 +405,99 @@ const estilos = {
         fontSize: '14px',
         textAlign: 'center',
     },
+
+    // ---------- Cabecera ----------
     cabecera: {
-        padding: '80px 32px',
-        minHeight: '500px',
+        padding: '70px 32px 90px',
+        minHeight: '460px',
         display: 'flex',
         alignItems: 'center',
         boxSizing: 'border-box',
-        background: 'radial-gradient(circle at 75% 40%, rgba(88, 60, 200, 0.45) 0%, transparent 55%), linear-gradient(135deg, #070720 0%, #0d0c33 60%, #14104a 100%)',
+        borderBottom: '1px solid rgba(143, 132, 255, 0.12)',
+        background:
+            estrellas + ',' +
+            'radial-gradient(ellipse at 70% 45%, rgba(111, 92, 240, 0.35) 0%, transparent 55%),' +
+            'radial-gradient(ellipse at 10% 100%, rgba(59, 70, 200, 0.25) 0%, transparent 50%),' +
+            'linear-gradient(180deg, #0d0b26 0%, #120f36 100%)',
     },
     cabeceraInterior: {
         width: '100%',
-        maxWidth: '960px',
+        maxWidth: '1000px',
         margin: '0 auto',
         display: 'flex',
-        gap: '90px',
+        gap: '60px',
         flexWrap: 'wrap',
         alignItems: 'center',
     },
     cabeceraTexto: {
-        flex: '0 1 350px',
+        flex: '1 1 360px',
     },
     ruta: {
-        color: '#8b8fa8',
+        color: textoGris,
         fontSize: '11px',
-        margin: '0 0 16px',
+        margin: '0 0 14px',
     },
     rutaLink: {
         cursor: 'pointer',
+    },
+    rutaBarra: {
+        margin: '0 8px',
+        opacity: 0.5,
     },
     rutaActual: {
         color: '#ffffff',
     },
     etiquetas: {
         display: 'flex',
-        gap: '8px',
+        gap: '6px',
         flexWrap: 'wrap',
     },
-    etiquetaClara: {
-        background: '#ffffff',
-        color: '#07070f',
-        fontSize: '11px',
+    etiquetaPrincipal: {
+        background: violeta,
+        color: '#ffffff',
+        fontSize: '10px',
         fontWeight: '600',
-        padding: '5px 13px',
+        padding: '5px 12px',
+        borderRadius: '20px',
+    },
+    etiqueta: {
+        background: 'rgba(255, 255, 255, 0.06)',
+        border: '1px solid rgba(255, 255, 255, 0.12)',
+        color: '#e2e0ff',
+        fontSize: '10px',
+        fontWeight: '600',
+        padding: '4px 12px',
         borderRadius: '20px',
     },
     titulo: {
         color: '#ffffff',
-        fontSize: '52px',
-        fontWeight: '400',
+        fontSize: '54px',
+        fontWeight: '700',
+        letterSpacing: '-1px',
         lineHeight: 1.1,
         margin: '14px 0 16px',
     },
     resumen: {
-        color: '#d3d6e6',
+        color: '#cfcde8',
         fontSize: '14px',
-        lineHeight: 1.55,
-        margin: '0 0 20px',
-        maxWidth: '350px',
+        lineHeight: 1.6,
+        margin: '0 0 22px',
+        maxWidth: '380px',
     },
     autor: {
         display: 'flex',
         alignItems: 'center',
         gap: '10px',
-        marginBottom: '24px',
+        marginBottom: '26px',
     },
     avatar: {
-        width: '36px',
-        height: '36px',
+        width: '34px',
+        height: '34px',
         borderRadius: '50%',
-        background: 'linear-gradient(135deg, #3b82f6, #7c3aed)',
+        background: violeta,
         color: '#ffffff',
-        fontSize: '12px',
-        fontWeight: '600',
+        fontSize: '11px',
+        fontWeight: '700',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -406,14 +509,29 @@ const estilos = {
     },
     autorLink: {
         color: '#ffffff',
-        fontSize: '13px',
+        fontSize: '12px',
         fontWeight: '600',
         cursor: 'pointer',
-        textDecoration: 'underline',
     },
     autorDato: {
-        color: '#8b8fa8',
-        fontSize: '11px',
+        color: textoGris,
+        fontSize: '10px',
+        marginTop: '2px',
+    },
+    separador: {
+        width: '1px',
+        height: '30px',
+        background: 'rgba(255, 255, 255, 0.15)',
+        margin: '0 6px',
+    },
+    valoracionNota: {
+        color: '#ffffff',
+        fontSize: '22px',
+        fontWeight: '700',
+    },
+    estrellas: {
+        display: 'flex',
+        gap: '2px',
     },
     botones: {
         display: 'flex',
@@ -424,27 +542,28 @@ const estilos = {
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        background: '#ffffff',
-        color: '#07070f',
+        background: violeta,
+        color: '#ffffff',
         border: 'none',
         borderRadius: '30px',
-        height: '40px',
-        padding: '0 24px',
-        fontSize: '12px',
+        height: '42px',
+        padding: '0 28px',
+        fontSize: '13px',
         fontWeight: '600',
         cursor: 'pointer',
+        boxShadow: '0 8px 24px rgba(111, 92, 240, 0.45)',
     },
     botonSecundario: {
         display: 'flex',
         alignItems: 'center',
         gap: '7px',
-        background: 'rgba(255,255,255,0.1)',
+        background: 'rgba(255, 255, 255, 0.04)',
         color: '#ffffff',
-        border: 'none',
+        border: '1px solid rgba(255, 255, 255, 0.18)',
         borderRadius: '30px',
-        height: '40px',
-        padding: '0 18px',
-        fontSize: '11px',
+        height: '42px',
+        padding: '0 20px',
+        fontSize: '12px',
         fontWeight: '600',
         cursor: 'pointer',
     },
@@ -452,57 +571,49 @@ const estilos = {
         display: 'flex',
         alignItems: 'center',
         gap: '7px',
-        background: '#7c3aed',
+        background: 'rgba(143, 132, 255, 0.2)',
         color: '#ffffff',
-        border: 'none',
+        border: '1px solid #8f84ff',
         borderRadius: '30px',
-        height: '40px',
-        padding: '0 18px',
-        fontSize: '11px',
+        height: '42px',
+        padding: '0 20px',
+        fontSize: '12px',
         fontWeight: '600',
         cursor: 'pointer',
     },
-    separador: {
-        width: '1px',
-        height: '32px',
-        background: 'rgba(255,255,255,0.15)',
-        margin: '0 6px',
-    },
-    valoracionNota: {
-        color: '#ffffff',
-        fontSize: '22px',
-    },
-    estrellas: {
-        display: 'flex',
-        gap: '2px',
-        marginBottom: '2px',
-    },
 
-    vistaPrevia: {
-        flex: '1 1 460px',
+    // Portada con el boton de play en el medio
+    portadaCaja: {
+        flex: '1 1 440px',
+        position: 'relative',
+        borderRadius: '24px',
+        border: '1px solid rgba(143, 132, 255, 0.25)',
+        overflow: 'hidden',
         aspectRatio: '16 / 9',
-        borderRadius: '28px',
-        border: '1px solid rgba(255,255,255,0.15)',
-        background: 'linear-gradient(135deg, #14123a 0%, #2b1a6b 50%, #12365e 100%)',
-        boxSizing: 'border-box',
+        background: 'rgba(24, 21, 58, 0.45)',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
+    },
+    video: {
+        width: '100%',
+        height: '100%',
+        border: 'none',
+        display: 'block',
+        background: '#000000',
     },
     portada: {
-        flex: '1 1 460px',
         width: '100%',
-        maxWidth: '520px',
-        aspectRatio: '16 / 9',
+        height: '100%',
         objectFit: 'cover',
-        borderRadius: '28px',
-        border: '1px solid rgba(255,255,255,0.15)',
-        boxSizing: 'border-box',
+        display: 'block',
     },
 
+    // ---------- Contenido ----------
     contenido: {
-        maxWidth: '960px',
+        maxWidth: '1000px',
         margin: '0 auto',
-        padding: '40px 32px 60px',
+        padding: '44px 32px 70px',
         display: 'flex',
-        gap: '40px',
+        gap: '36px',
         flexWrap: 'wrap',
         alignItems: 'flex-start',
         boxSizing: 'border-box',
@@ -510,106 +621,132 @@ const estilos = {
     columnaPrincipal: {
         flex: '1 1 480px',
     },
+    pestañas: {
+        display: 'flex',
+        gap: '26px',
+        borderBottom: '1px solid rgba(143, 132, 255, 0.15)',
+        marginBottom: '30px',
+    },
+    pestaña: {
+        color: textoGris,
+        fontSize: '12px',
+        padding: '0 0 12px',
+        cursor: 'pointer',
+    },
+    pestañaActiva: {
+        color: '#ffffff',
+        fontSize: '12px',
+        fontWeight: '600',
+        padding: '0 0 12px',
+        cursor: 'pointer',
+        borderBottom: '2px solid #8f84ff',
+        marginBottom: '-1px',
+    },
     subtitulo: {
         color: '#ffffff',
-        fontSize: '24px',
-        fontWeight: '400',
+        fontSize: '21px',
+        fontWeight: '600',
         margin: '0 0 14px',
     },
     parrafo: {
-        color: '#b4b8cc',
+        color: '#b9b6d8',
         fontSize: '13px',
-        lineHeight: 1.7,
+        lineHeight: 1.75,
         margin: '0 0 40px',
         whiteSpace: 'pre-line',
     },
     capturas: {
         display: 'flex',
-        gap: '10px',
+        gap: '12px',
         flexWrap: 'wrap',
         marginBottom: '40px',
     },
     capturaLink: {
-        flex: '1 1 140px',
+        flex: '1 1 150px',
     },
     capturaImagen: {
         width: '100%',
-        aspectRatio: '12 / 7',
+        aspectRatio: '16 / 10',
         objectFit: 'cover',
         borderRadius: '14px',
-        border: '1px solid #26233d',
+        border: bordeTarjeta,
         display: 'block',
     },
     textoVacio: {
-        color: '#8b8fa8',
+        color: textoGris,
         fontSize: '13px',
+        background: fondoTarjeta,
+        border: '1px dashed rgba(143, 132, 255, 0.25)',
+        borderRadius: '14px',
+        padding: '26px',
+        textAlign: 'center',
         margin: '0 0 40px',
     },
 
+    // ---------- Barra lateral ----------
     barralateral: {
-        flex: '0 0 262px',
+        flex: '0 0 270px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '16px',
+        gap: '14px',
     },
     tarjeta: {
-        background: '#0d0d14',
-        borderRadius: '22px',
+        background: fondoTarjeta,
+        border: bordeTarjeta,
+        borderRadius: '18px',
         padding: '20px 18px',
-        border: '1px solid #181826',
     },
     tituloTarjeta: {
         color: '#ffffff',
         fontSize: '15px',
-        fontWeight: '500',
-        margin: '0 0 12px',
+        fontWeight: '600',
+        margin: '0 0 10px',
     },
     dato: {
         display: 'flex',
         justifyContent: 'space-between',
         gap: '12px',
-        padding: '10px 0',
-        borderBottom: '1px solid #1d1d2b',
+        padding: '11px 0',
+        borderBottom: '1px solid rgba(143, 132, 255, 0.12)',
         fontSize: '11px',
     },
     datoUltimo: {
         display: 'flex',
         justifyContent: 'space-between',
         gap: '12px',
-        padding: '10px 0 0',
+        padding: '11px 0 0',
         fontSize: '11px',
     },
     datoNombre: {
-        color: '#8b8fa8',
+        color: textoGris,
     },
     datoValor: {
         color: '#ffffff',
         fontWeight: '600',
         textAlign: 'right',
     },
-
     estadisticas: {
         display: 'flex',
         gap: '10px',
     },
     estadistica: {
         flex: 1,
-        background: '#0d0d14',
-        border: '1px solid #181826',
-        borderRadius: '18px',
+        background: fondoTarjeta,
+        border: bordeTarjeta,
+        borderRadius: '16px',
         padding: '14px 0',
         textAlign: 'center',
     },
     estadisticaNumero: {
         color: '#ffffff',
-        fontSize: '18px',
+        fontSize: '19px',
+        fontWeight: '700',
     },
     estadisticaNombre: {
-        color: '#8b8fa8',
+        color: textoGris,
         fontSize: '10px',
-        marginTop: '4px',
+        marginTop: '3px',
     },
-
     autorTarjeta: {
         display: 'flex',
         alignItems: 'center',
@@ -617,13 +754,13 @@ const estilos = {
         marginBottom: '16px',
     },
     avatarGrande: {
-        width: '38px',
-        height: '38px',
+        width: '40px',
+        height: '40px',
         borderRadius: '50%',
-        background: 'linear-gradient(135deg, #3b82f6, #7c3aed)',
+        background: violeta,
         color: '#ffffff',
-        fontSize: '12px',
-        fontWeight: '600',
+        fontSize: '13px',
+        fontWeight: '700',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -633,9 +770,9 @@ const estilos = {
         height: '38px',
         border: 'none',
         borderRadius: '30px',
-        background: '#242433',
+        background: violeta,
         color: '#ffffff',
-        fontSize: '11px',
+        fontSize: '12px',
         fontWeight: '600',
         cursor: 'pointer',
     },

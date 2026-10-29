@@ -21,6 +21,9 @@ const Game = sequelize.define('Game', {
         type: DataTypes.INTEGER,
         defaultValue: 0,
     },
+    videoUrl: {
+        type: DataTypes.STRING,
+    },
 }, {
     timestamps: true, //Se creara automaticamente dos columnas para saber cuando se creo o modifico el juego
     modelName: 'Game'

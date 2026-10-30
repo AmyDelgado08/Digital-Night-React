@@ -87,4 +87,4 @@ server.use(userRoutes);
 server.listen(3000, async () => {
     await sequelize.sync({ force: false })
     console.log("El server esta corriendo en el puerto 3000");
-})
+}) 

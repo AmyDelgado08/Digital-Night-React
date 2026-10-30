@@ -14,18 +14,13 @@ const updateGameRules = [
 
 const reviewGameRules = [
     body('status')
-        .trim()
-        .notEmpty().withMessage('El estado es obligatorio')
-        .isIn(['publicado', 'rechazado']).withMessage('El estado debe ser publicado o rechazado'),
+        .isIn(['publicado', 'rechazado'])
+        .withMessage('El estado debe ser publicado o rechazado'),
     body('reason')
         .if(body('status').equals('rechazado'))
-        .custom((val, { req }) => {
-            const motivo = val || req.body.rejectionReason;
-            if (!motivo || !String(motivo).trim()) {
-                throw new Error('El motivo de rechazo es obligatorio');
-            }
-            return true;
-        })
+        .trim()
+        .notEmpty()
+        .withMessage('El motivo de rechazo es obligatorio')
 ]
 
 module.exports = {

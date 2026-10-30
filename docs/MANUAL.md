@@ -78,6 +78,11 @@ DigitalNight es una aplicación web full-stack compuesta por un cliente interact
      CREATE DATABASE digitalnight;
      ```
      *(Nota: Solo necesitás crear la base vacía; todas las tablas, columnas y relaciones las crea automáticamente Sequelize al iniciar el servidor).*
+   * **Cargar datos iniciales (Seed):**
+     Para contar inmediatamente con un usuario administrador (`admin@digitalnight.com` / `Admin1234!`) y 3 videojuegos publicados de prueba:
+     ```bash
+     npm run seed
+     ```
    * Iniciá el servidor:
      ```bash
      npm start
@@ -283,11 +288,23 @@ Espacio personal donde se almacenan tus juegos guardados y tu historial de activ
 ### 6.2 Subida de portada, capturas y archivos *(Adrian)*
 *(Sección a cargo de Adrian: especificaciones de Multer, formatos PNG/JPG, archivos comprimidos .zip/.rar y límite de 50 MB).*
 
-### 6.3 Estados del juego *(JoseLuis)*
-*(Sección a cargo de JoseLuis: flujo entre En revisión, Publicado y Rechazado con motivo).*
+### 6.3 Estados del juego: En revisión, Publicado y Rechazado *(JoseLuis)*
+
+Para garantizar la calidad de los contenidos escolares y la seguridad de la comunidad, los juegos transitan por tres estados:
+* **En revisión (`pendiente`):** Estado asignado automáticamente al crear o editar un juego (a excepción de los creados por un administrador). Es visible únicamente para su autor y para los administradores.
+* **Publicado (`publicado`):** Aprobado por el equipo de moderación. Aparece en el catálogo general (`/games`), en búsquedas y en perfiles.
+* **Rechazado (`rechazado`):** Denegado por un administrador por motivos pedagógicos o técnicos, adjuntando obligatoriamente una justificación para su corrección.
+
+> **Regla de integridad:** Cuando el autor edita un juego existente, este vuelve automáticamente al estado **En revisión** para una nueva verificación.
 
 ### 6.4 Mis creaciones y edición *(Adrian y JoseLuis)*
-*(Sección a cargo de Adrian y JoseLuis: pantalla `/mis-juegos`, métricas por estado y edición en `/editar-juego/:id`).*
+
+Vista accesible desde `/mis-juegos` para los creadores de contenido.
+
+**Características:**
+* **Métricas superiores:** Contadores en tiempo real de títulos **Publicados**, **En revisión** y **Rechazados**.
+* **Listado de creaciones:** Muestra la portada, título, descripción, fecha de actualización y etiqueta de estado de cada título propio. En caso de juegos rechazados, se muestra en rojo el motivo de rechazo.
+* **Edición (botón ✎):** Redirige directamente a `/editar-juego/:id` para actualizar datos, portadas o enlaces del videojuego.
 
 ### 6.5 Eliminar un juego *(Adrian)*
 *(Sección a cargo de Adrian: confirmación y borrado en cascada con `DELETE /games/:id`).*
@@ -309,11 +326,23 @@ Espacio personal donde se almacenan tus juegos guardados y tu historial de activ
 
 ## 8. Panel de Administración *(JoseLuis)*
 
+Módulo exclusivo para usuarios con rol `admin` disponible en `/admin`.
+
 ### 8.1 Gestión y moderación de usuarios *(JoseLuis)*
-*(Sección a cargo de JoseLuis: listado general, creación y edición de roles en `/admin`).*
+
+Permite auditar el padrón de usuarios registrados en la plataforma:
+* Listado general con identificación, nombre, email y rol (`user` o `admin`).
+* Formulario interactivo para dar de alta nuevos usuarios con roles predefinidos (`POST /admin/users`).
+* Edición en línea para actualizar datos o promover a nuevos administradores (`PUT /users/:id`).
+* Eliminación de cuentas problemáticas (`DELETE /users/:id`).
 
 ### 8.2 Revisión y aprobación de juegos *(JoseLuis)*
-*(Sección a cargo de JoseLuis: pestaña de aprobación y rechazo con motivo obligatorio).*
+
+Submódulo de moderación en dos pestañas clave:
+1. **Pestaña "Revisión de juegos":** Muestra todas las solicitudes pendientes (`GET /admin/games?status=pendiente`) con su portada, título y autor.
+   * **Aprobar:** Cambia el estado a `publicado` y lo hace visible en el catálogo de inmediato (`PUT /admin/games/:id/review` con `{ status: 'publicado' }`).
+   * **Rechazar:** Solicita el motivo de rechazo obligatorio antes de actualizar el estado a `rechazado` (`PUT /admin/games/:id/review` con `{ status: 'rechazado', reason }`).
+2. **Pestaña "Todos los juegos":** Permite al administrador consultar todo el catálogo (`GET /admin/games`) y borrar de forma permanente cualquier publicación inapropiada (`DELETE /games/:id`).
 
 ---
 

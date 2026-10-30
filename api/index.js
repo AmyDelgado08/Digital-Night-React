@@ -1,5 +1,7 @@
 require('dotenv').config()
 const express = require('express')
+const path = require('path')
+const handleUpload = require('./middlewares/upload')
 
 const { getUsers, registerUser, login, me, updateUser, updateMe, updatePassword, deleteUser, updateUserByAdmin} = require('./controllers/user')
 const { getGames, getGameById, createGame, updateGame, deleteGame, getMyGames } = require('./controllers/game')
@@ -16,6 +18,8 @@ const { createGameRules, updateGameRules } = require('./validators/game')
 const server = express()
 
 server.use(express.json())
+// Sirve las imágenes subidas: http://localhost:3000/uploads/<archivo>
+server.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
 // Middleware CORS
 server.use((req, res, next) => {
@@ -55,8 +59,8 @@ server.get('/games/:id', optionalAuth, getGameById);
 server.post('/games/:id/favorite', isAuth, addFavorite);     // Guardar en favoritos
 server.delete('/games/:id/favorite', isAuth, removeFavorite); // Quitar de favoritos
 server.post('/games/:id/play', optionalAuth, playGame);      // Jugar (suma una jugada)
-server.post('/games', isAuth, createGameRules, validate, createGame);
-server.put('/games/:id', isAuth, isOwnerOrAdmin(Game), updateGameRules, validate, updateGame);
+server.post('/games', isAuth, handleUpload, createGameRules, validate, createGame);
+server.put('/games/:id', isAuth, isOwnerOrAdmin(Game), handleUpload, updateGameRules, validate, updateGame);
 server.delete('/games/:id', isAuth,isOwnerOrAdmin(Game), deleteGame);
 
 // RUTAS EXCLUSIVAS DE ADMIN (Única declaración de GET /users)

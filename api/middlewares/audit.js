@@ -17,7 +17,9 @@ const audit = (req, res, next) => {
                 estado: res.statusCode,
                 duracionMs: Date.now() - inicio,
                 ip: req.ip,
-                origen: req.headers.origin || null,
+                //origin = la pagina que hizo la peticion. En los GET a veces no viene,
+                //entonces usamos referer (la URL exacta de la pantalla del frontend)
+                origen: req.headers.origin || req.headers.referer || null,
                 navegador: (req.headers['user-agent'] || '').slice(0, 500),
                 userId: req.user ? req.user.id : null,
                 email: req.user ? req.user.email : null,

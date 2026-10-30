@@ -33,7 +33,7 @@ function Register() {
 
             // Si se creó correctamente (status 201)
             if (response.status === 201) {
-                alert("Salio todo bien");
+                alert("Cuenta creada, ya podés iniciar sesión");
                 navigate('/login');
             }
         } catch (error) {

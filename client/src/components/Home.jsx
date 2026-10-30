@@ -21,7 +21,7 @@ function Home() {
                     <button style={style.btnPrimary} onClick={() => navigate('/games')}>
                         Explorar juegos →
                     </button>
-                    <button style={style.btnSecondary}>
+                    <button style={style.btnSecondary} onClick={() => document.getElementById('footer')?.scrollIntoView({ behavior: 'smooth' })}>
                         Conocé más
                     </button>
                 </div>

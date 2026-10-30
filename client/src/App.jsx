@@ -27,6 +27,7 @@ import Library from "./components/Library";
 import Audit from "./components/Audit";
 import Profile from "./components/Profile";
 import NotFound from "./components/NotFound";
+import Footer from "./components/Footer";
 
 function App() {
   const navigate = useNavigate();
@@ -38,8 +39,8 @@ function App() {
 
   // Función para cerrar sesión
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("rol");
+    // Borramos todo lo guardado en localStorage
+    localStorage.clear();
 
     alert("Has cerrado sesión correctamente.");
 
@@ -51,14 +52,14 @@ function App() {
       <div style={style.contprincipal}>
         {/* Barra de navegación */}
         <header style={style.BaseNav}>
-          <div style={style.Logo}>
+          <Link to="/" style={{ ...style.Logo, textDecoration: "none" }}>
             <img
               src={logo}
-              alt=""
+              alt="DigitalNight"
               style={{ height: "36px", marginRight: "10px" }}
             />
             DIGITALNIGHT
-          </div>
+          </Link>
 
           <nav style={style.Nav}>
             <Link
@@ -71,7 +72,17 @@ function App() {
               Inicio
             </Link>
 
-            {/* Si hay token mostramos este menu */}
+            <Link
+              to="/games"
+              style={{
+                ...style.navLink,
+                ...(location.pathname === "/games" ? style.navLinkActivo : {}),
+              }}
+            >
+              Juegos
+            </Link>
+
+            {/* Si hay token mostramos este menú */}
             {token ? (
               <>
                 <Link
@@ -99,15 +110,29 @@ function App() {
                 </Link>
 
                 <Link
-                  to="/editar-perfil"
+                  to="/perfil"
                   style={{
                     ...style.navLink,
-                    ...(location.pathname === "/editar-perfil"
+                    ...(location.pathname === "/perfil"
                       ? style.navLinkActivo
                       : {}),
                   }}
                 >
-                  Editar perfil
+                  Mi perfil
+                </Link>
+
+                <Link
+                  to="/editar-perfil"
+                  style={{
+                    ...style.navLink,
+                    ...(location.pathname === "/editar-perfil" ||
+                    location.pathname === "/seguridad" ||
+                    location.pathname === "/privacidad"
+                      ? style.navLinkActivo
+                      : {}),
+                  }}
+                >
+                  Configuración
                 </Link>
 
                 {/* El panel solo aparece para administradores */}
@@ -116,12 +141,13 @@ function App() {
                     to="/admin"
                     style={{
                       ...style.navLink,
-                      ...(location.pathname === "/admin"
+                      ...(location.pathname === "/admin" ||
+                      location.pathname === "/auditoria"
                         ? style.navLinkActivo
                         : {}),
                     }}
                   >
-                    Panel de administración
+                    Panel admin
                   </Link>
                 )}
 
@@ -177,6 +203,9 @@ function App() {
             <Route element={<NotFound />} path="*" />
           </Routes>
         </main>
+
+        {/* Footer */}
+        <Footer />
       </div>
     </>
   );
@@ -206,6 +235,7 @@ const style = {
     letterSpacing: "1.5px",
     display: "flex",
     alignItems: "center",
+    cursor: "pointer",
   },
   Nav: {
     display: "flex",

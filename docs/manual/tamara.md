@@ -11,7 +11,7 @@ El catálogo permite explorar los videojuegos publicados en DigitalNight y encon
 4. El catálogo mostrará los juegos que coincidan con el texto ingresado.
 5. Para ver más información sobre un juego, hacé clic en su tarjeta.
 
-![Catálogo de juegos](img/tamara-catalogo.jpg)
+![Catálogo de juegos](../img/tamara-catalogo.jpg)
 
 **Posibles errores**
 - **No aparecen resultados**: puede que ningún juego coincida con el texto ingresado. Probá con otro título o con una parte del nombre.
@@ -35,7 +35,7 @@ Desde tu perfil podés consultar la información de tu cuenta. También podés v
 4. Si el usuario tiene publicaciones, se mostrará la cantidad de juegos que publicó.
 5. Los usuarios que tengan el distintivo de creador aparecerán identificados con un **✓**.
 
-![Mi perfil](img/tamara-mi-perfil.jpg)
+![Mi perfil](../img/tamara-mi-perfil.jpg)
 
 **Posibles errores**
 - **No se puede abrir un perfil**: revisá que el enlace sea correcto. También puede ocurrir que el perfil ya no esté disponible.
@@ -55,7 +55,7 @@ Esta sección permite modificar los datos personales que aparecen en tu perfil, 
 5. En el campo **Biografía**, podés escribir o modificar una descripción sobre vos.
 6. Guardá los cambios para actualizar la información de tu perfil.
 
-![Editar perfil](img/tamara-editar-perfil.jpg)
+![Editar perfil](../img/tamara-editar-perfil.jpg)
 
 **Posibles errores**
 - **No se guardan los cambios**: verificá que hayas completado correctamente los campos y volvé a intentar.
@@ -80,7 +80,7 @@ Desde los ajustes de privacidad podés configurar qué información de tu perfil
 3. Leé el aviso de confirmación antes de continuar.
 4. Confirmá la eliminación solamente si estás seguro de que querés borrar tu cuenta.
 
-![Ajustes de privacidad](img/tamara-privacidad.jpg)
+![Ajustes de privacidad](../img/tamara-privacidad.jpg)
 
 **Importante:** eliminar la cuenta es una acción distinta de cerrar sesión. Antes de confirmarla, asegurate de que realmente querés dejar de tener tu cuenta en DigitalNight.
 

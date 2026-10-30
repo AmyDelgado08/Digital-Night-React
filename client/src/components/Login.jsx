@@ -28,7 +28,10 @@ function Login() {
             // Si el backend lo manda diferente, ajustá 'response.data.name' a como lo devuelva tu API
             localStorage.setItem('userEmail', email);
 
-            navigate('/editar-perfil');
+            // Guardamos el ID del usuario para poder entrar a su perfil.
+            localStorage.setItem('userId', response.data.user.id);
+
+            navigate('/perfil');
         }
         catch (error) {
             if (error.response?.status === 429) {

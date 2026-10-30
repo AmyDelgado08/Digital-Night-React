@@ -25,6 +25,7 @@ import MyGames from "./components/MyGames";
 import CreateGame from "./components/CreateGame";
 import Library from "./components/Library";
 import Audit from "./components/Audit";
+import Profile from "./components/Profile";
 
 function App() {
   const navigate = useNavigate();
@@ -158,6 +159,7 @@ function App() {
             <Route element={<Login />} path="/login" />
             <Route element={<Register />} path="/register" />
             <Route element={<EditProfile />} path="/editar-perfil" />
+            <Route element={<Profile />} path="/perfil" />
             <Route element={<PublicProfile />} path="/perfil-publico" />
             <Route element={<Games />} path="/games" />
             <Route element={<MyGames />} path="/mis-juegos" />
@@ -237,9 +239,9 @@ const style = {
     boxSizing: "border-box",
   },
   navLinkActivo: {
-  color: "#ffffff",
-  fontWeight: "700",
-},
+    color: "#ffffff",
+    fontWeight: "700",
+  },
 };
 
 export default App;

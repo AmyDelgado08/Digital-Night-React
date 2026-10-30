@@ -1,4 +1,7 @@
 const User = require("../models/User")
+const Game = require('../models/GameModel');
+const Favorite = require('../models/Favorite');
+const PlayHistory = require('../models/PlayHistory');
 const bcrypt = require('bcrypt') //libreria para encriptar contras
 const jwt = require('jsonwebtoken') //libreria para crear los tokens d sesion
 
@@ -242,6 +245,108 @@ const createUserByAdmin = async (req, res) => {
     }
 }
 
+const getProfile = async (req, res) => {
+    try {
+        const user = await User.findByPk(req.params.id);
+        if (!user) {
+            return res.status(404).json({
+                message: 'Usuario no encontrado'
+            });
+        }
+
+        //Comprobamos si quien visita el perfil es su dueño
+        const isOwner = req.user && String(req.user.id) === String(user.id);
+
+        //Si el perfil es privado y no es su dueño,
+        if (!user.isPublic && !isOwner) {
+            return res.json({
+                isPrivate: true,
+                message: 'Este perfil es privado'
+            });
+        }
+
+        const games = await Game.findAll({
+            where: {
+                authorId: user.id,
+                status: 'publicado'
+            },
+            order: [['createdAt', 'DESC']]
+        });
+
+        const favorites = await Favorite.findAll({
+            where: { userId: user.id },
+            include: [{
+                model: Game,
+                where: { status: 'publicado' },
+                required: true
+            }],
+            order: [['createdAt', 'DESC']]
+        });
+
+        // 6. Buscamos sus últimos juegos jugados
+        // Mostramos como máximo 12
+        const history = await PlayHistory.findAll({
+            where: { userId: user.id },
+            include: [{
+                model: Game,
+                where: { status: 'publicado' },
+                required: true
+            }],
+            order: [['lastPlayedAt', 'DESC']],
+            limit: 12
+        });
+
+        // 7. Preparamos los datos del usuario
+        // toJSON convierte el modelo de Sequelize en un objeto normal
+        const profile = user.toJSON();
+
+        // Nunca enviamos la contraseña
+        delete profile.password;
+
+        // El email solo se muestra al dueño o si habilitó showEmail
+        if (!isOwner && !user.showEmail) {
+            delete profile.email;
+        }
+
+        // La fecha de nacimiento solo se muestra al dueño
+        // o si habilitó showBirthdate
+        if (!isOwner && !user.showBirthdate) {
+            delete profile.birthdate;
+        }
+
+        // 8. Preparamos la respuesta
+        res.json({
+            ...profile,
+
+            // Es creador si tiene al menos un juego publicado
+            isCreator: games.length > 0,
+
+            // Cantidad de juegos publicados
+            publishedGamesCount: games.length,
+
+            // Convertimos los juegos a objetos normales
+            games: games.map(game => game.toJSON()),
+
+            // Extraemos los juegos de los favoritos
+            favorites: favorites.map(fav => fav.Game.toJSON()),
+
+            // Agregamos la fecha en que jugó por última vez
+            recentlyPlayed: history.map(item => ({
+                ...item.Game.toJSON(),
+                lastPlayedAt: item.lastPlayedAt
+            }))
+        });
+
+    } catch (error) {
+        console.error('Error al obtener el perfil:', error);
+
+        res.status(500).json({
+            message: 'Error al obtener el perfil'
+        });
+    }
+};
+
+
 module.exports = {
     getUsers,
     getUserById,
@@ -253,5 +358,6 @@ module.exports = {
     updatePassword,
     deleteUser,
     updateUserByAdmin,
-    createUserByAdmin
+    createUserByAdmin,
+    getProfile
 }

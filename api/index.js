@@ -3,7 +3,7 @@ const express = require('express')
 const path = require('path')
 const handleUpload = require('./middlewares/upload')
 
-const { getUsers, registerUser, login, me, updateUser, updateMe, updatePassword, deleteUser, updateUserByAdmin} = require('./controllers/user')
+const { getUsers, registerUser, login, me, updateUser, updateMe, updatePassword, deleteUser, updateUserByAdmin, getProfile} = require('./controllers/user')
 const { getGames, getGameById, createGame, updateGame, deleteGame, getMyGames } = require('./controllers/game')
 const authRoutes = require('./routes/auth.routes')
 const { addFavorite, removeFavorite, playGame, getMyLibrary } = require('./controllers/library')
@@ -63,6 +63,7 @@ server.put('/users/me', isAuth, updateMe) // Debe ir ANTES de PUT /users/:id (si
 server.put('/users/password', isAuth, changePasswordRules, validate, updatePassword)
 server.delete('/users/me', isAuth, deleteUser)
 server.get('/me/library', isAuth, getMyLibrary) //Biblioteca: favoritos y jugados recientemente
+server.get('/profiles/:id', optionalAuth, getProfile);
 
 // Rutas de Juegos
 server.get('/games', getGames);
@@ -84,6 +85,6 @@ server.get('/audit', isAuth, requireRole('admin'), getAudits);
 server.use(userRoutes);
 
 server.listen(3000, async () => {
-    await sequelize.sync({ force: false, alter: true })
+    await sequelize.sync({ force: false })
     console.log("El server esta corriendo en el puerto 3000");
 })

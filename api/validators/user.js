@@ -1,4 +1,5 @@
 const { body } = require('express-validator')
+const User = require('../models/User')
 
 const registerRules = [
     body('firstName').notEmpty().withMessage('El nombre es obligatorio'),
@@ -15,8 +16,21 @@ const changePasswordRules = [
     body('newPassword').isLength({ min: 8 }).withMessage('La nueva contraseña debe tener al menos 8 caracteres')
 ]
 
+const updateEmailRules = [
+    body('email')
+        .optional()
+        .isEmail().withMessage('El email no es válido')
+        .custom(async (email, { req }) => {
+            const usuario = await User.findOne({ where: { email } })
+            if (usuario && usuario.id !== req.user.id) {
+                throw new Error('Ese email ya está en uso')
+            }
+        })
+]
+
 module.exports = {
     registerRules,
     loginRules,
-    changePasswordRules
+    changePasswordRules,
+    updateEmailRules
 }

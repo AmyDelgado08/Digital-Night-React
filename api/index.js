@@ -12,7 +12,7 @@ const sequelize = require('./config/db')
 const { Game } = require('./models')
 const userRoutes = require('./routes/user.routes');
 const validate = require('./middlewares/validate')
-const { registerRules, loginRules, changePasswordRules } = require('./validators/user')
+const { registerRules, loginRules, changePasswordRules, updateEmailRules } = require('./validators/user')
 const { createGameRules, updateGameRules } = require('./validators/game')
 const audit = require('./middlewares/audit')
 const rateLimit = require('./middlewares/rateLimit')
@@ -58,8 +58,8 @@ server.use('/auth', authRoutes)
 
 // Rutas de Usuario Autenticado
 server.get('/me', isAuth, me)
-server.put('/users/update', isAuth, updateUser)
-server.put('/users/me', isAuth, updateMe) // Debe ir ANTES de PUT /users/:id (si no, Express tomaria "me" como un id)
+server.put('/users/update', isAuth, updateEmailRules, validate, updateUser)
+server.put('/users/me', isAuth, updateEmailRules, validate, updateMe) // Debe ir ANTES de PUT /users/:id (si no, Express tomaria "me" como un id)
 server.put('/users/password', isAuth, changePasswordRules, validate, updatePassword)
 server.delete('/users/me', isAuth, deleteUser)
 server.get('/me/library', isAuth, getMyLibrary) //Biblioteca: favoritos y jugados recientemente
@@ -83,6 +83,18 @@ server.put('/users/:id', isAuth, requireRole('admin'), updateUserByAdmin);
 server.get('/audit', isAuth, requireRole('admin'), getAudits);
 
 server.use(userRoutes);
+
+server.use((req, res) => {
+    res.status(404).json({ message: 'Ruta no encontrada' })
+})
+
+server.use((err, req, res, next) => {
+    console.log('Error:', err.message)
+    const estado = err.status || 500
+    res.status(estado).json({
+        message: estado === 500 ? 'Error interno del servidor' : 'Petición inválida'
+    })
+})
 
 server.listen(3000, async () => {
     await sequelize.sync({ force: false })

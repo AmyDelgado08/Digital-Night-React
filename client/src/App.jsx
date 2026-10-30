@@ -187,6 +187,7 @@ function App() {
             <Route element={<Register />} path="/register" />
             <Route element={<EditProfile />} path="/editar-perfil" />
             <Route element={<Profile />} path="/perfil" />
+            <Route element={<Profile />} path="/perfil/:id" />
             <Route element={<PublicProfile />} path="/perfil-publico" />
             <Route element={<Games />} path="/games" />
             <Route element={<MyGames />} path="/mis-juegos" />

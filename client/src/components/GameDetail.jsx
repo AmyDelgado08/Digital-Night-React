@@ -130,7 +130,7 @@ function GameDetail() {
         : 'U';
     const tieneValoraciones = game.ratingsCount > 0;
     const fechaPublicado = new Date(game.createdAt).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
-    const verPerfilAutor = () => navigate(`/usuarios/${game.authorId}`);
+    const verPerfilAutor = () => navigate(`/perfil/${game.authorId}`);
 
     const esYoutube = game.videoUrl && game.videoUrl.includes('youtube.com/watch');
 

@@ -104,7 +104,7 @@ const updateUser = async (req, res) => {
 const updateMe = async (req, res) => {
     try {
         //Solo estos campos se pueden modificar desde aca.
-        const allowedFields = ['firstName', 'lastName', 'email', 'birthdate', 'isPublic', 'showEmail', 'showBirthdate'];
+        const allowedFields = ['firstName', 'lastName', 'email', 'birthdate', 'isPublic', 'showEmail', 'showBirthdate', 'bio'];
         const changes = {};
         for (const field of allowedFields) {
             if (req.body[field] !== undefined) {

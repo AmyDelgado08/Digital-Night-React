@@ -1,10 +1,9 @@
 const Audit = require('../models/Audit')
 
-//GET /audit -> devuelve las ultimas 100 peticiones registradas (solo admin)
 const getAudits = async (req, res) => {
     try {
         const registros = await Audit.findAll({
-            order: [['createdAt', 'DESC']], //las mas nuevas primero
+            order: [['createdAt', 'DESC']],
             limit: 100
         })
         res.json(registros)

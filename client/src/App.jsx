@@ -26,6 +26,7 @@ import CreateGame from "./components/CreateGame";
 import Library from "./components/Library";
 import Audit from "./components/Audit";
 import Profile from "./components/Profile";
+import NotFound from "./components/NotFound";
 
 function App() {
   const navigate = useNavigate();
@@ -173,6 +174,7 @@ function App() {
             <Route element={<Seguridad />} path="/seguridad" />
             <Route element={<Privacidad />} path="/privacidad" />
             <Route element={<GameDetail />} path="/games/:id" />
+            <Route element={<NotFound />} path="*" />
           </Routes>
         </main>
       </div>

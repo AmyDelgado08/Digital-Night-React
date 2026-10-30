@@ -1,363 +1,381 @@
-const User = require("../models/User")
-const Game = require('../models/GameModel');
-const Favorite = require('../models/Favorite');
-const PlayHistory = require('../models/PlayHistory');
-const bcrypt = require('bcrypt') //libreria para encriptar contras
-const jwt = require('jsonwebtoken') //libreria para crear los tokens d sesion
+const User = require("../models/User");
+const Game = require("../models/GameModel");
+const Favorite = require("../models/Favorite");
+const PlayHistory = require("../models/PlayHistory");
+const bcrypt = require("bcrypt"); //libreria para encriptar contras
+const jwt = require("jsonwebtoken"); //libreria para crear los tokens d sesion
 
-const SECRET = process.env.JWT_SECRET
+const SECRET = process.env.JWT_SECRET;
 
 const getUsers = async (req, res) => {
-    //findAll busca todos los registros
-    // attributes... sirve para no enviarle las contraseñas al fronted tipo trae todo menos la contra
-    try {
-        const users = await User.findAll({ attributes: { exclude: 'password' } })
-        res.json(users)
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener los usuarios' })
-    }
-}
+  //findAll busca todos los registros
+  // attributes... sirve para no enviarle las contraseñas al fronted tipo trae todo menos la contra
+  try {
+    const users = await User.findAll({ attributes: { exclude: "password" } });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener los usuarios" });
+  }
+};
 
 const getUserById = async (req, res) => {
-    //findByPk busca el registro por su id
-    //req... toma el num d id que viene en la url
-    const user = await User.findByPk(req.params.id, { attributes: { exclude: 'password' } })
-    res.json(user)
-}
+  //findByPk busca el registro por su id
+  //req... toma el num d id que viene en la url
+  const user = await User.findByPk(req.params.id, {
+    attributes: { exclude: "password" },
+  });
+  res.json(user);
+};
 
 const registerUser = async (req, res) => {
-    try {
-        const { firstName, lastName, email, password } = req.body //Agarramos los datos q envia el cuerpo de la peticion
+  try {
+    const { firstName, lastName, email, password } = req.body; //Agarramos los datos q envia el cuerpo de la peticion
 
-        const existingUser = await User.findOne({ where: { email } })
-        if (existingUser) {
-            return res.status(409).json({ message: 'El email ya está registrado' })
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10) //Encriptamos la contra usando 10 rondas sal (Es un pedazo d texto aleatorio)
-        await User.create({
-            firstName,
-            lastName,
-            email,
-            password: hashedPassword
-        })
-        res.status(201).json({ message: 'El usuario se creo exitosamente'})
-    } catch (error) {
-        console.error(error)
-        res.status(500).json({ message: 'Error al registrar el usuario' })
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(409).json({ message: "El email ya está registrado" });
     }
-}
+
+    const hashedPassword = await bcrypt.hash(password, 10); //Encriptamos la contra usando 10 rondas sal (Es un pedazo d texto aleatorio)
+    await User.create({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+    });
+    res.status(201).json({ message: "El usuario se creo exitosamente" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al registrar el usuario" });
+  }
+};
 
 const login = async (req, res) => {
-    try {
-        const { email, password } = req.body
-        const user = await User.findOne({ where: { email } }) //Buscamos el usuario por su email
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ where: { email } }); //Buscamos el usuario por su email
 
-        //Si no existe devolvemos este error
-        if (!user) return res.status(400).json({ message: 'Usuario no encontrado' })
-        const compare = await bcrypt.compare(password, user.password);
+    //Si no existe devolvemos este error
+    if (!user)
+      return res.status(400).json({ message: "Usuario no encontrado" });
+    const compare = await bcrypt.compare(password, user.password);
 
-        //Comparamos la contraseña
-        if (!compare) return res.status(400).json({ message: 'Usuario o contraseña incorrecta' })
+    //Comparamos la contraseña
+    if (!compare)
+      return res
+        .status(400)
+        .json({ message: "Usuario o contraseña incorrecta" });
 
-        const token = jwt.sign({ id: user.id, email: user.email, rol: user.rol }, SECRET, { expiresIn: '8h' });
+    const token = jwt.sign(
+      { id: user.id, email: user.email, rol: user.rol },
+      SECRET,
+      { expiresIn: "8h" },
+    );
 
-        // Devolvemos el token y el rol del usuario.
-        res.json({
-            token: token,
-            user: {
-                id: user.id,
-                firstName: user.firstName,
-                email: user.email,
-                rol: user.rol
-            }
-        });
-    } catch (error) {
-        console.error(error)
-        res.status(500).json({ message: 'Error al iniciar sesión' })
-    }
-}
+    // Devolvemos el token y el rol del usuario.
+    res.json({
+      token: token,
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        email: user.email,
+        rol: user.rol,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al iniciar sesión" });
+  }
+};
 
 //Obtenemos los datos del perfil actualmente logueado
 const me = async (req, res) => {
-    try {
-        const user = await User.findByPk(req.user.id, {
-            attributes: { exclude: 'password' }
-        })
-        res.json(user)
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener el perfil' })
-    }
-}
+  try {
+    const user = await User.findByPk(req.user.id, {
+      attributes: { exclude: "password" },
+    });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener el perfil" });
+  }
+};
 
 const updateUser = async (req, res) => {
-    try {
-        const { firstName, lastName, email, birthdate } = req.body;
-        await User.update({ firstName, lastName, email, birthdate: birthdate || null }, { where: { id: req.user.id } });
-        res.json({ message: 'Perfil actualizado con éxito' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error al actualizar el perfil' });
-    }
+  try {
+    const { firstName, lastName, email, birthdate } = req.body;
+    await User.update(
+      { firstName, lastName, email, birthdate: birthdate || null },
+      { where: { id: req.user.id } },
+    );
+    res.json({ message: "Perfil actualizado con éxito" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al actualizar el perfil" });
+  }
 };
 
 //ajustes de privacidad del usuario logueado
 const updateMe = async (req, res) => {
-    try {
-        //Solo estos campos se pueden modificar desde aca.
-        const allowedFields = ['firstName', 'lastName', 'email', 'birthdate', 'isPublic', 'showEmail', 'showBirthdate', 'bio'];
-        const changes = {};
-        for (const field of allowedFields) {
-            if (req.body[field] !== undefined) {
-                changes[field] = req.body[field];
-            }
-        }
-
-        if (Object.keys(changes).length === 0) {
-            return res.status(400).json({ message: 'No hay datos para actualizar' });
-        }
-
-        if (changes.birthdate === '') changes.birthdate = null;
-
-        await User.update(changes, { where: { id: req.user.id } });
-
-        //Devolvemos el usuario actualizado SIN la contraseña
-        const updated = await User.findByPk(req.user.id, { attributes: { exclude: 'password' } });
-        res.json({ message: 'Perfil actualizado con éxito', user: updated });
-    } catch (error) {
-        res.status(500).json({ message: 'Error al actualizar el perfil' });
+  try {
+    //Solo estos campos se pueden modificar desde aca.
+    const allowedFields = [
+      "firstName",
+      "lastName",
+      "email",
+      "birthdate",
+      "isPublic",
+      "showEmail",
+      "showBirthdate",
+      "bio",
+    ];
+    const changes = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        changes[field] = req.body[field];
+      }
     }
+
+    if (Object.keys(changes).length === 0) {
+      return res.status(400).json({ message: "No hay datos para actualizar" });
+    }
+
+    if (changes.birthdate === "") changes.birthdate = null;
+
+    await User.update(changes, { where: { id: req.user.id } });
+
+    //Devolvemos el usuario actualizado SIN la contraseña
+    const updated = await User.findByPk(req.user.id, {
+      attributes: { exclude: "password" },
+    });
+    res.json({ message: "Perfil actualizado con éxito", user: updated });
+  } catch (error) {
+    res.status(500).json({ message: "Error al actualizar el perfil" });
+  }
 };
 
 const updatePassword = async (req, res) => {
-    try {
-        const { currentPassword, newPassword } = req.body;
-        if (!currentPassword || !newPassword) {
-            return res.status(400).json({ message: 'Faltan datos' });
-        }
-        const user = await User.findByPk(req.user.id);
-        const ok = await bcrypt.compare(currentPassword, user.password);
-        if (!ok) {
-            return res.status(400).json({ message: 'La contraseña actual es incorrecta' });
-        }
-        user.password = await bcrypt.hash(newPassword, 10);
-        await user.save();
-        res.json({ message: 'Contraseña actualizada con éxito' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error al actualizar la contraseña' });
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "Faltan datos" });
     }
+    const user = await User.findByPk(req.user.id);
+    const ok = await bcrypt.compare(currentPassword, user.password);
+    if (!ok) {
+      return res
+        .status(400)
+        .json({ message: "La contraseña actual es incorrecta" });
+    }
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+    res.json({ message: "Contraseña actualizada con éxito" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al actualizar la contraseña" });
+  }
 };
 
 const deleteUser = async (req, res) => {
-    try {
-        const userId = req.params.id || req.user.id;
-        await User.destroy({ where: { id: userId } });
-        res.json({ message: 'Usuario eliminado con éxito' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error al eliminar usuario' });
-    }
+  try {
+    const userId = req.params.id || req.user.id;
+    await User.destroy({ where: { id: userId } });
+    res.json({ message: "Usuario eliminado con éxito" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al eliminar usuario" });
+  }
 };
 const updateUserByAdmin = async (req, res) => {
-    try {
-        const { id } = req.params; // ID del usuario a modificar
-        const { firstName, lastName, email, rol } = req.body; // Nuevos datos
+  try {
+    const { id } = req.params; // ID del usuario a modificar
+    const { firstName, lastName, email, rol } = req.body; // Nuevos datos
 
-        // 1. Buscamos al usuario en la base de datos
-        const userToUpdate = await User.findByPk(id);
-        if (!userToUpdate) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
-        }
-
-        // 2. REGLA CLAVE: Validamos que el usuario objetivo NO sea admin
-        if (userToUpdate.rol === 'admin') {
-            return res.status(403).json({ 
-                message: 'No se pueden modificar los datos de otro administrador.' 
-            });
-        }
-
-        // 3. Actualizamos los campos permitidos
-        await userToUpdate.update({
-            firstName: firstName || userToUpdate.firstName,
-            lastName: lastName || userToUpdate.lastName,
-            email: email || userToUpdate.email,
-            rol: rol || userToUpdate.rol // Opcional: si quieres permitir cambiarle el rol a admin en el futuro, o puedes omitirlo
-        });
-
-        res.json({ 
-            message: 'Usuario actualizado correctamente por el administrador', 
-            user: userToUpdate 
-        });
-
-    } catch (error) {
-        res.status(500).json({ 
-            message: 'Error al actualizar el usuario', 
-            error: error.message 
-        });
+    // 1. Buscamos al usuario en la base de datos
+    const userToUpdate = await User.findByPk(id);
+    if (!userToUpdate) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
+
+    // 2. REGLA CLAVE: Validamos que el usuario objetivo NO sea admin
+    if (userToUpdate.rol === "admin") {
+      return res.status(403).json({
+        message: "No se pueden modificar los datos de otro administrador.",
+      });
+    }
+
+    // 3. Actualizamos los campos permitidos
+    await userToUpdate.update({
+      firstName: firstName || userToUpdate.firstName,
+      lastName: lastName || userToUpdate.lastName,
+      email: email || userToUpdate.email,
+      rol: rol || userToUpdate.rol, // Opcional: si quieres permitir cambiarle el rol a admin en el futuro, o puedes omitirlo
+    });
+
+    res.json({
+      message: "Usuario actualizado correctamente por el administrador",
+      user: userToUpdate,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al actualizar el usuario",
+      error: error.message,
+    });
+  }
 };
 
 const createUserByAdmin = async (req, res) => {
-    try {
-        const { firstName, lastName, email, password, rol } = req.body
+  try {
+    const { firstName, lastName, email, password, rol } = req.body;
 
-        // Validamos que el rol sea 'user' o 'admin'
-        if (!rol || (rol !== 'user' && rol !== 'admin'))
-        {
-            return res.status(400).json({ message: 'El rol debe ser "user" o "admin"' })
-        }
-
-        // Buscamos si el email ya existe
-        const existingUser = await User.findOne({ where: { email } })
-
-        if (existingUser) 
-        {
-            return res.status(409).json({ message: 'Ese email ya existe' })
-        }
-
-        //Encriptamos la contra usando 10 rondas
-        const hashedPassword = await bcrypt.hash(password, 10)
-
-        //Creamos el usuario en la base de datos
-        const user = await User.create({
-            firstName,
-            lastName,
-            email,
-            password: hashedPassword,
-            rol
-        })
-
-        //Quitamos la contraseña para no enviarla al frontend
-        const userResponse = user.toJSON()
-        delete userResponse.password
-
-        //Devolvemos la respuesta
-        res.status(201).json({
-            message: 'Usuario creado exitosamente por el administrador',
-            user: userResponse
-        })
-
-    } 
-    
-    catch (error) {
-        res.status(500).json({ 
-            message: 'Error al crear el usuario', 
-            error: error.message 
-        })
+    // Validamos que el rol sea 'user' o 'admin'
+    if (!rol || (rol !== "user" && rol !== "admin")) {
+      return res
+        .status(400)
+        .json({ message: 'El rol debe ser "user" o "admin"' });
     }
-}
 
-const getProfile = async (req, res) => {
-    try {
-        const user = await User.findByPk(req.params.id);
-        if (!user) {
-            return res.status(404).json({
-                message: 'Usuario no encontrado'
-            });
-        }
+    // Buscamos si el email ya existe
+    const existingUser = await User.findOne({ where: { email } });
 
-        //Comprobamos si quien visita el perfil es su dueño
-        const isOwner = req.user && String(req.user.id) === String(user.id);
-
-        //Si el perfil es privado y no es su dueño,
-        if (!user.isPublic && !isOwner) {
-            return res.json({
-                isPrivate: true,
-                message: 'Este perfil es privado'
-            });
-        }
-
-        const games = await Game.findAll({
-            where: {
-                authorId: user.id,
-                status: 'publicado'
-            },
-            order: [['createdAt', 'DESC']]
-        });
-
-        const favorites = await Favorite.findAll({
-            where: { userId: user.id },
-            include: [{
-                model: Game,
-                where: { status: 'publicado' },
-                required: true
-            }],
-            order: [['createdAt', 'DESC']]
-        });
-
-        // 6. Buscamos sus últimos juegos jugados
-        // Mostramos como máximo 12
-        const history = await PlayHistory.findAll({
-            where: { userId: user.id },
-            include: [{
-                model: Game,
-                where: { status: 'publicado' },
-                required: true
-            }],
-            order: [['lastPlayedAt', 'DESC']],
-            limit: 12
-        });
-
-        // 7. Preparamos los datos del usuario
-        // toJSON convierte el modelo de Sequelize en un objeto normal
-        const profile = user.toJSON();
-
-        // Nunca enviamos la contraseña
-        delete profile.password;
-
-        // El email solo se muestra al dueño o si habilitó showEmail
-        if (!isOwner && !user.showEmail) {
-            delete profile.email;
-        }
-
-        // La fecha de nacimiento solo se muestra al dueño
-        // o si habilitó showBirthdate
-        if (!isOwner && !user.showBirthdate) {
-            delete profile.birthdate;
-        }
-
-        // 8. Preparamos la respuesta
-        res.json({
-            ...profile,
-
-            // Es creador si tiene al menos un juego publicado
-            isCreator: games.length > 0,
-
-            // Cantidad de juegos publicados
-            publishedGamesCount: games.length,
-
-            // Convertimos los juegos a objetos normales
-            games: games.map(game => game.toJSON()),
-
-            // Extraemos los juegos de los favoritos
-            favorites: favorites.map(fav => fav.Game.toJSON()),
-
-            // Agregamos la fecha en que jugó por última vez
-            recentlyPlayed: history.map(item => ({
-                ...item.Game.toJSON(),
-                lastPlayedAt: item.lastPlayedAt
-            }))
-        });
-
-    } catch (error) {
-        console.error('Error al obtener el perfil:', error);
-
-        res.status(500).json({
-            message: 'Error al obtener el perfil'
-        });
+    if (existingUser) {
+      return res.status(409).json({ message: "Ese email ya existe" });
     }
+
+    //Encriptamos la contra usando 10 rondas
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    //Creamos el usuario en la base de datos
+    const user = await User.create({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+      rol,
+    });
+
+    //Quitamos la contraseña para no enviarla al frontend
+    const userResponse = user.toJSON();
+    delete userResponse.password;
+
+    //Devolvemos la respuesta
+    res.status(201).json({
+      message: "Usuario creado exitosamente por el administrador",
+      user: userResponse,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al crear el usuario",
+      error: error.message,
+    });
+  }
 };
 
+const getProfile = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({
+        message: "Usuario no encontrado",
+      });
+    }
+
+    //Comprobamos si quien visita el perfil es su dueño
+    const isOwner = req.user && String(req.user.id) === String(user.id);
+
+    //Si el perfil es privado y no es su dueño,
+    if (!user.isPublic && !isOwner) {
+      return res.json({
+        isPrivate: true,
+        message: "Este perfil es privado",
+        user: {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        },
+      });
+    }
+
+    const games = await Game.findAll({
+      where: {
+        authorId: user.id,
+        status: "publicado",
+      },
+      order: [["createdAt", "DESC"]],
+    });
+
+    const favorites = await Favorite.findAll({
+      where: { userId: user.id },
+      include: [
+        {
+          model: Game,
+          where: { status: "publicado" },
+          required: true,
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    //Buscamos sus últimos juegos jugados
+    const history = await PlayHistory.findAll({
+      where: { userId: user.id },
+      include: [
+        {
+          model: Game,
+          where: { status: "publicado" },
+          required: true,
+        },
+      ],
+      order: [["lastPlayedAt", "DESC"]],
+      limit: 12,
+    });
+
+    const profile = user.toJSON();
+
+    delete profile.password;
+
+    // El email solo se muestra al dueño o si habilitó showEmail
+    if (!isOwner && !user.showEmail) {
+      delete profile.email;
+    }
+
+    // La fecha de nacimiento solo se muestra al dueño o si habilitó showBirthdate
+    if (!isOwner && !user.showBirthdate) {
+      delete profile.birthdate;
+    }
+
+    res.json({
+      ...profile,
+
+      isCreator: games.length > 0,
+
+      publishedGamesCount: games.length,
+
+      games: games.map((game) => game.toJSON()),
+
+      favorites: favorites.map((fav) => fav.Game.toJSON()),
+
+      recentlyPlayed: history.map((item) => ({
+        ...item.Game.toJSON(),
+        lastPlayedAt: item.lastPlayedAt,
+      })),
+    });
+  } catch (error) {
+    console.error("Error al obtener el perfil:", error);
+
+    res.status(500).json({
+      message: "Error al obtener el perfil",
+    });
+  }
+};
 
 module.exports = {
-    getUsers,
-    getUserById,
-    registerUser,
-    login,
-    me,
-    updateUser,
-    updateMe,
-    updatePassword,
-    deleteUser,
-    updateUserByAdmin,
-    createUserByAdmin,
-    getProfile
-}
+  getUsers,
+  getUserById,
+  registerUser,
+  login,
+  me,
+  updateUser,
+  updateMe,
+  updatePassword,
+  deleteUser,
+  updateUserByAdmin,
+  createUserByAdmin,
+  getProfile,
+};

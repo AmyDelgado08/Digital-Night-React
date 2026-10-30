@@ -88,12 +88,9 @@ function Profile() {
       (user.firstName || "").charAt(0) + (user.lastName || "").charAt(0)
     ).toUpperCase() || "?";
 
-  const esMiPerfil =
-    !id ||
-    (token && String(user.id) === String(localStorage.getItem("userId")));
+  const esMiPerfil = !id || (token && String(user.id) === String(localStorage.getItem("userId")));
 
-  const privado =
-    profile.isPrivate === true || (user.isPublic === false && !esMiPerfil);
+  const privado = profile.isPrivate === true || (user.isPublic === false && !esMiPerfil);
 
   if (privado) {
     return (
@@ -116,16 +113,13 @@ function Profile() {
   const favoritos = profile.favorites || [];
   const recientes = profile.recentlyPlayed || [];
 
-  const juegosPublicados =
-    profile.publishedGamesCount ?? profile.gamesCount ?? juegos.length;
+  const juegosPublicados = profile.publishedGamesCount ?? profile.gamesCount ?? juegos.length;
 
   const esCreador = profile.isCreator ?? juegosPublicados > 0;
 
   const juegosMostrar =
-    pestana === "juegos"
-      ? juegos
-      : pestana === "favoritos"
-        ? favoritos
+    pestana === "juegos"? juegos
+      : pestana === "favoritos"? favoritos
         : recientes;
 
   const valoraciones = juegos
@@ -180,7 +174,7 @@ function Profile() {
         {/* ESTADÍSTICAS */}
         <div style={style.estadisticas}>
           <div style={style.estadistica}>
-            <div style={style.iconoEstadistica}>▦</div>
+            <div style={style.iconoEstadistica}>✦</div>
 
             <div>
               <strong style={style.numero}>{juegosPublicados}</strong>
@@ -194,10 +188,7 @@ function Profile() {
                 ...style.iconoEstadistica,
                 backgroundColor: "#3b2d1c",
                 color: "#facc15",
-              }}
-            >
-              ★
-            </div>
+              }}>★</div>
 
             <div>
               <strong style={style.numero}>{promedio}</strong>

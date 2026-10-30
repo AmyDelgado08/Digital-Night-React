@@ -11,16 +11,9 @@ const { isAuth , requireRole, isOwnerOrAdmin, optionalAuth} = require('./middlew
 const sequelize = require('./config/db')
 const { Game } = require('./models')
 const userRoutes = require('./routes/user.routes');
-const validate = require('./middlewares/validate')
-const { registerRules, loginRules, changePasswordRules, updateEmailRules } = require('./validators/user')
 const { createGameRules, updateGameRules, reviewGameRules } = require('./validators/game')
-const audit = require('./middlewares/audit')
-const rateLimit = require('./middlewares/rateLimit')
-const { getAudits } = require('./controllers/audit')
 
 const server = express()
-
-server.set('trust proxy', 1)
 
 server.use(express.json())
 // Sirve las imágenes subidas: http://localhost:3000/uploads/<archivo>
@@ -44,22 +37,48 @@ server.use((req, res, next) => {
   next()
 })
 
+// ============================================================================
+// LUCIANO: validaciones, login, auditoría y rate limit
+// Va antes que el resto de las rutas: la auditoría y el límite tienen que
+// ver pasar todas las peticiones.
+// ============================================================================
+const validate = require('./middlewares/validate')
+const { registerRules, loginRules, changePasswordRules, updateEmailRules } = require('./validators/user')
+const audit = require('./middlewares/audit')
+const rateLimit = require('./middlewares/rateLimit')
+const { getAudits } = require('./controllers/audit')
+
+// En el server la API está detrás de Apache: así req.ip es la IP real de la persona
+server.set('trust proxy', 1)
+
+// Auditoría: guarda cada petición en la tabla Audits (va antes del límite para registrar también los 429)
 server.use(audit)
 
+// Rate limit general: 100 peticiones por minuto por IP
 server.use(rateLimit(100, 60 * 1000))
-
+// Rate limit del login y "olvidé mi contraseña": 5 por minuto por IP
 const limiteLogin = rateLimit(5, 60 * 1000)
 
-// Autenticación pública / general
+// Registro y login, con sus validaciones
 server.post('/users', registerRules, validate, registerUser)
 server.post('/login', limiteLogin, loginRules, validate, login)
-server.post('/auth/forgot-password', limiteLogin)
+server.post('/auth/forgot-password', limiteLogin) // Si pasa el límite, sigue a authRoutes, que es la que responde
+
+// Editar perfil: valida que el email esté bien escrito y que no lo use otro usuario
+server.put('/users/update', isAuth, updateEmailRules, validate, updateUser)
+server.put('/users/me', isAuth, updateEmailRules, validate, updateMe) // Debe ir ANTES de PUT /users/:id (si no, Express tomaria "me" como un id)
+
+// Pantalla de auditoría: solo admin
+server.get('/audit', isAuth, requireRole('admin'), getAudits)
+// ============================================================================
+// FIN LUCIANO (el 404 y el manejo de errores están al final del archivo)
+// ============================================================================
+
+// Autenticación pública / general
 server.use('/auth', authRoutes)
 
 // Rutas de Usuario Autenticado
 server.get('/me', isAuth, me)
-server.put('/users/update', isAuth, updateEmailRules, validate, updateUser)
-server.put('/users/me', isAuth, updateEmailRules, validate, updateMe) // Debe ir ANTES de PUT /users/:id (si no, Express tomaria "me" como un id)
 server.put('/users/password', isAuth, changePasswordRules, validate, updatePassword)
 server.delete('/users/me', isAuth, deleteUser)
 server.get('/me/library', isAuth, getMyLibrary) //Biblioteca: favoritos y jugados recientemente
@@ -80,16 +99,22 @@ server.delete('/games/:id', isAuth, isOwnerOrAdmin(Game), deleteGame);
 server.get('/users', isAuth, requireRole('admin'), getUsers);
 server.delete('/users/:id', isAuth, requireRole('admin'), deleteUser);
 server.put('/users/:id', isAuth, requireRole('admin'), updateUserByAdmin);
-server.get('/audit', isAuth, requireRole('admin'), getAudits);
 server.get('/admin/games', isAuth, requireRole('admin'), getAdminGames);
 server.put('/admin/games/:id/review', isAuth, requireRole('admin'), reviewGameRules, validate, reviewGame);
 
 server.use(userRoutes);
 
+// ============================================================================
+// LUCIANO: 404 y manejo de errores
+// Tiene que ir al final, después de todas las rutas: si una petición llega
+// hasta acá es porque ninguna ruta de arriba la respondió.
+// ============================================================================
+// 404 en JSON. optionalAuth carga el usuario si hay token, para que la auditoría sepa quién fue
 server.use(optionalAuth, (req, res) => {
     res.status(404).json({ message: 'Ruta no encontrada' })
 })
 
+// Manejador de errores: Express lo reconoce porque recibe 4 parámetros (err primero)
 server.use((err, req, res, next) => {
     console.log('Error:', err.message)
     const estado = err.status || 500
@@ -97,6 +122,9 @@ server.use((err, req, res, next) => {
         message: estado === 500 ? 'Error interno del servidor' : 'Petición inválida'
     })
 })
+// ============================================================================
+// FIN LUCIANO
+// ============================================================================
 
 server.listen(3000, async () => {
     await sequelize.sync({ force: false })

@@ -84,7 +84,7 @@ server.get('/audit', isAuth, requireRole('admin'), getAudits);
 
 server.use(userRoutes);
 
-server.use((req, res) => {
+server.use(optionalAuth, (req, res) => {
     res.status(404).json({ message: 'Ruta no encontrada' })
 })
 

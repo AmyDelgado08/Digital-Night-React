@@ -1,7 +1,18 @@
-import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import axios from 'axios';
 import imagen404 from '../img/404.png';
 
 function NotFound() {
+    const location = useLocation();
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        axios.get(`http://localhost:3000/frontend${location.pathname}`, {
+            headers: token ? { authorization: token } : {}
+        }).catch(() => {});
+    }, [location.pathname]);
+
     return (
         <div style={style.contenedor}>
             <img src={imagen404} alt="Página no encontrada" style={style.imagen} />

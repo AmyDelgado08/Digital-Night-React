@@ -24,6 +24,7 @@ import Privacidad from "./components/Privacy";
 import MyGames from "./components/MyGames";
 import CreateGame from "./components/CreateGame";
 import Library from "./components/Library";
+import Audit from "./components/Audit";
 
 function App() {
   const navigate = useNavigate();
@@ -164,6 +165,7 @@ function App() {
             <Route element={<CreateGame />} path="/crear-juego" />
             <Route element={<CreateGame />} path="/editar-juego/:id" />
             <Route element={<AdminDashboard />} path="/admin" />
+            <Route element={<Audit />} path="/auditoria" />
             <Route element={<ForgotPassword />} path="/olvide-password" />
             <Route element={<ResetPassword />} path="/restablecer/:token" />
             <Route element={<Seguridad />} path="/seguridad" />

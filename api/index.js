@@ -20,8 +20,6 @@ const { getAudits } = require('./controllers/audit')
 
 const server = express()
 
-// En el servidor la API esta detras de Apache (proxy). Con esto Express lee la IP real
-// del usuario (header X-Forwarded-For) en vez de ver siempre 127.0.0.1
 server.set('trust proxy', 1)
 
 server.use(express.json())
@@ -46,13 +44,10 @@ server.use((req, res, next) => {
   next()
 })
 
-// Middleware de Auditoria: registra TODAS las peticiones que llegan a la API
 server.use(audit)
 
-// Rate limit general: maximo 100 peticiones por minuto por IP
 server.use(rateLimit(100, 60 * 1000))
 
-// Rate limit estricto para login y recuperar clave: maximo 5 intentos por minuto por IP
 const limiteLogin = rateLimit(5, 60 * 1000)
 
 // Autenticación pública / general
@@ -84,7 +79,7 @@ server.delete('/games/:id', isAuth,isOwnerOrAdmin(Game), deleteGame);
 server.get('/users', isAuth, requireRole('admin'), getUsers);
 server.delete('/users/:id', isAuth, requireRole('admin'), deleteUser);
 server.put('/users/:id', isAuth, requireRole('admin'), updateUserByAdmin);
-server.get('/audit', isAuth, requireRole('admin'), getAudits); // ver la auditoria
+server.get('/audit', isAuth, requireRole('admin'), getAudits);
 
 server.use(userRoutes);
 

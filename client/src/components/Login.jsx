@@ -30,8 +30,12 @@ function Login() {
 
             navigate('/editar-perfil');
         }
-        catch {
-            alert("Error: Correo o contraseña incorrectos.");
+        catch (error) {
+            if (error.response?.status === 429) {
+                alert(error.response.data.message);
+            } else {
+                alert("Error: Correo o contraseña incorrectos.");
+            }
         }
     };
 

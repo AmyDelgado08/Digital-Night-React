@@ -110,6 +110,12 @@ function AdminDashboard() {
                 {showCreate ? 'Cerrar formulario' : 'Crear usuario'}
             </button>
 
+            <button
+                onClick={() => navigate('/auditoria')}
+                style={{ color: 'white', backgroundColor: 'transparent', border: '1px solid #7c5cf0', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', marginTop: '10px', marginLeft: '10px' }}>
+                Ver auditoría
+            </button>
+
             {showCreate && (
                 <form onSubmit={createUser} style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '16px', alignItems: 'center' }}>
                     <input type="text" placeholder="Nombre" required value={newUser.firstName}

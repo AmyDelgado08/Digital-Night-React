@@ -27,6 +27,10 @@ const User = sequelize.define('User', {
         type: DataTypes.DATEONLY, //solo fecha, sin hora
         allowNull: true,          //puede quedar vacía
     },
+    bio: {
+        type: DataTypes.STRING(500),
+        allowNull: true,
+    },
     rol: {
         type: DataTypes.ENUM('user', 'admin'), //solo acepta estos 2 valores
         defaultValue: 'user'

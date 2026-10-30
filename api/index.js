@@ -7,23 +7,11 @@ const authRoutes = require('./routes/auth.routes')
 const { addFavorite, removeFavorite, playGame, getMyLibrary } = require('./controllers/library')
 const { isAuth , requireRole, isOwnerOrAdmin, optionalAuth} = require('./middlewares/auth')
 const sequelize = require('./config/db')
-const User = require('./models/User')
-const Game = require('./models/GameModel')
-const Favorite = require('./models/Favorite')
-const PlayHistory = require('./models/PlayHistory')
+const { Game } = require('./models')
 const userRoutes = require('./routes/user.routes');
 const validate = require('./middlewares/validate')
 const { registerRules, loginRules, changePasswordRules } = require('./validators/user')
 const { createGameRules, updateGameRules } = require('./validators/game')
-
-User.hasMany(Game, { foreignKey: 'authorId', onDelete: 'CASCADE' })
-Game.belongsTo(User, { foreignKey: 'authorId' })
-
-//Si se borra un usuario o un juego, se borran sus favoritos y su historial
-User.hasMany(Favorite, { foreignKey: 'userId', onDelete: 'CASCADE' })
-Game.hasMany(Favorite, { foreignKey: 'gameId', onDelete: 'CASCADE' })
-User.hasMany(PlayHistory, { foreignKey: 'userId', onDelete: 'CASCADE' })
-Game.hasMany(PlayHistory, { foreignKey: 'gameId', onDelete: 'CASCADE' })
 
 const server = express()
 

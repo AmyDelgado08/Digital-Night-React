@@ -6,7 +6,6 @@ function MyGames() {
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [selectedGame, setSelectedGame] = useState(null);
 
   const navigate = useNavigate();
 
@@ -88,6 +87,9 @@ function MyGames() {
     if (["published", "publicado", "approved", "aprobado"].includes(status)) {
       return "Publicado";
     }
+    if (["rejected", "rechazado"].includes(status)) {
+      return "Rechazado";
+    }
     return "En revisión";
   };
 
@@ -97,6 +99,10 @@ function MyGames() {
 
   const reviewGames = games.filter(
     (game) => getGameStatus(game) === "En revisión",
+  );
+
+  const rejectedGames = games.filter(
+    (game) => getGameStatus(game) === "Rechazado",
   );
 
   return (
@@ -118,12 +124,13 @@ function MyGames() {
           </button>
         </div>
 
+        {/* Cantidades de cada estado arriba */}
         <div style={style.stats}>
           <div style={style.statCard}>
             <div style={style.statIcon}>✦</div>
             <div>
               <h2 style={style.statNumber}>{publishedGames.length}</h2>
-              <p style={style.statLabel}>Juegos publicados</p>
+              <p style={style.statLabel}>Publicados</p>
             </div>
           </div>
 
@@ -132,6 +139,14 @@ function MyGames() {
             <div>
               <h2 style={style.statNumber}>{reviewGames.length}</h2>
               <p style={style.statLabel}>En revisión</p>
+            </div>
+          </div>
+
+          <div style={style.statCard}>
+            <div style={style.rejectedIcon}>✕</div>
+            <div>
+              <h2 style={style.statNumber}>{rejectedGames.length}</h2>
+              <p style={style.statLabel}>Rechazados</p>
             </div>
           </div>
         </div>
@@ -157,111 +172,101 @@ function MyGames() {
               <span>ACCIONES</span>
             </div>
 
-            {games.map((game) => (
-              <div style={style.gameRow} key={game.id}>
-                <Link to={`/games/${game.id}`} style={style.gameInfo}>
-                  <div style={style.gameThumbnail}>
-                    {game.title?.charAt(0)?.toUpperCase()}
-                  </div>
+            {games.map((game) => {
+              const estado = getGameStatus(game);
+              return (
+                <div style={style.gameRow} key={game.id}>
+                  <Link to={`/games/${game.id}`} style={style.gameInfo}>
+                    <div style={style.gameThumbnail}>
+                      {game.coverImage ? (
+                        <img
+                          src={`http://localhost:3000${game.coverImage}`}
+                          alt={game.title}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            borderRadius: "9px",
+                          }}
+                        />
+                      ) : (
+                        game.title?.charAt(0)?.toUpperCase()
+                      )}
+                    </div>
+
+                    <div>
+                      <h3 style={style.gameTitle}>{game.title}</h3>
+                      <p style={style.description}>{game.description}</p>
+                    </div>
+                  </Link>
 
                   <div>
-                    <h3 style={style.gameTitle}>{game.title}</h3>
-                    <p style={style.description}>{game.description}</p>
+                    <span
+                      style={{
+                        ...style.publishedBadge,
+                        ...(estado === "En revisión"
+                          ? {
+                              backgroundColor: "#3a3020",
+                              color: "#fbbf24",
+                            }
+                          : {}),
+                        ...(estado === "Rechazado"
+                          ? {
+                              backgroundColor: "#3d1a1f",
+                              color: "#f87171",
+                            }
+                          : {}),
+                      }}
+                    >
+                      ● {estado}
+                    </span>
+
+                    {/* Si está rechazado, mostrar el motivo */}
+                    {estado === "Rechazado" && game.rejectionReason && (
+                      <div
+                        style={{
+                          marginTop: "6px",
+                          fontSize: "11px",
+                          color: "#fca5a5",
+                          maxWidth: "240px",
+                          lineHeight: "1.4",
+                        }}
+                      >
+                        <strong>Motivo:</strong> {game.rejectionReason}
+                      </div>
+                    )}
                   </div>
-                </Link>
 
-                <div>
-                  <span
-                    style={{
-                      ...style.publishedBadge,
-                      ...(getGameStatus(game) === "En revisión"
-                        ? {
-                            backgroundColor: "#3a3020",
-                            color: "#fbbf24",
-                          }
-                        : {}),
-                    }}
-                  >
-                    ● {getGameStatus(game)}
+                  <span style={style.date}>
+                    {game.updatedAt
+                      ? new Date(game.updatedAt).toLocaleDateString()
+                      : "Sin fecha"}
                   </span>
+
+                  <div style={style.actions}>
+                    {/* Botón ✎ que lleva a /editar-juego/:id */}
+                    <button
+                      style={style.actionButton}
+                      title="Editar juego"
+                      onClick={() => navigate(`/editar-juego/${game.id}`)}
+                    >
+                      ✎
+                    </button>
+
+                    <button
+                      style={style.deleteButton}
+                      title="Eliminar juego"
+                      onClick={() => deleteGame(game.id)}
+                    >
+                      ×
+                    </button>
+                  </div>
                 </div>
-
-                <span style={style.date}>
-                  {game.updatedAt
-                    ? new Date(game.updatedAt).toLocaleDateString()
-                    : "Sin fecha"}
-                </span>
-
-                <div style={style.actions}>
-                  <button
-                    style={style.actionButton}
-                    title="Editar juego"
-                    onClick={() => setSelectedGame(game)}
-                  >
-                    ✎
-                  </button>
-
-                  <button
-                    style={style.deleteButton}
-                    title="Eliminar juego"
-                    onClick={() => deleteGame(game.id)}
-                  >
-                    ×
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
-
-      {selectedGame && (
-        <div style={style.modalOverlay}>
-          <div
-            style={style.modal}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="modal-title"
-          >
-            <button
-              type="button"
-              style={style.modalClose}
-              onClick={() => setSelectedGame(null)}
-              aria-label="Cerrar"
-            >
-              ×
-            </button>
-
-            <div style={style.modalIcon}>✎</div>
-
-            <h2 id="modal-title" style={style.modalTitle}>
-              Administrar videojuego
-            </h2>
-
-            <p style={style.modalText}>
-              ¿Qué querés hacer con <strong>{selectedGame.title}</strong>?
-            </p>
-
-            <div style={style.modalActions}>
-              <button
-                type="button"
-                style={style.modalSecondary}
-                onClick={() => setSelectedGame(null)}
-              >
-                Cancelar
-              </button>
-
-              <button
-                type="button"
-                style={style.modalPrimary}
-                onClick={() => navigate(`/editar-juego/${selectedGame.id}`)}
-              >
-                ✎ Editar juego
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -327,8 +332,8 @@ const style = {
     width: "42px",
     height: "42px",
     borderRadius: "12px",
-    backgroundColor: "#302751",
-    color: "#a78bfa",
+    backgroundColor: "#12372f",
+    color: "#4ade80",
     fontSize: "24px",
   },
   draftIcon: {
@@ -341,6 +346,18 @@ const style = {
     backgroundColor: "#3a3020",
     color: "#fbbf24",
     fontSize: "24px",
+  },
+  rejectedIcon: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "42px",
+    height: "42px",
+    borderRadius: "12px",
+    backgroundColor: "#3d1a1f",
+    color: "#f87171",
+    fontSize: "20px",
+    fontWeight: "700",
   },
   statNumber: {
     fontSize: "24px",
@@ -361,7 +378,7 @@ const style = {
   tableHeader: {
     display: "grid",
     gridTemplateColumns:
-      "minmax(180px, 2fr) minmax(100px, 0.8fr) minmax(100px, 1fr) minmax(100px, 0.8fr)",
+      "minmax(180px, 2fr) minmax(140px, 1fr) minmax(100px, 1fr) minmax(100px, 0.8fr)",
     gap: "16px",
     padding: "16px 20px",
     backgroundColor: "#191632",
@@ -372,7 +389,7 @@ const style = {
   gameRow: {
     display: "grid",
     gridTemplateColumns:
-      "minmax(180px, 2fr) minmax(100px, 0.8fr) minmax(100px, 1fr) minmax(100px, 0.8fr)",
+      "minmax(180px, 2fr) minmax(140px, 1fr) minmax(100px, 1fr) minmax(100px, 0.8fr)",
     alignItems: "center",
     gap: "16px",
     padding: "16px 20px",
@@ -398,6 +415,7 @@ const style = {
     color: "#fff",
     fontSize: "22px",
     fontWeight: "700",
+    overflow: "hidden",
   },
   gameTitle: {
     margin: "0 0 5px",
@@ -410,6 +428,8 @@ const style = {
     color: "#9290b0",
     overflow: "hidden",
     textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    maxWidth: "320px",
   },
   publishedBadge: {
     display: "inline-block",
@@ -437,6 +457,9 @@ const style = {
     color: "#ddd6fe",
     fontSize: "18px",
     cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
   deleteButton: {
     width: "34px",
@@ -447,6 +470,9 @@ const style = {
     color: "#fca5a5",
     fontSize: "20px",
     cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
   emptyCard: {
     textAlign: "center",
@@ -460,84 +486,6 @@ const style = {
     textAlign: "center",
     color: "#fca5a5",
     padding: "20px",
-  },
-  modalOverlay: {
-    position: "fixed",
-    inset: 0,
-    backgroundColor: "rgba(5, 4, 18, 0.78)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "20px",
-    zIndex: 1000,
-  },
-  modal: {
-    position: "relative",
-    width: "100%",
-    maxWidth: "420px",
-    boxSizing: "border-box",
-    padding: "32px 24px",
-    borderRadius: "20px",
-    border: "1px solid #514b70",
-    backgroundColor: "#17142e",
-    color: "#f5f3ff",
-    textAlign: "center",
-    boxShadow: "0 20px 60px rgba(0,0,0,0.45)",
-  },
-  modalClose: {
-    position: "absolute",
-    top: "10px",
-    right: "14px",
-    border: "none",
-    background: "transparent",
-    color: "#c4c0db",
-    fontSize: "28px",
-    cursor: "pointer",
-  },
-  modalIcon: {
-    width: "54px",
-    height: "54px",
-    margin: "0 auto 16px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: "15px",
-    backgroundColor: "#302751",
-    color: "#c4b5fd",
-    fontSize: "28px",
-  },
-  modalTitle: {
-    fontSize: "22px",
-    margin: "0 0 12px",
-  },
-  modalText: {
-    color: "#b7b3ce",
-    fontSize: "14px",
-    lineHeight: 1.6,
-    marginBottom: "26px",
-  },
-  modalActions: {
-    display: "flex",
-    justifyContent: "center",
-    flexWrap: "wrap",
-    gap: "12px",
-  },
-  modalSecondary: {
-    padding: "11px 20px",
-    border: "1px solid #77708f",
-    borderRadius: "24px",
-    background: "transparent",
-    color: "#fff",
-    cursor: "pointer",
-  },
-  modalPrimary: {
-    padding: "11px 20px",
-    border: "none",
-    borderRadius: "24px",
-    background: "linear-gradient(90deg, #6366f1, #a855f7)",
-    color: "#fff",
-    fontWeight: "600",
-    cursor: "pointer",
   },
 };
 

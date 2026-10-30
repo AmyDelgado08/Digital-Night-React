@@ -4,7 +4,7 @@ const path = require('path')
 const handleUpload = require('./middlewares/upload')
 
 const { getUsers, registerUser, login, me, updateUser, updateMe, updatePassword, deleteUser, updateUserByAdmin, getProfile} = require('./controllers/user')
-const { getGames, getGameById, createGame, updateGame, deleteGame, getMyGames } = require('./controllers/game')
+const { getGames, getGameById, createGame, updateGame, deleteGame, getMyGames, getAdminGames, reviewGame } = require('./controllers/game')
 const authRoutes = require('./routes/auth.routes')
 const { addFavorite, removeFavorite, playGame, getMyLibrary } = require('./controllers/library')
 const { isAuth , requireRole, isOwnerOrAdmin, optionalAuth} = require('./middlewares/auth')
@@ -13,7 +13,7 @@ const { Game } = require('./models')
 const userRoutes = require('./routes/user.routes');
 const validate = require('./middlewares/validate')
 const { registerRules, loginRules, changePasswordRules, updateEmailRules } = require('./validators/user')
-const { createGameRules, updateGameRules } = require('./validators/game')
+const { createGameRules, updateGameRules, reviewGameRules } = require('./validators/game')
 const audit = require('./middlewares/audit')
 const rateLimit = require('./middlewares/rateLimit')
 const { getAudits } = require('./controllers/audit')
@@ -74,13 +74,15 @@ server.delete('/games/:id/favorite', isAuth, removeFavorite); // Quitar de favor
 server.post('/games/:id/play', optionalAuth, playGame);      // Jugar (suma una jugada)
 server.post('/games', isAuth, handleUpload, createGameRules, validate, createGame);
 server.put('/games/:id', isAuth, isOwnerOrAdmin(Game), handleUpload, updateGameRules, validate, updateGame);
-server.delete('/games/:id', isAuth,isOwnerOrAdmin(Game), deleteGame);
+server.delete('/games/:id', isAuth, isOwnerOrAdmin(Game), deleteGame);
 
-// RUTAS EXCLUSIVAS DE ADMIN (Única declaración de GET /users)
+// RUTAS EXCLUSIVAS DE ADMIN
 server.get('/users', isAuth, requireRole('admin'), getUsers);
 server.delete('/users/:id', isAuth, requireRole('admin'), deleteUser);
 server.put('/users/:id', isAuth, requireRole('admin'), updateUserByAdmin);
 server.get('/audit', isAuth, requireRole('admin'), getAudits);
+server.get('/admin/games', isAuth, requireRole('admin'), getAdminGames);
+server.put('/admin/games/:id/review', isAuth, requireRole('admin'), reviewGameRules, validate, reviewGame);
 
 server.use(userRoutes);
 
@@ -99,4 +101,4 @@ server.use((err, req, res, next) => {
 server.listen(3000, async () => {
     await sequelize.sync({ force: false })
     console.log("El server esta corriendo en el puerto 3000");
-}) 
+})

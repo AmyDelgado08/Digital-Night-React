@@ -12,7 +12,19 @@ const updateGameRules = [
     body('platforms').optional({ nullable: true }).isString().withMessage('Las plataformas deben ser texto')
 ]
 
+const reviewGameRules = [
+    body('status')
+        .isIn(['publicado', 'rechazado'])
+        .withMessage('El estado debe ser publicado o rechazado'),
+    body('reason')
+        .if(body('status').equals('rechazado'))
+        .trim()
+        .notEmpty()
+        .withMessage('El motivo de rechazo es obligatorio')
+]
+
 module.exports = {
     createGameRules,
-    updateGameRules
+    updateGameRules,
+    reviewGameRules
 }

@@ -10,6 +10,11 @@ function ResetPassword() {
 
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    
+    // Estados para el icono del "ojo" en ambos campos
+    const [mostrarNewPassword, setMostrarNewPassword] = useState(false);
+    const [mostrarConfirmPassword, setMostrarConfirmPassword] = useState(false);
+
     const [mensaje, setMensaje] = useState('');
     const [error, setError] = useState('');
     const [cargando, setCargando] = useState(false);
@@ -61,7 +66,7 @@ function ResetPassword() {
                     Restablecer <span style={styles.tituloResaltado}>contraseña</span>
                 </h2>
                 <p style={styles.subtitulo}>
-                    Ingresá tu nueva contraseña para recuperar el acceso a tu cuenta.
+                    Ingresá tu nueva contraseña para recuperar el acceso à tu cuenta.
                 </p>
 
                 {error && (
@@ -77,23 +82,45 @@ function ResetPassword() {
                 )}
 
                 <form onSubmit={handleSubmit} style={styles.formulario}>
-                    <input
-                        type="password"
-                        placeholder="Nueva contraseña"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        style={styles.campo}
-                        required
-                    />
+                    {/* Nueva contraseña con Ojo */}
+                    <div style={styles.contenedorPassword}>
+                        <input
+                            type={mostrarNewPassword ? 'text' : 'password'}
+                            placeholder="Nueva contraseña"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            style={styles.campoPassword}
+                            required
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setMostrarNewPassword(!mostrarNewPassword)}
+                            style={styles.botonOjo}
+                            title={mostrarNewPassword ? "Ocultar contraseña" : "Ver contraseña"}
+                        >
+                            {renderEyeIcon(mostrarNewPassword)}
+                        </button>
+                    </div>
 
-                    <input
-                        type="password"
-                        placeholder="Confirmar nueva contraseña"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        style={styles.campo}
-                        required
-                    />
+                    {/* Confirmar nueva contraseña con Ojo */}
+                    <div style={styles.contenedorPassword}>
+                        <input
+                            type={mostrarConfirmPassword ? 'text' : 'password'}
+                            placeholder="Confirmar nueva contraseña"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            style={styles.campoPassword}
+                            required
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setMostrarConfirmPassword(!mostrarConfirmPassword)}
+                            style={styles.botonOjo}
+                            title={mostrarConfirmPassword ? "Ocultar contraseña" : "Ver contraseña"}
+                        >
+                            {renderEyeIcon(mostrarConfirmPassword)}
+                        </button>
+                    </div>
 
                     <button type="submit" disabled={cargando} style={styles.botonPrincipal}>
                         {cargando ? 'Actualizando...' : 'Restablecer contraseña'}
@@ -113,6 +140,23 @@ function ResetPassword() {
         </div>
     );
 }
+
+// Función auxiliar para renderizar el ícono del ojo
+const renderEyeIcon = (show) => {
+    return show ? (
+        /* Ícono Ojo Tachado (Ocultar) */
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+        </svg>
+    ) : (
+        /* Ícono Ojo Normal (Ver) */
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+    );
+};
 
 const styles = {
     contenedor: {
@@ -209,6 +253,35 @@ const styles = {
         fontSize: '14px',
         outline: 'none',
         boxSizing: 'border-box',
+    },
+    contenedorPassword: {
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        width: '100%',
+    },
+    campoPassword: {
+        width: '100%',
+        padding: '12px 44px 12px 14px', // Espacio derecho para el ícono del ojo
+        backgroundColor: '#1b1726',
+        border: '1px solid #2d2640',
+        borderRadius: '8px',
+        color: '#f1f5f9',
+        fontSize: '14px',
+        outline: 'none',
+        boxSizing: 'border-box',
+    },
+    botonOjo: {
+        position: 'absolute',
+        right: '12px',
+        background: 'transparent',
+        border: 'none',
+        color: '#a1a1aa',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '4px',
     },
     botonPrincipal: {
         width: '100%',

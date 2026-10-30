@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-const SECRET = process.env.JWT_SECRET
+const SECRET = process.env.JWT_SECRET;
 
 const isAuth = (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -18,19 +18,23 @@ const isAuth = (req, res, next) => {
             return res.status(401).json({ message: 'Error al acceder' });
         }
 
-        const user = await User.findByPk(decoded.id);
+        try {
+            const user = await User.findByPk(decoded.id);
 
-        if (!user) {
-            return res.status(401).json({ message: 'Usuario no encontrado' });
+            if (!user) {
+                return res.status(401).json({ message: 'Usuario no encontrado' });
+            }
+
+            req.user = {
+                id: user.id,
+                email: user.email,
+                rol: user.rol
+            };
+
+            next();
+        } catch (error) {
+            return res.status(500).json({ message: 'Error interno en autenticación' });
         }
-
-        req.user = {
-            id: user.id,
-            email: user.email,
-            rol: user.rol
-        };
-
-        next();
     });
 };
 
@@ -56,29 +60,33 @@ const isOwnerOrAdmin = (Model, options = {}) => async (req, res, next) => {
         return res.status(400).json({ message: 'Falta el id del registro' });
     }
 
-    const record = await Model.findByPk(recordId);
+    try {
+        const record = await Model.findByPk(recordId);
 
-    if (!record) {
-        return res.status(404).json({ message: 'Registro no encontrado' });
+        if (!record) {
+            return res.status(404).json({ message: 'Registro no encontrado' });
+        }
+
+        if (!req.user) {
+            return res.status(401).json({ message: 'No autenticado' });
+        }
+
+        const isAdminUser = req.user.rol === 'admin';
+        const isOwner = String(record[authorField]) === String(req.user.id);
+
+        if (isAdminUser || isOwner) {
+            return next();
+        }
+
+        return res.status(403).json({ message: 'No tienes permiso para esta acción' });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error interno al validar permisos' });
     }
-
-    if (!req.user) {
-        return res.status(401).json({ message: 'No autenticado' });
-    }
-
-    const isAdminUser = req.user.rol === 'admin';
-    const isOwner = String(record[authorField]) === String(req.user.id);
-
-    if (isAdminUser || isOwner) {
-        return next();
-    }
-
-    return res.status(403).json({ message: 'No tienes permiso para esta acción' });
 };
 
-//Igual que isAuth pero NO obliga a tener sesion.
-//Si llega un token valido guarda el usuario en req.user, y si no, deja pasar igual.
-//Sirve para pantallas publicas que muestran algo extra si iniciaste sesion.
+// Igual que isAuth pero NO obliga a tener sesion.
+// Si llega un token valido guarda el usuario en req.user, y si no, deja pasar igual.
+// Sirve para pantallas publicas que muestran algo extra si iniciaste sesion.
 const optionalAuth = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.startsWith('Bearer ')
@@ -94,14 +102,18 @@ const optionalAuth = (req, res, next) => {
             return next();
         }
 
-        const user = await User.findByPk(decoded.id);
+        try {
+            const user = await User.findByPk(decoded.id);
 
-        if (user) {
-            req.user = {
-                id: user.id,
-                email: user.email,
-                rol: user.rol
-            };
+            if (user) {
+                req.user = {
+                    id: user.id,
+                    email: user.email,
+                    rol: user.rol
+                };
+            }
+        } catch (e) {
+            // Si la base de datos falla, se continúa sin usuario autenticado
         }
 
         next();

@@ -7,6 +7,12 @@ function Seguridad() {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    
+    // Estados para el icono del "ojo" en cada campo de contraseña
+    const [mostrarCurrentPassword, setMostrarCurrentPassword] = useState(false);
+    const [mostrarNewPassword, setMostrarNewPassword] = useState(false);
+    const [mostrarConfirmPassword, setMostrarConfirmPassword] = useState(false);
+
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
 
@@ -26,7 +32,7 @@ function Seguridad() {
         }
 
         try {
-            //Envío de datos al endpoint
+            // Envío de datos al endpoint
             const response = await axios.put(
                 'http://localhost:3000/users/password',
                 { currentPassword, newPassword },
@@ -65,37 +71,70 @@ function Seguridad() {
                     {message && <p style={style.mensajeOk}>{message}</p>}
                     {error && <p style={style.mensajeError}>{error}</p>}
 
+                    {/* Contraseña actual con Ojo */}
                     <div style={style.grupo}>
                         <label style={style.etiqueta}>Contraseña actual</label>
-                        <input
-                            type="password"
-                            value={currentPassword}
-                            onChange={(e) => setCurrentPassword(e.target.value)}
-                            required
-                            style={style.campo}
-                        />
+                        <div style={style.contenedorPassword}>
+                            <input
+                                type={mostrarCurrentPassword ? 'text' : 'password'}
+                                value={currentPassword}
+                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                required
+                                style={style.campoPassword}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setMostrarCurrentPassword(!mostrarCurrentPassword)}
+                                style={style.botonOjo}
+                                title={mostrarCurrentPassword ? "Ocultar contraseña" : "Ver contraseña"}
+                            >
+                                {renderEyeIcon(mostrarCurrentPassword)}
+                            </button>
+                        </div>
                     </div>
 
+                    {/* Nueva contraseña con Ojo */}
                     <div style={style.grupo}>
                         <label style={style.etiqueta}>Nueva contraseña</label>
-                        <input
-                            type="password"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            required
-                            style={style.campo}
-                        />
+                        <div style={style.contenedorPassword}>
+                            <input
+                                type={mostrarNewPassword ? 'text' : 'password'}
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                required
+                                style={style.campoPassword}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setMostrarNewPassword(!mostrarNewPassword)}
+                                style={style.botonOjo}
+                                title={mostrarNewPassword ? "Ocultar contraseña" : "Ver contraseña"}
+                            >
+                                {renderEyeIcon(mostrarNewPassword)}
+                            </button>
+                        </div>
                     </div>
 
+                    {/* Confirmar nueva contraseña con Ojo */}
                     <div style={style.grupo}>
                         <label style={style.etiqueta}>Confirmar nueva contraseña</label>
-                        <input
-                            type="password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            required
-                            style={style.campo}
-                        />
+                        <div style={style.contenedorPassword}>
+                            <input
+                                type={mostrarConfirmPassword ? 'text' : 'password'}
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                required
+                                style={style.campoPassword}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setMostrarConfirmPassword(!mostrarConfirmPassword)}
+                                style={style.botonOjo}
+                                title={mostrarConfirmPassword ? "Ocultar contraseña" : "Ver contraseña"}
+                            >
+                                {renderEyeIcon(mostrarConfirmPassword)}
+                            </button>
+                        </div>
                     </div>
 
                     <div style={style.acciones}>
@@ -109,7 +148,24 @@ function Seguridad() {
     );
 }
 
-// Mismos estilos que EditProfile para que se vea igual
+// Función auxiliar para renderizar el ícono del ojo
+const renderEyeIcon = (show) => {
+    return show ? (
+        /* Ícono Ojo Tachado (Ocultar) */
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+        </svg>
+    ) : (
+        /* Ícono Ojo Normal (Ver) */
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+    );
+};
+
+// Estilos de la página de seguridad
 const style = {
     pagina: { display: 'flex', gap: '28px', padding: '32px', alignItems: 'flex-start', flexWrap: 'wrap', boxSizing: 'border-box', background: '#0b0b1c', minHeight: '85vh' },
     menuLateral: { width: '230px', padding: '22px 14px', borderRadius: '20px', backgroundColor: '#17152b', border: '1px solid #26233d', display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box' },
@@ -126,6 +182,36 @@ const style = {
     grupo: { marginBottom: '18px' },
     etiqueta: { display: 'block', color: '#e2e8f0', fontSize: '14px', marginBottom: '8px' },
     campo: { width: '100%', height: '46px', padding: '0 14px', borderRadius: '10px', backgroundColor: '#141229', border: '1px solid #2a2842', color: '#e2e8f0', fontSize: '14px', outline: 'none', boxSizing: 'border-box' },
+    contenedorPassword: {
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        width: '100%',
+    },
+    campoPassword: {
+        width: '100%',
+        height: '46px',
+        padding: '0 46px 0 14px',
+        borderRadius: '10px',
+        backgroundColor: '#141229',
+        border: '1px solid #2a2842',
+        color: '#e2e8f0',
+        fontSize: '14px',
+        outline: 'none',
+        boxSizing: 'border-box',
+    },
+    botonOjo: {
+        position: 'absolute',
+        right: '12px',
+        background: 'transparent',
+        border: 'none',
+        color: '#94a3b8',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '4px',
+    },
     acciones: { display: 'flex', justifyContent: 'flex-end', marginTop: '6px' },
     botonPrincipal: { padding: '13px 28px', border: 'none', borderRadius: '10px', backgroundColor: '#7c5cf0', color: '#ffffff', fontWeight: '600', fontSize: '14px', cursor: 'pointer' },
     mensajeOk: { color: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.1)', padding: '10px', borderRadius: '8px', fontSize: '14px', margin: '0 0 18px' },

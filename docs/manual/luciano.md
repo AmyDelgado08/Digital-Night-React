@@ -68,6 +68,8 @@ Si escribís una dirección que no existe dentro de DigitalNight (por ejemplo, u
 1. Una imagen en el centro, el número **404** en violeta y el mensaje **"Página no encontrada"**.
 2. Un botón **Volver al inicio** que te lleva a la pantalla principal.
 
+![Página no encontrada](../img/luciano-404.jpg)
+
 **Qué hacer**
 - Revisá que la dirección esté bien escrita.
 - Si llegaste desde un link, puede que la página haya sido borrada o movida. Volvé al inicio y buscala desde el menú.
@@ -86,6 +88,10 @@ La auditoría guarda un registro de cada acción que llega al servidor: quién l
 3. Hacé clic en el botón **Ver auditoría**.
 4. Se abre la pantalla **"Auditoría - Últimas 100 peticiones a la API"**, con las acciones más nuevas arriba.
 5. Para volver, hacé clic en **Volver al panel**.
+
+![Botón Ver auditoría en el panel de administración](../img/luciano-panel-admin.jpg)
+
+![Tabla de auditoría (emails e IPs tapados)](../img/luciano-auditoria.jpg)
 
 **Columnas de la tabla**
 - **Fecha**: día y hora de la acción.

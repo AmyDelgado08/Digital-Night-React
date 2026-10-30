@@ -1,23 +1,93 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+
+const API = "http://localhost:3000";
+const MAX_MB = 50;
 
 function CreateGame() {
   const navigate = useNavigate();
+  const { id } = useParams(); // si la URL trae un id, estamos editando
+  const isEdit = Boolean(id);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [materia, setMateria] = useState("");
   const [curso, setCurso] = useState("");
+  const [gameUrl, setGameUrl] = useState("");
 
   const [portada, setPortada] = useState(null);
   const [archivo, setArchivo] = useState(null);
   const [capturas, setCapturas] = useState([null, null, null]);
 
+  // Archivos que el juego ya tiene (solo al editar)
+  const [portadaActual, setPortadaActual] = useState(null);
+  const [archivoActual, setArchivoActual] = useState(null);
+  const [capturasActuales, setCapturasActuales] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Crear videojuego
+  // Al editar, cargamos los datos actuales del juego
+  useEffect(() => {
+    if (!isEdit) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    const cargarJuego = async () => {
+      try {
+        const res = await axios.get(`${API}/games/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const game = res.data;
+
+        setTitle(game.title || "");
+        setDescription(game.description || "");
+        setMateria(game.subject || "");
+        setCurso(game.grade || "");
+        setGameUrl(game.gameUrl || "");
+        setPortadaActual(game.coverImage || null);
+        setArchivoActual(game.gameFile || null);
+        setCapturasActuales(game.screenshots || []);
+      } catch (err) {
+        console.error("Error al cargar el juego:", err);
+        setError(err.response?.data?.message || "No se pudo cargar el juego.");
+      }
+    };
+
+    cargarJuego();
+  }, [id, isEdit, navigate]);
+
+  // Revisa los archivos antes de enviarlos
+  const validarArchivos = () => {
+    const limite = MAX_MB * 1024 * 1024;
+    const imagenes = [portada, ...capturas].filter(Boolean);
+
+    for (const img of imagenes) {
+      if (!["image/png", "image/jpeg"].includes(img.type)) {
+        return `"${img.name}" no es PNG ni JPG.`;
+      }
+    }
+
+    const todos = [...imagenes, archivo].filter(Boolean);
+    for (const f of todos) {
+      if (f.size > limite) {
+        return `"${f.name}" supera los ${MAX_MB} MB.`;
+      }
+    }
+
+    if (archivo && !/\.(zip|rar|7z|html)$/i.test(archivo.name)) {
+      return "El archivo del juego debe ser .zip, .rar, .7z o .html.";
+    }
+
+    return "";
+  };
+
+  // Crear o editar videojuego
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -34,28 +104,42 @@ function CreateGame() {
       return;
     }
 
+    const problema = validarArchivos();
+    if (problema) {
+      setError(problema);
+      return;
+    }
+
+    // FormData permite enviar texto y archivos en el mismo pedido
+    const formData = new FormData();
+    formData.append("title", title.trim());
+    formData.append("description", description.trim());
+    formData.append("subject", materia);
+    formData.append("grade", curso);
+    formData.append("gameUrl", gameUrl.trim());
+    if (portada) formData.append("coverImage", portada);
+    if (archivo) formData.append("gameFile", archivo);
+    capturas.forEach((captura) => {
+      if (captura) formData.append("screenshots", captura);
+    });
+
     try {
       setLoading(true);
 
-      await axios.post(
-        "http://localhost:3000/games",
-        {
-          title: title.trim(),
-          description: description.trim(),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+      const config = { headers: { Authorization: `Bearer ${token}` } };
 
-      alert("¡Juego creado correctamente!");
+      if (isEdit) {
+        await axios.put(`${API}/games/${id}`, formData, config);
+      } else {
+        await axios.post(`${API}/games`, formData, config);
+      }
+
+      alert(isEdit ? "¡Juego actualizado correctamente!" : "¡Juego creado correctamente!");
       navigate("/mis-juegos");
     } catch (err) {
-      console.error("Error al crear el juego:", err);
+      console.error("Error al guardar el juego:", err);
 
-      setError(err.response?.data?.message || "No se pudo crear el juego.");
+      setError(err.response?.data?.message || "No se pudo guardar el juego.");
     } finally {
       setLoading(false);
     }
@@ -65,9 +149,13 @@ function CreateGame() {
     <div style={styles.contenedor}>
       <div style={styles.contenido}>
         <div style={styles.encabezado}>
-          <h1 style={styles.titulo}>Crear videojuego</h1>
+          <h1 style={styles.titulo}>
+            {isEdit ? "Editar videojuego" : "Crear videojuego"}
+          </h1>
           <p style={styles.subtitulo}>
-            Completá la información de tu juego.
+            {isEdit
+              ? "Modificá los datos de tu juego. Si no subís archivos nuevos, se mantienen los actuales."
+              : "Completá la información de tu juego."}
           </p>
         </div>
 
@@ -77,7 +165,7 @@ function CreateGame() {
             <h2 style={styles.seccionTitulo}>Archivos del juego</h2>
 
             <p style={styles.seccionSubtitulo}>
-              Subí la portada, las capturas y el archivo ejecutable.
+              Imágenes PNG o JPG. El archivo del juego puede ser .zip, .rar, .7z o .html. Máximo {MAX_MB} MB por archivo.
             </p>
 
             <div style={styles.archivosPrincipales}>
@@ -87,8 +175,17 @@ function CreateGame() {
                   <>
                     <div style={styles.icono}>✓</div>
                     <strong>{portada.name}</strong>
+                    <small style={styles.textoAyuda}>Cambiar portada</small>
+                  </>
+                ) : portadaActual ? (
+                  <>
+                    <img
+                      src={`${API}${portadaActual}`}
+                      alt="Portada actual"
+                      style={{ maxWidth: "100%", maxHeight: "110px", borderRadius: "8px" }}
+                    />
                     <small style={styles.textoAyuda}>
-                      Cambiar portada
+                      Portada actual · Cambiar portada
                     </small>
                   </>
                 ) : (
@@ -105,9 +202,7 @@ function CreateGame() {
                   type="file"
                   accept="image/png,image/jpeg"
                   hidden
-                  onChange={(e) =>
-                    setPortada(e.target.files[0] || null)
-                  }
+                  onChange={(e) => setPortada(e.target.files[0] || null)}
                 />
               </label>
 
@@ -117,26 +212,29 @@ function CreateGame() {
                   <>
                     <div style={styles.icono}>✓</div>
                     <strong>{archivo.name}</strong>
-                    <small style={styles.textoAyuda}>
-                      Cambiar archivo
-                    </small>
+                    <small style={styles.textoAyuda}>Cambiar archivo</small>
+                  </>
+                ) : archivoActual ? (
+                  <>
+                    <div style={styles.icono}>✓</div>
+                    <strong>Archivo cargado</strong>
+                    <small style={styles.textoAyuda}>Cambiar archivo</small>
                   </>
                 ) : (
                   <>
                     <div style={styles.icono}>+</div>
                     <strong>Archivo del videojuego</strong>
                     <small style={styles.textoAyuda}>
-                      Seleccionar archivo
+                      .zip, .rar, .7z o .html
                     </small>
                   </>
                 )}
 
                 <input
                   type="file"
+                  accept=".zip,.rar,.7z,.html"
                   hidden
-                  onChange={(e) =>
-                    setArchivo(e.target.files[0] || null)
-                  }
+                  onChange={(e) => setArchivo(e.target.files[0] || null)}
                 />
               </label>
             </div>
@@ -155,23 +253,19 @@ function CreateGame() {
                     <>
                       <div style={styles.icono}>✓</div>
                       <strong>Captura {index + 1}</strong>
-                      <small style={styles.textoAyuda}>
-                        Cambiar imagen
-                      </small>
+                      <small style={styles.textoAyuda}>Cambiar imagen</small>
                     </>
                   ) : (
                     <>
                       <div style={styles.icono}>+</div>
                       <strong>Captura {index + 1}</strong>
-                      <small style={styles.textoAyuda}>
-                        Opcional
-                      </small>
+                      <small style={styles.textoAyuda}>Opcional</small>
                     </>
                   )}
 
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/png,image/jpeg"
                     hidden
                     onChange={(e) => {
                       const nuevas = [...capturas];
@@ -184,6 +278,12 @@ function CreateGame() {
                 </label>
               ))}
             </div>
+
+            {isEdit && capturasActuales.length > 0 && (
+              <p style={{ ...styles.textoAyuda, marginTop: "12px" }}>
+                El juego tiene {capturasActuales.length} captura(s). Si subís capturas nuevas, reemplazan a las anteriores.
+              </p>
+            )}
           </section>
 
           {/* Información */}
@@ -217,6 +317,19 @@ function CreateGame() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 required
+              />
+            </div>
+
+            {/* Link del juego */}
+            <div style={styles.campo}>
+              <label style={styles.label}>Link para jugar (opcional)</label>
+
+              <input
+                style={styles.input}
+                type="url"
+                placeholder="https://..."
+                value={gameUrl}
+                onChange={(e) => setGameUrl(e.target.value)}
               />
             </div>
 
@@ -281,7 +394,11 @@ function CreateGame() {
               style={styles.botonPrincipal}
               disabled={loading}
             >
-              {loading ? "Guardando..." : "Crear videojuego →"}
+              {loading
+                ? "Guardando..."
+                : isEdit
+                  ? "Guardar cambios →"
+                  : "Crear videojuego →"}
             </button>
           </div>
         </form>

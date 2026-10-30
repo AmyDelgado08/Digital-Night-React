@@ -161,7 +161,8 @@ function App() {
             <Route element={<Games />} path="/games" />
             <Route element={<MyGames />} path="/mis-juegos" />
             <Route element={<Library />} path="/biblioteca" />
-             <Route element={<CreateGame />} path="/crear-juego" />
+            <Route element={<CreateGame />} path="/crear-juego" />
+            <Route element={<CreateGame />} path="/editar-juego/:id" />
             <Route element={<AdminDashboard />} path="/admin" />
             <Route element={<ForgotPassword />} path="/olvide-password" />
             <Route element={<ResetPassword />} path="/restablecer/:token" />

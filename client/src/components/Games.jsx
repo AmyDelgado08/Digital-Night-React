@@ -34,18 +34,29 @@ function Games() {
         return <div style={estilos.pagina}><p style={{ color: 'white' }}>Cargando...</p></div>;
     }
 
-    // Los destacados son los 5 juegos mas nuevos (los puntitos de abajo del banner)
-    const destacados = [...games].reverse().slice(0, 5);
+    // Los destacados son los 3 juegos mejor valorados (los puntitos de abajo del banner)
+    // Ordenamos por nota, y si empatan, gana el que tiene mas valoraciones
+    // Ordenamos los juegos de mayor a menor nota y nos quedamos con los 3 primeros
+    const destacados = [...games].sort((a, b) => b.avgRating - a.avgRating).slice(0, 3);
     const destacado = destacados[posDestacado];
-    // Las 2 miniaturas de la derecha son los destacados que siguen
-    const siguientes = destacados.filter((game) => game !== destacado).slice(0, 2);
 
-    // Nombre e iniciales del usuario que creo el juego destacado
-    const autor = destacado ? destacado.author : null;
-    const nombreAutor = autor ? `${autor.firstName} ${autor.lastName || ''}`.trim() : 'Usuario';
-    const inicialesAutor = autor
-        ? (autor.firstName.charAt(0) + (autor.lastName || '').charAt(0)).toUpperCase()
-        : 'U';
+    // Valores por defecto (por si no hay juegos o no tiene autor)
+    let capturasDestacado = [];
+    let nombreAutor = 'Usuario';
+    let inicialesAutor = 'U';
+
+    if (destacado) {
+        // Las 2 imagenes de la derecha son las primeras 2 capturas del juego
+        capturasDestacado = destacado.screenshots.slice(0, 2);
+    }
+
+    if (destacado && destacado.author) {
+        // Nombre e iniciales del usuario que creo el juego
+        const nombre = destacado.author.firstName;
+        const apellido = destacado.author.lastName || '';
+        nombreAutor = nombre + ' ' + apellido;
+        inicialesAutor = (nombre.charAt(0) + apellido.charAt(0)).toUpperCase();
+    }
 
     // Juegos que coinciden con lo que se escribio en el buscador
     const juegosFiltrados = games.filter((game) =>
@@ -123,17 +134,22 @@ function Games() {
                                             </div>
                                         </div>
 
+                                        {/* Capturas del juego destacado (al tocarlas se abren grandes) */}
                                         <div style={estilos.miniaturas}>
-                                            {siguientes.map((game) => (
-                                                <div
-                                                    key={game.id}
-                                                    style={{ ...estilos.miniatura, background: fondoJuego(game) }}
-                                                    onClick={() => setPosDestacado(destacados.indexOf(game))}
-                                                    title={game.title}
-                                                >
-                                                    {!game.coverImage && <span style={estilos.miniaturaTexto}>{game.title}</span>}
-                                                </div>
-                                            ))}
+                                            {capturasDestacado.length > 0 ? (
+                                                capturasDestacado.map((captura, i) => (
+                                                    <a
+                                                        key={i}
+                                                        href={API + captura}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        style={{ ...estilos.miniatura, background: `url(${API + captura}) center / cover` }}
+                                                        title={`Captura ${i + 1} de ${destacado.title}`}
+                                                    />
+                                                ))
+                                            ) : (
+                                                <div style={estilos.sinCapturas}>Este juego todavía no tiene capturas</div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -167,9 +183,9 @@ function Games() {
                             <p style={estilos.mensajeVacio}>No encontramos juegos con ese nombre.</p>
                         ) : (
                             <div style={estilos.grilla}>
-                                {juegosGrilla.map((game, i) => {
-                                    // La primera tarjeta es mas ancha (como en la foto)
-                                    let estiloTarjeta = i === 0 ? { ...estilos.tarjeta, ...estilos.tarjetaAncha } : estilos.tarjeta;
+                                {juegosGrilla.map((game) => {
+                                    // Todas las tarjetas tienen el mismo tamaño; si tiene el mouse encima, sube un poco
+                                    let estiloTarjeta = estilos.tarjeta;
                                     if (juegoEncima === game.id) {
                                         estiloTarjeta = { ...estiloTarjeta, ...estilos.tarjetaEncima };
                                     }
@@ -415,10 +431,19 @@ const estilos = {
         padding: '8px',
         boxSizing: 'border-box',
     },
-    miniaturaTexto: {
-        color: '#ffffff',
-        fontSize: '10px',
-        fontWeight: '600',
+    sinCapturas: {
+        flex: 1,
+        height: '76px',
+        borderRadius: '10px',
+        border: '1px dashed rgba(143, 132, 255, 0.3)',
+        color: '#9a97c0',
+        fontSize: '11px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        padding: '8px',
+        boxSizing: 'border-box',
     },
 
     // Puntitos debajo del banner
@@ -462,11 +487,11 @@ const estilos = {
         fontSize: '12px',
         cursor: 'pointer',
     },
-    // 5 columnas: la primera tarjeta ocupa 2 (queda el doble de ancha, como en la foto)
+    // 4 columnas iguales: todas las tarjetas tienen el mismo tamaño
     grilla: {
         display: 'grid',
-        gridTemplateColumns: 'repeat(5, 1fr)',
-        gridAutoRows: '235px',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridAutoRows: '260px',
         gap: '12px',
     },
     tarjeta: {
@@ -479,9 +504,6 @@ const estilos = {
         padding: '14px',
         boxSizing: 'border-box',
         transition: 'transform 0.2s, box-shadow 0.2s',
-    },
-    tarjetaAncha: {
-        gridColumn: 'span 2',
     },
     tarjetaEncima: {
         transform: 'translateY(-5px)',

@@ -32,9 +32,31 @@ const getGames = async (req, res) => {
             attributes: ['id', 'firstName', 'lastName']
         });
 
+        // Traemos todas las valoraciones de estos juegos para calcular la nota de cada uno
+        const ratings = await Rating.findAll({
+            where: { gameId: games.map((g) => g.id) }
+        });
+
         const resultado = games.map((game) => {
             const autor = autores.find((user) => user.id === game.authorId);
-            return { ...game.toJSON(), author: autor || null };
+
+            // Nos quedamos solo con las valoraciones de este juego
+            const ratingsDelJuego = ratings.filter((r) => r.gameId === game.id);
+            const ratingsCount = ratingsDelJuego.length;
+
+            // Sumamos todas las estrellas que le pusieron
+            let suma = 0;
+            ratingsDelJuego.forEach((rating) => {
+                suma = suma + rating.score;
+            });
+
+            // Promedio con 1 decimal (si nadie voto queda en 0)
+            let avgRating = 0;
+            if (ratingsCount > 0) {
+                avgRating = Number((suma / ratingsCount).toFixed(1));
+            }
+
+            return { ...game.toJSON(), author: autor || null, avgRating, ratingsCount };
         });
 
         res.json(resultado);

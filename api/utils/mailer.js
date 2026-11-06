@@ -19,6 +19,11 @@ const enviarMail = async (para, asunto, html) => {
             to: para,
             subject: asunto,
             html,
+            text: html
+                .replace(/<a [^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/g, '$2: $1')
+                .replace(/<[^>]+>/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim(),
         })
     } catch (error) {
         console.log('No se pudo mandar el mail:', error.message)

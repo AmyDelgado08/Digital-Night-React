@@ -241,6 +241,14 @@ function GameDetail() {
                                 Compartir
                             </button>
                         </div>
+
+                        {!localStorage.getItem('token') && game.gameUrl?.includes('save=') && (
+                            <p style={estilos.avisoProgreso}>
+                                Estás jugando como invitado: tu progreso se guarda solo mientras tengas abierta la pestaña del juego.
+                                Para guardarlo siempre, <span style={estilos.avisoLink} onClick={() => navigate('/login')}>iniciá sesión</span> o{' '}
+                                <span style={estilos.avisoLink} onClick={() => navigate('/register')}>creá una cuenta</span>.
+                            </p>
+                        )}
                     </div>
 
                     {/* Video del juego. Si no tiene video mostramos la portada o la primera captura. Si no tiene nada queda vacio */}
@@ -539,6 +547,23 @@ const estilos = {
         display: 'flex',
         gap: '10px',
         flexWrap: 'wrap',
+    },
+    avisoProgreso: {
+        color: '#a1a1c5',
+        fontSize: '12.5px',
+        lineHeight: 1.6,
+        margin: '14px 0 0',
+        maxWidth: '420px',
+        padding: '10px 14px',
+        border: '1px solid rgba(139, 92, 246, 0.35)',
+        borderRadius: '10px',
+        backgroundColor: 'rgba(139, 92, 246, 0.08)',
+    },
+    avisoLink: {
+        color: '#a78bfa',
+        fontWeight: '600',
+        cursor: 'pointer',
+        textDecoration: 'underline',
     },
     botonJugar: {
         display: 'flex',

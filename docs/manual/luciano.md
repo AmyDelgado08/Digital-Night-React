@@ -202,17 +202,6 @@ En la página de cada juego podés darle de **1 a 5 estrellas**. El promedio y l
 
 ---
 
-## Formato en la descripción de un juego
-
-Al escribir la descripción de un juego podés darle un poco de formato:
-
-1. **Saltos de línea**: cada **Enter** que pongas se respeta, así podés separar el texto en renglones o párrafos.
-2. **Negrita**: poné el texto entre dos asteriscos dobles. Por ejemplo, `**Controles:**` se ve como **Controles:**.
-
-Se ve así en el detalle del juego y en el juego destacado del catálogo.
-
----
-
 ## Guía de errores comunes y soluciones
 
 Cuando algo sale mal, el servidor responde con un **código** y un mensaje. Esta tabla junta los más comunes y qué hacer en cada caso.

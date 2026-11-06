@@ -326,8 +326,8 @@ function CreateGame() {
 
               <input
                 style={styles.input}
-                type="url"
-                placeholder="https://..."
+                type="text"
+                placeholder="https://... o /games/nombre/index.html"
                 value={gameUrl}
                 onChange={(e) => setGameUrl(e.target.value)}
               />

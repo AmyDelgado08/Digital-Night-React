@@ -48,6 +48,8 @@ const audit = require('./middlewares/audit')
 const rateLimit = require('./middlewares/rateLimit')
 const { getAudits } = require('./controllers/audit')
 const { getPartida, guardarPartida } = require('./controllers/partida')
+const { rateGame } = require('./controllers/rating')
+const { ratingRules } = require('./validators/rating')
 
 // En el server la API está detrás de Apache: así req.ip es la IP real de la persona
 server.set('trust proxy', 1)
@@ -75,6 +77,9 @@ server.get('/audit', isAuth, requireRole('admin'), getAudits)
 // Progreso de los juegos: solo se guarda para usuarios logueados (los invitados lo guardan en su pestaña)
 server.get('/partidas/:id', isAuth, getPartida)
 server.post('/partidas/:id', isAuth, express.text(), guardarPartida) // express.text(): el juego manda el progreso como texto, no JSON
+
+// Votar un juego de 1 a 5 estrellas (si ya votó, se cambia el voto)
+server.post('/games/:id/rating', isAuth, ratingRules, validate, rateGame)
 // ============================================================================
 // FIN LUCIANO (el 404 y el manejo de errores están al final del archivo)
 // ============================================================================

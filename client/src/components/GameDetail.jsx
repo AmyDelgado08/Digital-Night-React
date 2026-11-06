@@ -31,6 +31,7 @@ function GameDetail() {
     const [game, setGame] = useState(null);
     const [loading, setLoading] = useState(true);
     const [pestaña, setPestaña] = useState('descripcion');
+    const [estrellaHover, setEstrellaHover] = useState(0);
 
     useEffect(() => {
         const fetchGame = async () => {
@@ -105,6 +106,23 @@ function GameDetail() {
     };
 
     // Compartir: copia el link de esta pagina
+    const votar = async (score) => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Tenés que iniciar sesión para valorar juegos.');
+            navigate('/login');
+            return;
+        }
+        try {
+            const response = await axios.post(`${API}/games/${id}/rating`, { score }, {
+                headers: { authorization: token }
+            });
+            setGame({ ...game, ...response.data });
+        } catch (error) {
+            alert(error.response?.data?.message || 'No se pudo guardar tu valoración.');
+        }
+    };
+
     const compartir = async () => {
         try {
             await navigator.clipboard.writeText(window.location.href);
@@ -241,6 +259,30 @@ function GameDetail() {
                                 Compartir
                             </button>
                         </div>
+
+                        {String(game.authorId) !== localStorage.getItem('userId') && (
+                            <div style={estilos.votar}>
+                                <span style={estilos.autorDato}>
+                                    {game.myRating ? `Tu valoración: ${game.myRating} de 5` : 'Valorá este juego:'}
+                                </span>
+                                <div style={estilos.estrellas} onMouseLeave={() => setEstrellaHover(0)}>
+                                    {[1, 2, 3, 4, 5].map((n) => (
+                                        <svg
+                                            key={n}
+                                            width="24"
+                                            height="24"
+                                            viewBox="0 0 24 24"
+                                            style={{ cursor: 'pointer' }}
+                                            fill={n <= (estrellaHover || game.myRating || 0) ? '#fbbf24' : '#3a3760'}
+                                            onMouseEnter={() => setEstrellaHover(n)}
+                                            onClick={() => votar(n)}
+                                        >
+                                            <path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" />
+                                        </svg>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         {!localStorage.getItem('token') && game.gameUrl?.includes('save=') && (
                             <p style={estilos.avisoProgreso}>
@@ -547,6 +589,12 @@ const estilos = {
         display: 'flex',
         gap: '10px',
         flexWrap: 'wrap',
+    },
+    votar: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        marginTop: '16px',
     },
     avisoProgreso: {
         color: '#a1a1c5',

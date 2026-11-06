@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const enviarMail = require('../utils/mailer');
+const { plantillaMail } = require('../utils/plantillaMail');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'misecreto';
 
@@ -26,9 +27,16 @@ const forgotPassword = async (req, res) => {
             await enviarMail(
                 email,
                 'Restablecer tu contraseña de Digital Night',
-                `<p>Para elegir una contraseña nueva entrá a este enlace (vence en 15 minutos):</p>
-                 <p><a href="${resetLink}">${resetLink}</a></p>
-                 <p>Si no lo pediste vos, ignorá este mail.</p>`
+                plantillaMail({
+                    titulo: 'Restablecer tu contraseña',
+                    parrafos: [
+                        'Recibimos un pedido para cambiar la contraseña de tu cuenta.',
+                        'Tocá el botón para elegir una nueva. El enlace vence en <b>15 minutos</b>.',
+                    ],
+                    textoBoton: 'Elegir contraseña nueva',
+                    linkBoton: resetLink,
+                    notaFinal: 'Si no lo pediste vos, ignorá este mail: tu contraseña no cambia.',
+                })
             );
 
             // Simulación del envío de correo: se muestra en la consola del servidor

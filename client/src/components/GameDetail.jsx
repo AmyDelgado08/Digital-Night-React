@@ -244,7 +244,7 @@ function GameDetail() {
 
                         {!localStorage.getItem('token') && game.gameUrl?.includes('save=') && (
                             <p style={estilos.avisoProgreso}>
-                                Estás jugando como invitado: tu progreso se guarda solo mientras tengas abierta la pestaña del juego.
+                                Estás jugando como invitado: tu progreso se guarda en este navegador solo por 24 horas.
                                 Para guardarlo siempre, <span style={estilos.avisoLink} onClick={() => navigate('/login')}>iniciá sesión</span> o{' '}
                                 <span style={estilos.avisoLink} onClick={() => navigate('/register')}>creá una cuenta</span>.
                             </p>

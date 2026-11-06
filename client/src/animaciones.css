@@ -1,0 +1,35 @@
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+main > * {
+    animation: aparecer 0.35s ease-out;
+}
+
+button {
+    transition: transform 0.15s, filter 0.15s;
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.12);
+}
+
+button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    main > *,
+    button {
+        animation: none;
+        transition: none;
+    }
+}

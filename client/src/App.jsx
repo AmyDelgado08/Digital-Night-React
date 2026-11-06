@@ -5,6 +5,7 @@ import {
   useNavigate,
   useLocation,
 } from "react-router-dom";
+import { useEffect } from "react";
 
 import logo from "./img/logo.png";
 
@@ -32,6 +33,11 @@ import Footer from "./components/Footer";
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Cada vez que cambia la dirección (ej: "Ver perfil" desde un juego), volvemos arriba de todo
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   // Leemos los datos guardados en el navegador.
   const token = localStorage.getItem("token");

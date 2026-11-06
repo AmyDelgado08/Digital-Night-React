@@ -8,19 +8,29 @@ function Audit() {
     const [texto, setTexto] = useState('');
     const [metodo, setMetodo] = useState('');
     const [estado, setEstado] = useState('');
+    const [actualizado, setActualizado] = useState(null);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) return navigate('/login');
 
-        axios.get('http://localhost:3000/audit', {
-            headers: { authorization: token }
-        })
-        .then(res => setRegistros(res.data))
-        .catch(() => {
-            alert('No tienes permisos de administrador para ver esta sección.');
-            navigate('/perfil-publico');
-        });
+        const cargar = () => {
+            axios.get('http://localhost:3000/audit', {
+                headers: { authorization: token }
+            })
+            .then(res => {
+                setRegistros(res.data);
+                setActualizado(new Date());
+            })
+            .catch(() => {
+                alert('No tienes permisos de administrador para ver esta sección.');
+                navigate('/perfil-publico');
+            });
+        };
+
+        cargar();
+        const intervalo = setInterval(cargar, 5000);
+        return () => clearInterval(intervalo);
     }, [navigate]);
 
     const colorEstado = (estado) => {
@@ -40,6 +50,9 @@ function Audit() {
     return (
         <div style={{ padding: '40px', color: 'white' }}>
             <h2>Auditoría - Últimas 100 peticiones a la API</h2>
+            <p style={{ color: '#a1a1aa', fontSize: '13px', margin: 0 }}>
+                Se actualiza sola cada 5 segundos{actualizado ? ` · última vez: ${actualizado.toLocaleTimeString()}` : ''}
+            </p>
 
             <button
                 onClick={() => navigate('/admin')}

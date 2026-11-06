@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import conNegrita from '../formato';
 
 const API = 'http://localhost:3000';
 
@@ -127,7 +128,7 @@ function Games() {
                                     <div style={estilos.columnaDerecha}>
                                         <div style={estilos.tarjetaInfo}>
                                             <h2 style={estilos.infoTitulo}>{destacado.title}</h2>
-                                            <p style={estilos.infoDescripcion}>{destacado.description}</p>
+                                            <p style={estilos.infoDescripcion}>{conNegrita(destacado.description)}</p>
                                             <p style={estilos.infoDato}>{destacado.subject || 'Juego educativo'}</p>
                                             <div style={estilos.filaBoton}>
                                                 <Link to={`/games/${destacado.id}`} style={estilos.botonJugar}>Jugar ahora</Link>
@@ -393,6 +394,7 @@ const estilos = {
         lineHeight: 1.45,
         margin: 0,
         flex: 1,
+        whiteSpace: 'pre-line',
         // Si la descripcion es muy larga la cortamos en 4 renglones
         display: '-webkit-box',
         WebkitLineClamp: 4,

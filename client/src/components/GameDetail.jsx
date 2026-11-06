@@ -347,8 +347,26 @@ function GameDetail() {
                     {pestaña === 'valoraciones' && (
                         <>
                             <h2 style={estilos.subtitulo}>Valoraciones</h2>
-                            {/* Acá van las valoraciones y los comentarios (parte de Luciano) */}
-                            <p style={estilos.textoVacio}>Todavía no hay valoraciones para este juego.</p>
+                            {tieneValoraciones ? (
+                                <div style={estilos.resumenValoraciones}>
+                                    <div style={estilos.promedioGrande}>{game.avgRating}</div>
+                                    <div>
+                                        <div style={estilos.estrellas}>
+                                            {[1, 2, 3, 4, 5].map((n) => (
+                                                <svg key={n} width="20" height="20" viewBox="0 0 24 24" fill={n <= Math.round(game.avgRating) ? '#fbbf24' : '#3a3760'}>
+                                                    <path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" />
+                                                </svg>
+                                            ))}
+                                        </div>
+                                        <div style={estilos.autorDato}>
+                                            {game.ratingsCount === 1 ? '1 valoración' : `${game.ratingsCount} valoraciones`}
+                                            {game.myRating ? ` · tu voto: ${game.myRating} de 5` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <p style={estilos.textoVacio}>Todavía no hay valoraciones para este juego. ¡Sé el primero en votar con las estrellas de arriba!</p>
+                            )}
                         </>
                     )}
                 </div>
@@ -744,6 +762,21 @@ const estilos = {
         borderRadius: '14px',
         border: bordeTarjeta,
         display: 'block',
+    },
+    resumenValoraciones: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px',
+        background: fondoTarjeta,
+        border: '1px solid rgba(143, 132, 255, 0.25)',
+        borderRadius: '14px',
+        padding: '20px 26px',
+    },
+    promedioGrande: {
+        color: '#ffffff',
+        fontSize: '40px',
+        fontWeight: '700',
+        lineHeight: 1,
     },
     textoVacio: {
         color: textoGris,

@@ -1,6 +1,8 @@
 const Audit = require('../models/Audit')
 
 const audit = (req, res, next) => {
+    if (req.method === 'GET' && req.originalUrl === '/audit') return next()
+
     const inicio = Date.now()
 
     res.on('finish', async () => {

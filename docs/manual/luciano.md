@@ -182,6 +182,26 @@ Algunos juegos guardan tu avance (por ejemplo, los niveles que ya pasaste). Dón
 
 ---
 
+## Valorar un juego con estrellas
+
+En la página de cada juego podés darle de **1 a 5 estrellas**. El promedio y la cantidad de votos se ven arriba, al lado del autor.
+
+**Pasos**
+1. Iniciá sesión.
+2. Entrá a un juego desde **Juegos**.
+3. Debajo de los botones dice **"Valorá este juego:"**. Pasá el mouse por las estrellas y hacé clic en la que quieras.
+4. Aparece **"Tu valoración: N de 5"** y el promedio se actualiza al instante.
+5. Para cambiar tu voto, hacé clic en otra estrella. Cada persona tiene un solo voto por juego.
+
+> El autor no ve las estrellas en sus propios juegos: nadie puede votarse a sí mismo.
+
+**Posibles errores**
+- **"Tenés que iniciar sesión para valorar juegos."**: votar requiere una cuenta. Te lleva a **Iniciar sesión**.
+- **"No podés valorar tu propio juego"**: ese juego lo subiste vos.
+- **"La valoración tiene que ser de 1 a 5 estrellas"**: el voto no es válido. Volvé a hacer clic en una estrella.
+
+---
+
 ## Formato en la descripción de un juego
 
 Al escribir la descripción de un juego podés darle un poco de formato:

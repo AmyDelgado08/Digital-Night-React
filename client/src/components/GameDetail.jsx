@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import conNegrita from '../formato';
 
 const API = 'http://localhost:3000';
 
@@ -206,7 +205,7 @@ function GameDetail() {
                         </div>
 
                         <h1 style={estilos.titulo}>{game.title}</h1>
-                        <p style={estilos.resumen}>{conNegrita(game.description)}</p>
+                        <p style={estilos.resumen}>{game.description}</p>
 
                         <div style={estilos.autor}>
                             <div style={estilos.avatar}>{inicialesAutor}</div>
@@ -338,7 +337,7 @@ function GameDetail() {
                     {pestaña === 'descripcion' && (
                         <>
                             <h2 style={estilos.subtitulo}>Sobre el juego</h2>
-                            <p style={estilos.parrafo}>{conNegrita(game.description)}</p>
+                            <p style={estilos.parrafo}>{game.description}</p>
                             {seccionCapturas}
                         </>
                     )}
@@ -534,7 +533,6 @@ const estilos = {
         lineHeight: 1.6,
         margin: '0 0 22px',
         maxWidth: '380px',
-        whiteSpace: 'pre-line',
     },
     autor: {
         display: 'flex',

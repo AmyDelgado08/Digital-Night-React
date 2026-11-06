@@ -1,6 +1,7 @@
 const Game = require('../models/GameModel');
 const Favorite = require('../models/Favorite');
 const PlayHistory = require('../models/PlayHistory');
+const Jugada = require('../models/Jugada');
 
 // Guardar un juego en favoritos
 const addFavorite = async (req, res) => {
@@ -56,8 +57,11 @@ const playGame = async (req, res) => {
             return res.status(404).json({ message: 'Juego no encontrado' });
         }
 
-        //Sumamos 1 a las jugadas
-        await game.update({ plays: game.plays + 1 });
+        //Sumamos 1 a las jugadas, pero solo la primera vez que juega cada IP (asi no se pueden inflar)
+        const [, esNueva] = await Jugada.findOrCreate({ where: { gameId: game.id, ip: req.ip } });
+        if (esNueva) {
+            await game.update({ plays: game.plays + 1 });
+        }
 
         //Si inicio sesion guardamos cuando lo jugo
         if (req.user) {

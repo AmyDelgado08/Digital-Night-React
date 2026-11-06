@@ -4,6 +4,16 @@ import axios from 'axios';
 import logo from '../img/logo.png';
 import fondo from '../img/Arcos orbitales bajo estrellas violetas.png';
 
+const estaVencido = (token) => {
+    try {
+        const parteDelMedio = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+        const datos = JSON.parse(atob(parteDelMedio));
+        return datos.exp * 1000 < Date.now();
+    } catch {
+        return true;
+    }
+};
+
 function ResetPassword() {
     const { token } = useParams();
     const navigate = useNavigate();
@@ -18,6 +28,7 @@ function ResetPassword() {
     const [mensaje, setMensaje] = useState('');
     const [error, setError] = useState('');
     const [cargando, setCargando] = useState(false);
+    const vencido = estaVencido(token);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -81,6 +92,16 @@ function ResetPassword() {
                     </div>
                 )}
 
+                {vencido ? (
+                    <>
+                        <div style={styles.alertaError}>
+                            Este enlace venció o no es válido. Los enlaces duran 15 minutos: pedí uno nuevo.
+                        </div>
+                        <button type="button" onClick={() => navigate('/olvide-password')} style={styles.botonPrincipal}>
+                            Pedir un enlace nuevo
+                        </button>
+                    </>
+                ) : (
                 <form onSubmit={handleSubmit} style={styles.formulario}>
                     {/* Nueva contraseña con Ojo */}
                     <div style={styles.contenedorPassword}>
@@ -126,6 +147,7 @@ function ResetPassword() {
                         {cargando ? 'Actualizando...' : 'Restablecer contraseña'}
                     </button>
                 </form>
+                )}
 
                 <div style={styles.separador}>
                     <div style={styles.lineaSeparador}></div>

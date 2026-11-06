@@ -671,7 +671,20 @@ Registra cada acción enviada a la API backend: qué usuario la solicitó, hacia
 Arriba de la tabla hay tres filtros que se pueden combinar:
 1. **Buscar por usuario o ruta**: escribí parte de un email o de una ruta (por ejemplo, `login`).
 2. **Método**: mostrá solo `GET`, `POST`, `PUT` o `DELETE`.
-3. **Estado**: **Correctas** (200-399), **Errores** (400 o más) o **Bloqueadas por rate limit** (429).
+3. **Estado**: un código en particular. Cada uno significa algo distinto (ver la tabla de abajo).
+
+| Código | Qué significa |
+|---|---|
+| **200** OK | Salió bien |
+| **201** Creado | Se creó algo nuevo (por ejemplo, una cuenta) |
+| **304** Sin cambios | El navegador ya tenía esos datos guardados y no hizo falta mandarlos de nuevo |
+| **400** Datos inválidos | Algún dato estaba mal escrito o faltaba |
+| **401** Sin sesión | No había sesión iniciada o venció |
+| **403** Sin permiso | Había sesión, pero no tenía permiso (por ejemplo, no es administrador) |
+| **404** No encontrado | Lo pedido no existe |
+| **409** Ya existe | Choca con algo que ya existe (por ejemplo, un email repetido) |
+| **429** Demasiadas peticiones | Bloqueado por el límite de intentos |
+| **500** Error del servidor | Falló algo del lado del servidor |
 
 Abajo de los filtros dice **"Mostrando X de Y"**: cuántas filas quedaron sobre el total. Los filtros buscan dentro de las últimas 100 acciones.
 

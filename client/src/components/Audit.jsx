@@ -33,9 +33,7 @@ function Audit() {
         const usuarioYRuta = `${r.email || ''} ${r.ruta}`.toLowerCase();
         if (texto && !usuarioYRuta.includes(texto.toLowerCase())) return false;
         if (metodo && r.metodo !== metodo) return false;
-        if (estado === 'ok' && r.estado >= 400) return false;
-        if (estado === 'error' && r.estado < 400) return false;
-        if (estado === '429' && r.estado !== 429) return false;
+        if (estado && r.estado !== Number(estado)) return false;
         return true;
     });
 
@@ -65,9 +63,16 @@ function Audit() {
                 </select>
                 <select value={estado} onChange={(e) => setEstado(e.target.value)} style={estiloFiltro}>
                     <option value="">Todos los estados</option>
-                    <option value="ok">Correctas (200-399)</option>
-                    <option value="error">Errores (400 o más)</option>
-                    <option value="429">Bloqueadas por rate limit (429)</option>
+                    <option value="200">200 - OK</option>
+                    <option value="201">201 - Creado</option>
+                    <option value="304">304 - Sin cambios</option>
+                    <option value="400">400 - Datos inválidos</option>
+                    <option value="401">401 - Sin sesión</option>
+                    <option value="403">403 - Sin permiso</option>
+                    <option value="404">404 - No encontrado</option>
+                    <option value="409">409 - Ya existe</option>
+                    <option value="429">429 - Demasiadas peticiones</option>
+                    <option value="500">500 - Error del servidor</option>
                 </select>
             </div>
             <p style={{ color: '#a1a1aa', fontSize: '13px' }}>Mostrando {filtrados.length} de {registros.length}</p>

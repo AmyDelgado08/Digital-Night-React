@@ -20,18 +20,22 @@ Este documento unifica las guías de uso elaboradas por todo el equipo de desarr
    * [2.4 Límite de intentos y protección](#24-límite-de-intentos-y-protección) *(Luciano)*
    * [2.5 Recuperar la contraseña](#25-recuperar-la-contraseña) *(Diego)*
    * [2.6 Cambiar la contraseña desde tu perfil](#26-cambiar-la-contraseña-desde-tu-perfil) *(Amy)*
-3. [Catálogo, Búsqueda y Detalle de Juegos](#3-catálogo-búsqueda-y-detalle-de-juegos) *(Tamara y Amy)*
+   * [2.7 Mails de DigitalNight](#27-mails-de-digitalnight) *(Luciano)*
+   * [2.8 Cierre de sesión automático](#28-cierre-de-sesión-automático) *(Luciano)*
+3. [Catálogo, Búsqueda y Detalle de Juegos](#3-catálogo-búsqueda-y-detalle-de-juegos) *(Tamara, Amy y Luciano)*
    * [3.1 Catálogo y búsqueda](#31-catálogo-y-búsqueda) *(Tamara)*
    * [3.2 Ver el detalle de un juego](#32-ver-el-detalle-de-un-juego) *(Amy)*
    * [3.3 Jugar, guardar en favoritos y compartir](#33-jugar-guardar-en-favoritos-y-compartir) *(Amy)*
+   * [3.4 Progreso de los juegos y contador de jugadas](#34-progreso-de-los-juegos-y-contador-de-jugadas) *(Luciano)*
 4. [Biblioteca Personal](#4-biblioteca-personal) *(Amy)*
    * [4.1 Uso de la Biblioteca: Favoritos e Historial](#41-uso-de-la-biblioteca-favoritos-e-historial) *(Amy)*
-5. [Creación y Gestión de Videojuegos](#5-creación-y-gestión-de-videojuegos) *(Adrian y JoseLuis)*
+5. [Creación y Gestión de Videojuegos](#5-creación-y-gestión-de-videojuegos) *(Adrian, JoseLuis y Luciano)*
    * [5.1 Crear y publicar un juego](#51-crear-y-publicar-un-juego) *(Adrian)*
    * [5.2 Subir portada, capturas y archivo del juego](#52-subir-portada-capturas-y-archivo-del-juego) *(Adrian)*
    * [5.3 Estados del juego y flujo de moderación](#53-estados-del-juego-y-flujo-de-moderación) *(JoseLuis)*
    * [5.4 Mis creaciones y edición](#54-mis-creaciones-y-edición) *(JoseLuis y Adrian)*
    * [5.5 Eliminar un juego](#55-eliminar-un-juego) *(Adrian)*
+   * [5.6 Formato en la descripción de un juego](#56-formato-en-la-descripción-de-un-juego) *(Luciano)*
 6. [Perfiles y Privacidad](#6-perfiles-y-privacidad) *(Tamara y Luciano)*
    * [6.1 Mi perfil y perfiles públicos](#61-mi-perfil-y-perfiles-públicos) *(Tamara)*
    * [6.2 Editar datos y biografía](#62-editar-datos-y-biografía) *(Tamara)*
@@ -214,8 +218,8 @@ Permite restablecer tu clave si te la olvidaste mediante un enlace temporal segu
 **Pasos:**
 1. En la pantalla de login, hacé clic en **¿Olvidaste tu contraseña?** (o entrá a `/olvide-password`).
 2. Escribí tu correo electrónico y presioná **Enviar enlace de recuperación**.
-3. Verás el aviso: *"Si el email existe, te enviamos un enlace para restablecer tu contraseña"*.
-4. **En entorno de desarrollo:** Abrí la terminal donde corre el backend (`api`); allí verás impreso el enlace generado:
+3. Verás el aviso: *"Si el email existe, te enviamos un enlace para restablecer tu contraseña"*. Te llega el mail **"Restablecer tu contraseña de Digital Night"** con el botón **Elegir contraseña nueva** (ver [2.7 Mails de DigitalNight](#27-mails-de-digitalnight)).
+4. **En entorno de desarrollo sin mail configurado:** Abrí la terminal donde corre el backend (`api`); allí verás impreso el enlace generado:
    ```text
    Enlace de restablecimiento para usuario@ejemplo.com:
    http://localhost:5173/restablecer/eyJhbGciOi...
@@ -253,6 +257,36 @@ Te permite actualizar tu contraseña cuando recordás la actual desde tu panel d
 * **"La nueva contraseña y la confirmación no coinciden"**: Ambos campos deben coincidir.
 * **"La contraseña actual es incorrecta"**: Verificá tu clave actual. Si la olvidaste, cerrá sesión y usá la opción de recuperación.
 * **"La nueva contraseña debe tener al menos 8 caracteres"**: La clave debe cumplir con la longitud mínima.
+
+---
+
+### 2.7 Mails de DigitalNight
+
+Cuando hace falta avisarte algo, DigitalNight te manda un mail desde su cuenta oficial (**digitalnight.et26@gmail.com**). Los mails tienen el logo y los colores de la página, y un botón para ir directo a donde tenés que ir.
+
+**Qué mails llegan**
+1. **"Bienvenido a Digital Night"**: llega apenas creás tu cuenta. El botón **Explorar juegos** te lleva al catálogo.
+2. **"Restablecer tu contraseña de Digital Night"**: llega cuando usás **¿Olvidaste tu contraseña?**. El botón **Elegir contraseña nueva** abre la pantalla para cambiarla. Sirve por **15 minutos**.
+
+**Posibles errores**
+- **No me llegó el mail**: revisá la carpeta de spam o promociones, y que el email esté bien escrito. Si pediste recuperar la contraseña, podés volver a pedirlo (hasta 5 veces por minuto).
+- **"El enlace no es válido o venció"**: pasaron más de 15 minutos. Pedí un mail nuevo.
+
+> Si corrés el proyecto en tu computadora sin configurar el mail (`MAIL_USER` y `MAIL_PASS` en `api/.env`), no se manda nada y el enlace de recuperación aparece en la terminal del backend.
+
+---
+
+### 2.8 Cierre de sesión automático
+
+Por seguridad, la sesión dura **8 horas**. Cuando vence, DigitalNight la cierra sola para que no quedes en una pantalla que no funciona.
+
+**Qué pasa**
+1. Si abrís la página con la sesión ya vencida (por ejemplo, al otro día), se cierra al instante.
+2. Si vence mientras la usás, se cierra la próxima vez que hagas algo.
+3. En los dos casos aparece el cartel **"Tu sesión venció. Volvé a iniciar sesión."** y te lleva a **Iniciar sesión**. El menú vuelve a mostrar **Iniciar sesión** y **Registrarse**.
+
+**Qué hacer**
+- Iniciá sesión de nuevo. No perdés nada: tus favoritos, tus juegos y tu progreso siguen guardados en tu cuenta.
 
 ---
 
@@ -307,7 +341,7 @@ Muestra la información completa de una publicación: temática, autor, capturas
 Son los tres botones de interacción principal ubicados debajo de la descripción:
 
 **Funcionalidades:**
-1. **Jugar ahora**: Abre el juego en una nueva pestaña y suma una jugada al contador. Si tenés la sesión iniciada, quedará registrado en tu Biblioteca en "Jugados recientemente".
+1. **Jugar ahora**: Abre el juego en una nueva pestaña y suma una jugada al contador (una sola vez por conexión, ver [3.4](#34-progreso-de-los-juegos-y-contador-de-jugadas)). Si tenés la sesión iniciada, quedará registrado en tu Biblioteca en "Jugados recientemente".
 2. **Guardar**: Añade el título a tus favoritos personales. El botón se vuelve violeta y cambia su texto a **Guardado**. Al tocarlo nuevamente, se remueve.
 3. **Compartir**: Copia la URL directa de la publicación al portapapeles para compartirla por cualquier canal.
 
@@ -315,6 +349,24 @@ Son los tres botones de interacción principal ubicados debajo de la descripció
 * **"Tenés que iniciar sesión para guardar juegos en favoritos"**: Se requiere cuenta activa para guardar favoritos.
 * **"Este juego todavía no tiene un link ni un archivo para jugar"**: El autor no especificó un enlace externo ni subió un ejecutable.
 * **"No se pudo copiar"**: Si tu navegador restringe el portapapeles, copiá la URL directamente desde la barra de direcciones.
+
+---
+
+### 3.4 Progreso de los juegos y contador de jugadas
+
+Algunos juegos guardan tu avance (por ejemplo, los niveles que ya pasaste). Dónde se guarda depende de si iniciaste sesión.
+
+**Con sesión iniciada**
+- El progreso se guarda **en tu cuenta**. Podés seguir desde cualquier computadora o celular entrando con tu usuario.
+
+**Sin sesión (invitado)**
+- El progreso se guarda **solo en ese navegador y por 24 horas**. Si cerrás el juego sin querer, no lo perdés; pasadas las 24 horas se borra solo.
+- En la página del juego aparece el aviso **"Estás jugando como invitado: tu progreso se guarda en este navegador solo por 24 horas. Para guardarlo siempre, iniciá sesión o creá una cuenta."**, con links para hacerlo.
+
+**Contador de jugadas**
+- **Jugar ahora** suma una jugada la primera vez que se juega desde cada conexión (IP). Volver a apretarlo no suma más, así el número muestra cuánta gente distinta lo jugó.
+
+> El aviso de invitado solo aparece en los juegos que guardan progreso.
 
 ---
 
@@ -463,6 +515,17 @@ Quita definitivamente un juego propio de DigitalNight junto a sus valoraciones, 
 
 ---
 
+### 5.6 Formato en la descripción de un juego
+
+Al escribir la descripción de un juego podés darle un poco de formato:
+
+1. **Saltos de línea**: cada **Enter** que pongas se respeta, así podés separar el texto en renglones o párrafos.
+2. **Negrita**: poné el texto entre dos asteriscos dobles. Por ejemplo, `**Controles:**` se ve como **Controles:**.
+
+Se ve así en el detalle del juego y en el juego destacado del catálogo.
+
+---
+
 ## 6. Perfiles y Privacidad
 
 ### 6.1 Mi perfil y perfiles públicos
@@ -602,6 +665,15 @@ Registra cada acción enviada a la API backend: qué usuario la solicitó, hacia
 * **Tiempo:** Milisegundos que tardó el servidor en procesar la respuesta.
 * **IP:** Dirección de conexión del cliente.
 * **Origen:** Página previa desde la cual se ejecutó la acción.
+
+**Filtros**
+
+Arriba de la tabla hay tres filtros que se pueden combinar:
+1. **Buscar por usuario o ruta**: escribí parte de un email o de una ruta (por ejemplo, `login`).
+2. **Método**: mostrá solo `GET`, `POST`, `PUT` o `DELETE`.
+3. **Estado**: **Correctas** (200-399), **Errores** (400 o más) o **Bloqueadas por rate limit** (429).
+
+Abajo de los filtros dice **"Mostrando X de Y"**: cuántas filas quedaron sobre el total. Los filtros buscan dentro de las últimas 100 acciones.
 
 **Posibles errores:**
 * **"No tienes permisos de administrador para ver esta sección."**: Tu usuario no cuenta con rol de administrador.

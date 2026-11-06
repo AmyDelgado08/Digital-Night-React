@@ -106,9 +106,77 @@ La auditoría guarda un registro de cada acción que llega al servidor: quién l
 - **IP**: la dirección de la conexión de quien hizo la acción.
 - **Origen**: desde qué página se hizo, o **"-"** si no se sabe.
 
+**Filtros**
+
+Arriba de la tabla hay tres filtros que se pueden combinar:
+1. **Buscar por usuario o ruta**: escribí parte de un email o de una ruta (por ejemplo, `login`).
+2. **Método**: mostrá solo `GET`, `POST`, `PUT` o `DELETE`.
+3. **Estado**: **Correctas** (200-399), **Errores** (400 o más) o **Bloqueadas por rate limit** (429).
+
+Abajo de los filtros dice **"Mostrando X de Y"**: cuántas filas quedaron sobre el total. Los filtros buscan dentro de las últimas 100 acciones.
+
 **Posibles errores**
 - **"No tienes permisos de administrador para ver esta sección."**: tu cuenta no es administradora. Solo los administradores pueden ver la auditoría.
 - **Te manda a la pantalla de inicio de sesión**: tu sesión no está iniciada o venció (dura 8 horas). Volvé a iniciar sesión.
+
+---
+
+## Mails de DigitalNight
+
+Cuando hace falta avisarte algo, DigitalNight te manda un mail desde su cuenta oficial (**digitalnight.et26@gmail.com**). Los mails tienen el logo y los colores de la página, y un botón para ir directo a donde tenés que ir.
+
+**Qué mails llegan**
+1. **"Bienvenido a Digital Night"**: llega apenas creás tu cuenta. El botón **Explorar juegos** te lleva al catálogo.
+2. **"Restablecer tu contraseña de Digital Night"**: llega cuando usás **¿Olvidaste tu contraseña?**. El botón **Elegir contraseña nueva** abre la pantalla para cambiarla. Sirve por **15 minutos**.
+
+**Posibles errores**
+- **No me llegó el mail**: revisá la carpeta de spam o promociones, y que el email esté bien escrito. Si pediste recuperar la contraseña, podés volver a pedirlo (hasta 5 veces por minuto).
+- **"El enlace no es válido o venció"**: pasaron más de 15 minutos. Pedí un mail nuevo.
+
+> Si corrés el proyecto en tu computadora sin configurar el mail (`MAIL_USER` y `MAIL_PASS` en `api/.env`), no se manda nada y el enlace de recuperación aparece en la terminal del backend.
+
+---
+
+## Cierre de sesión automático
+
+Por seguridad, la sesión dura **8 horas**. Cuando vence, DigitalNight la cierra sola para que no quedes en una pantalla que no funciona.
+
+**Qué pasa**
+1. Si abrís la página con la sesión ya vencida (por ejemplo, al otro día), se cierra al instante.
+2. Si vence mientras la usás, se cierra la próxima vez que hagas algo.
+3. En los dos casos aparece el cartel **"Tu sesión venció. Volvé a iniciar sesión."** y te lleva a **Iniciar sesión**. El menú vuelve a mostrar **Iniciar sesión** y **Registrarse**.
+
+**Qué hacer**
+- Iniciá sesión de nuevo. No perdés nada: tus favoritos, tus juegos y tu progreso siguen guardados en tu cuenta.
+
+---
+
+## Progreso de los juegos y contador de jugadas
+
+Algunos juegos guardan tu avance (por ejemplo, los niveles que ya pasaste). Dónde se guarda depende de si iniciaste sesión.
+
+**Con sesión iniciada**
+- El progreso se guarda **en tu cuenta**. Podés seguir desde cualquier computadora o celular entrando con tu usuario.
+
+**Sin sesión (invitado)**
+- El progreso se guarda **solo en ese navegador y por 24 horas**. Si cerrás el juego sin querer, no lo perdés; pasadas las 24 horas se borra solo.
+- En la página del juego aparece el aviso **"Estás jugando como invitado: tu progreso se guarda en este navegador solo por 24 horas. Para guardarlo siempre, iniciá sesión o creá una cuenta."**, con links para hacerlo.
+
+**Contador de jugadas**
+- **Jugar ahora** suma una jugada la primera vez que se juega desde cada conexión (IP). Volver a apretarlo no suma más, así el número muestra cuánta gente distinta lo jugó.
+
+> El aviso de invitado solo aparece en los juegos que guardan progreso.
+
+---
+
+## Formato en la descripción de un juego
+
+Al escribir la descripción de un juego podés darle un poco de formato:
+
+1. **Saltos de línea**: cada **Enter** que pongas se respeta, así podés separar el texto en renglones o párrafos.
+2. **Negrita**: poné el texto entre dos asteriscos dobles. Por ejemplo, `**Controles:**` se ve como **Controles:**.
+
+Se ve así en el detalle del juego y en el juego destacado del catálogo.
 
 ---
 
@@ -119,7 +187,7 @@ Cuando algo sale mal, el servidor responde con un **código** y un mensaje. Esta
 | Código | Qué significa | Mensajes que podés ver | Qué hacer |
 |---|---|---|---|
 | **400** | Algún dato está mal escrito o falta | "El email no es válido", "La contraseña debe tener al menos 8 caracteres", "Ese email ya está en uso", "Usuario o contraseña incorrecta", "Petición inválida" | Leé el mensaje, corregí el campo que indica y volvé a enviar. |
-| **401** | No iniciaste sesión o tu sesión venció | "No autenticado", "Token no proporcionado", "Error al acceder" | Iniciá sesión de nuevo. La sesión dura 8 horas. |
+| **401** | No iniciaste sesión o tu sesión venció | "No autenticado", "Token no proporcionado", "Error al acceder", "Tu sesión venció. Volvé a iniciar sesión." | Iniciá sesión de nuevo. La sesión dura 8 horas. |
 | **403** | Iniciaste sesión, pero no tenés permiso para eso | "Acceso denegado", "No tienes permiso para esta acción", "Este juego no está disponible o se encuentra en revisión" | Esa acción es solo para administradores o para el dueño del contenido. Si el juego está en revisión, esperá a que lo aprueben. |
 | **404** | Lo que buscás no existe | "Juego no encontrado", "Usuario no encontrado", "Ruta no encontrada", página **404** | Revisá el link. Puede que el contenido haya sido borrado. |
 | **409** | El dato está bien escrito, pero choca con uno que ya existe | "El email ya está registrado" | Usá otro email o iniciá sesión con esa cuenta. |

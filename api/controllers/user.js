@@ -2,6 +2,7 @@ const User = require("../models/User");
 const Game = require("../models/GameModel");
 const Favorite = require("../models/Favorite");
 const PlayHistory = require("../models/PlayHistory");
+const Rating = require("../models/Rating");
 const bcrypt = require("bcrypt"); //libreria para encriptar contras
 const jwt = require("jsonwebtoken"); //libreria para crear los tokens d sesion
 const enviarMail = require("../utils/mailer");
@@ -282,6 +283,19 @@ const createUserByAdmin = async (req, res) => {
   }
 };
 
+// Promedio de estrellas de varios juegos de una vez. Devuelve { idDelJuego: promedio } (null si no tiene votos)
+const promediosDe = async (ids) => {
+  const ratings = await Rating.findAll({ where: { gameId: ids } });
+  const promedios = {};
+  for (const id of ids) {
+    const votos = ratings.filter((r) => r.gameId === id);
+    promedios[id] = votos.length
+      ? Number((votos.reduce((total, r) => total + r.score, 0) / votos.length).toFixed(1))
+      : null;
+  }
+  return promedios;
+};
+
 const getProfile = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
@@ -341,6 +355,9 @@ const getProfile = async (req, res) => {
       limit: 12,
     });
 
+    const todos = [...games, ...favorites.map((f) => f.Game), ...history.map((h) => h.Game)];
+    const promedios = await promediosDe([...new Set(todos.map((g) => g.id))]);
+
     const profile = user.toJSON();
 
     delete profile.password;
@@ -362,12 +379,13 @@ const getProfile = async (req, res) => {
 
       publishedGamesCount: games.length,
 
-      games: games.map((game) => game.toJSON()),
+      games: games.map((game) => ({ ...game.toJSON(), averageRating: promedios[game.id] })),
 
-      favorites: favorites.map((fav) => fav.Game.toJSON()),
+      favorites: favorites.map((fav) => ({ ...fav.Game.toJSON(), averageRating: promedios[fav.Game.id] })),
 
       recentlyPlayed: history.map((item) => ({
         ...item.Game.toJSON(),
+        averageRating: promedios[item.Game.id],
         lastPlayedAt: item.lastPlayedAt,
       })),
     });

@@ -5,6 +5,9 @@ import axios from 'axios';
 function Audit() {
     const navigate = useNavigate();
     const [registros, setRegistros] = useState([]);
+    const [texto, setTexto] = useState('');
+    const [metodo, setMetodo] = useState('');
+    const [estado, setEstado] = useState('');
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -26,6 +29,16 @@ function Audit() {
         return '#22c55e';
     };
 
+    const filtrados = registros.filter(r => {
+        const usuarioYRuta = `${r.email || ''} ${r.ruta}`.toLowerCase();
+        if (texto && !usuarioYRuta.includes(texto.toLowerCase())) return false;
+        if (metodo && r.metodo !== metodo) return false;
+        if (estado === 'ok' && r.estado >= 400) return false;
+        if (estado === 'error' && r.estado < 400) return false;
+        if (estado === '429' && r.estado !== 429) return false;
+        return true;
+    });
+
     return (
         <div style={{ padding: '40px', color: 'white' }}>
             <h2>Auditoría - Últimas 100 peticiones a la API</h2>
@@ -36,14 +49,37 @@ function Audit() {
                 Volver al panel
             </button>
 
-            <table style={{ width: '100%', marginTop: '20px', borderCollapse: 'collapse', fontSize: '14px' }}>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '20px' }}>
+                <input
+                    placeholder="Buscar por usuario o ruta"
+                    value={texto}
+                    onChange={(e) => setTexto(e.target.value)}
+                    style={estiloFiltro}
+                />
+                <select value={metodo} onChange={(e) => setMetodo(e.target.value)} style={estiloFiltro}>
+                    <option value="">Todos los métodos</option>
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                </select>
+                <select value={estado} onChange={(e) => setEstado(e.target.value)} style={estiloFiltro}>
+                    <option value="">Todos los estados</option>
+                    <option value="ok">Correctas (200-399)</option>
+                    <option value="error">Errores (400 o más)</option>
+                    <option value="429">Bloqueadas por rate limit (429)</option>
+                </select>
+            </div>
+            <p style={{ color: '#a1a1aa', fontSize: '13px' }}>Mostrando {filtrados.length} de {registros.length}</p>
+
+            <table style={{ width: '100%', marginTop: '10px', borderCollapse: 'collapse', fontSize: '14px' }}>
                 <thead>
                     <tr style={{ textAlign: 'left', borderBottom: '1px solid #4b5563' }}>
                         <th>Fecha</th><th>Usuario</th><th>Método</th><th>Ruta</th><th>Estado</th><th>Tiempo</th><th>IP</th><th>Origen</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {registros.map(r => (
+                    {filtrados.map(r => (
                         <tr key={r.id} style={{ borderBottom: '1px solid #374151' }}>
                             <td style={{ padding: '10px 0' }}>{new Date(r.createdAt).toLocaleString()}</td>
                             <td>{r.email || 'Sin loguear'}</td>
@@ -60,5 +96,14 @@ function Audit() {
         </div>
     );
 }
+
+const estiloFiltro = {
+    backgroundColor: '#141229',
+    color: 'white',
+    border: '1px solid #4b5563',
+    borderRadius: '6px',
+    padding: '8px 12px',
+    fontSize: '14px',
+};
 
 export default Audit;

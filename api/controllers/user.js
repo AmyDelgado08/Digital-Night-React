@@ -4,6 +4,7 @@ const Favorite = require("../models/Favorite");
 const PlayHistory = require("../models/PlayHistory");
 const bcrypt = require("bcrypt"); //libreria para encriptar contras
 const jwt = require("jsonwebtoken"); //libreria para crear los tokens d sesion
+const enviarMail = require("../utils/mailer");
 
 const SECRET = process.env.JWT_SECRET;
 
@@ -43,6 +44,13 @@ const registerUser = async (req, res) => {
       email,
       password: hashedPassword,
     });
+    enviarMail(
+      email,
+      "Bienvenido a Digital Night",
+      `<h2>¡Hola ${firstName}!</h2>
+       <p>Tu cuenta en <b>Digital Night</b> se creó correctamente.</p>
+       <p>Ya podés iniciar sesión y explorar los juegos de la escuela.</p>`,
+    );
     res.status(201).json({ message: "El usuario se creo exitosamente" });
   } catch (error) {
     console.error(error);

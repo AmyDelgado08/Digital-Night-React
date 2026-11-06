@@ -91,6 +91,11 @@ function AdminDashboard() {
     }
   }, []);
 
+  // Los pendientes se cargan apenas se abre el panel, para que el número de la pestaña aparezca sin entrar
+  useEffect(() => {
+    fetchPendingGames();
+  }, [fetchPendingGames]);
+
   // Carga reactiva según la pestaña activa
   useEffect(() => {
     if (activeTab === "revision") {

@@ -30,13 +30,12 @@ Este documento unifica las guías de uso elaboradas por todo el equipo de desarr
    * [3.5 Valorar un juego con estrellas](#35-valorar-un-juego-con-estrellas) *(Luciano)*
 4. [Biblioteca Personal](#4-biblioteca-personal) *(Amy)*
    * [4.1 Uso de la Biblioteca: Favoritos e Historial](#41-uso-de-la-biblioteca-favoritos-e-historial) *(Amy)*
-5. [Creación y Gestión de Videojuegos](#5-creación-y-gestión-de-videojuegos) *(Adrian, JoseLuis y Luciano)*
+5. [Creación y Gestión de Videojuegos](#5-creación-y-gestión-de-videojuegos) *(Adrian y JoseLuis)*
    * [5.1 Crear y publicar un juego](#51-crear-y-publicar-un-juego) *(Adrian)*
    * [5.2 Subir portada, capturas y archivo del juego](#52-subir-portada-capturas-y-archivo-del-juego) *(Adrian)*
    * [5.3 Estados del juego y flujo de moderación](#53-estados-del-juego-y-flujo-de-moderación) *(JoseLuis)*
    * [5.4 Mis creaciones y edición](#54-mis-creaciones-y-edición) *(JoseLuis y Adrian)*
    * [5.5 Eliminar un juego](#55-eliminar-un-juego) *(Adrian)*
-   * [5.6 Formato en la descripción de un juego](#56-formato-en-la-descripción-de-un-juego) *(Luciano)*
 6. [Perfiles y Privacidad](#6-perfiles-y-privacidad) *(Tamara y Luciano)*
    * [6.1 Mi perfil y perfiles públicos](#61-mi-perfil-y-perfiles-públicos) *(Tamara)*
    * [6.2 Editar datos y biografía](#62-editar-datos-y-biografía) *(Tamara)*
@@ -533,17 +532,6 @@ Quita definitivamente un juego propio de DigitalNight junto a sus valoraciones, 
 | Mensaje | Causa | Qué hacer |
 |---|---|---|
 | "No se pudo eliminar el juego." | Falló la red o la sesión caducó | Recargá la página, reanudá sesión e intentá de nuevo |
-
----
-
-### 5.6 Formato en la descripción de un juego
-
-Al escribir la descripción de un juego podés darle un poco de formato:
-
-1. **Saltos de línea**: cada **Enter** que pongas se respeta, así podés separar el texto en renglones o párrafos.
-2. **Negrita**: poné el texto entre dos asteriscos dobles. Por ejemplo, `**Controles:**` se ve como **Controles:**.
-
-Se ve así en el detalle del juego y en el juego destacado del catálogo.
 
 ---
 
